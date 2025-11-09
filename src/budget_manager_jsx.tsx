@@ -703,16 +703,19 @@ const BudgetApp = () => {
 
   const renderElaborationPage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Élaboration du Budget</h2>
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-3 rounded hover:bg-blue-700 transition font-semibold"
-          >
-            Afficher l'Aperçu
-          </button>
-        </div>
-        
+       <div className="flex items-center justify-between mb-6">
+        <h2 className="text-2xl font-bold text-gray-800">
+          Élaboration du Budget
+        </h2>
+        <button
+          type="submit"
+          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition duration-200 font-medium shadow-sm"
+        >
+          Afficher l’Aperçu
+        </button>
+      </div>
+
+
       <form onSubmit={handleAfficher}>
         <div className="bg-gray-50 p-6 rounded-lg mb-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
