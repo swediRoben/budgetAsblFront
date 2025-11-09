@@ -802,7 +802,10 @@ const BudgetApp = () => {
               <thead>
                 <tr className="bg-gray-200">
                   <th className="border border-gray-300 px-4 py-2 text-left">Compte</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">Beneficiaire</th>
                   <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">Ligne Budgetaire</th>
                   <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
                 </tr>
               </thead>
@@ -824,6 +827,30 @@ const BudgetApp = () => {
                         <option value="623">623 - Déplacements</option>
                       </select>
                     </td>
+                  <td className="border border-gray-300 px-2 py-2">
+                      <select
+                        value={line.bailleur}
+                        onChange={(e) => handleDetailChange(line.id, 'bailleur', e.target.value)}
+                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                        required
+                      >
+                        <option value="">source de financement</option>
+                        <option value="611">611 - CSS</option>
+                        <option value="612">612 - Banque Sociales</option>
+                      </select>
+                    </td>
+                    <td className="border border-gray-300 px-2 py-2">
+                      <select
+                        value={line.beneficiere}
+                        onChange={(e) => handleDetailChange(line.id, 'beneficiere', e.target.value)}
+                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                        required
+                      >
+                        <option value="">beneficiere</option>
+                        <option value="611">611 - Fap</option>
+                        <option value="612">612 - Empoyer</option>
+                      </select>
+                    </td>
                     <td className="border border-gray-300 px-2 py-2">
                       <input
                         type="number"
@@ -832,6 +859,17 @@ const BudgetApp = () => {
                         className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                         placeholder="0.00"
                         step="0.01"
+                        required
+                      />
+                    </td>
+                     <td className="border border-gray-300 px-2 py-2">
+                      <input
+                        type="text"
+                        value={line.ligneBudgetaire}
+                        onChange={(e) => handleDetailChange(line.id, 'ligneBudgetaire', e.target.value)}
+                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                        placeholder="ligne budgetaire" 
+                        readOnly
                         required
                       />
                     </td>
