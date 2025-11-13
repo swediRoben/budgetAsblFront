@@ -1,7 +1,55 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign } from 'lucide-react';
+import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
+import {createClasse,deleteClasse,getAllClasse,updateClasse} from "./data/classification/classes"
+
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast"; 
 
 const BudgetApp = () => {
+  const [classes,setClasses]=useState({ data: [
+    {
+      id:null,
+      libelle:null
+    }
+  ] })
+  const [plancomptables, setPlancomptables] = useState({ data: [] });
+  const [projets, setProjets] = useState({ data: [] });
+  const [categories, setCategories] = useState([]);
+  const [activites, setActivites] = useState({data: []});
+
+  // GET
+  const dataClasse =async ()=>{
+    const data=await getAllClasse(); 
+    setClasses(data) 
+  } 
+
+  // CREATED 
+    const {
+      register: registerClasse,
+      handleSubmit: handleSubmitClasse,
+      reset: resetClasse,
+      formState: { errors: errorsClasse },
+    } = useForm();
+
+  const onSubmitClasse = async (data) => {
+          try {
+            console.log(data.id)
+            data.montant=parseFloat(data.montant) 
+            if (!data.id) { 
+              await createClasse(data);
+            } else { 
+              await updateClasse(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetClasse();
+            dataClasse()
+            closeModal();
+          } catch {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+            alert();
+          }
+      };
+
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState('classification');
   const [activeSubMenu, setActiveSubMenu] = useState('economique');
@@ -132,7 +180,7 @@ const BudgetApp = () => {
     setLiquidations([...liquidations, newLiquidation]);
     setShowLiquidationList(true);
   };
-
+  //menu
   const menuStructure = [
     {
       id: 'classification',
@@ -227,6 +275,60 @@ const BudgetApp = () => {
           icon: <TrendingUp className="w-4 h-4" />
         }
       ]
+    },
+     {
+      id: 'tresorerie',
+      name: 'Tresorerie',
+      icon: <CheckSquare className="w-5 h-5" />,
+      subMenus: [
+         { 
+          id: 'banque', 
+          name: 'Banque',
+          icon: <FileText className="w-4 h-4" />
+        },
+        { 
+          id: 'compteBancaire', 
+          name: 'Compte bancaire',
+          icon: <FileText className="w-4 h-4" />
+        },
+        { 
+          id: 'encaissement', 
+          name: 'Encaissement',
+          icon: <FileText className="w-4 h-4" />
+        },
+        { 
+          id: 'decaissement', 
+          name: 'Decaissement',
+          icon: <DollarSign className="w-4 h-4" />
+        },
+        { 
+          id: 'rapportEncaissement', 
+          name: 'Rapport Encaissement',
+          icon: <PieChart className="w-4 h-4" />
+        },
+        { 
+          id: 'rapportDecaissement', 
+          name: 'Rapport Decaissement',
+          icon: <TrendingUp className="w-4 h-4" />
+        }
+      ]
+    },
+     {
+      id: 'parametre',
+      name: 'Parametre',
+      icon: <Settings2 className="w-5 h-5" />,
+      subMenus: [
+        { 
+          id: 'exercice', 
+          name: 'Exercice',
+          icon: <FileText className="w-4 h-4" />
+        },
+        { 
+          id: 'devise', 
+          name: 'Devise',
+          icon: <BadgeDollarSign className="w-4 h-4" />
+        }
+      ]
     }
   ];
 
@@ -254,33 +356,21 @@ const BudgetApp = () => {
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">1</td>
-              <td className="border border-gray-300 px-4 py-2">Charges de Personnel</td>
+       {Array.isArray(classes?.data) &&
+                    classes.data.map((datas,i) =>( 
+
+            <tr key={datas.id} className="hover:bg-gray-50">
+              <td className="border border-gray-300 px-4 py-2">{i+1}</td>
+              <td className="border border-gray-300 px-4 py-2">{datas.libelle}</td>
               <td className="border border-gray-300 px-4 py-2">Dépense</td>
               <td className="border border-gray-300 px-4 py-2 text-center">
                 <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
                 <button className="text-red-600 hover:text-red-800">Supprimer</button>
               </td>
             </tr>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">2</td>
-              <td className="border border-gray-300 px-4 py-2">Biens et Services</td>
-              <td className="border border-gray-300 px-4 py-2">Dépense</td>
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">3</td>
-              <td className="border border-gray-300 px-4 py-2">Transferts et Subventions</td>
-              <td className="border border-gray-300 px-4 py-2">Dépense</td>
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr>
+               
+               ))}
+
           </tbody>
         </table>
       </div>
@@ -1170,6 +1260,22 @@ const BudgetApp = () => {
       
       <form onSubmit={handleAfficherEngagementList}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+             <div>
+              <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
+              <select
+                name="exercice"
+                value={formData.exercice || ''}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+                required
+                disabled
+              >
+                <option value="">Sélectionner l'exercice</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+              </select>
+            </div>
           <div>
             <label className="block text-gray-700 font-medium mb-2">Date d'Engagement</label>
             <input
@@ -1181,6 +1287,49 @@ const BudgetApp = () => {
               required
             />
           </div>
+         <div>
+            <label className="block text-gray-700 font-medium mb-2">Projet</label>
+              <select
+                name="projet"
+                value={formData.projet || ''}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+                required
+                      >
+                        <option value="">Sélectionner un projet</option>
+                        <option value="611">611 - Projet 1</option>
+                        <option value="612">612 - Projet 2</option>
+                        <option value="613">613 - Projet 3</option>
+               </select>
+            </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Ligne Budgétaire</label>
+            <select
+              name="ligneBudgetaire"
+              value={formData.ligneBudgetaire || ''}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+              required
+            >
+              <option value="">Sélectionner une ligne</option>
+              <option value="611">611 - Salaires et Traitements</option>
+              <option value="621">621 - Fournitures de Bureau</option>
+              <option value="622">622 - Services Extérieurs</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">ligne budgetaire</label>
+            <input
+              type="text"
+              name="beneficiaire"
+              value={formData.ligneBudgetaire || ''}
+              onChange={handleInputChange}
+              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+              placeholder="Nom du bénéficiaire"
+              readOnly
+            />
+          </div>
+          
           <div>
             <label className="block text-gray-700 font-medium mb-2">Bénéficiaire</label>
             <input
@@ -1190,7 +1339,7 @@ const BudgetApp = () => {
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
               placeholder="Nom du bénéficiaire"
-              required
+              readOnly
             />
           </div>
           <div>
@@ -1217,33 +1366,21 @@ const BudgetApp = () => {
               step="0.01"
               required
             />
-          </div>
+          </div>          
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Ligne Budgétaire</label>
+            <label className="block text-gray-700 font-medium mb-2">Résponsable</label>
             <select
-              name="ligneBudgetaire"
-              value={formData.ligneBudgetaire || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              required
-            >
-              <option value="">Sélectionner une ligne</option>
-              <option value="611">611 - Salaires et Traitements</option>
-              <option value="621">621 - Fournitures de Bureau</option>
-              <option value="622">622 - Services Extérieurs</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Responsable</label>
-            <input
-              type="text"
               name="responsable"
               value={formData.responsable || ''}
-              onChange={handleInputChange}
+                onChange={handleInputChange}
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Nom du responsable"
-              required
-            />
+              
+            >
+              <option value="">Sélectionner une responsable</option>
+              <option value="611">611 - FARAJA</option>
+              <option value="621">621 - MALU</option>
+              <option value="622">622 - ESPOIRE</option>
+            </select>
           </div>
         </div>
 
@@ -1251,7 +1388,7 @@ const BudgetApp = () => {
           <label className="block text-gray-700 font-medium mb-2">Observations</label>
           <textarea
             name="observationsEngagement"
-            value={formData.observationsEngagement || ''}
+            value={formData.motif || ''}
             onChange={handleInputChange}
             className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
             rows="3"
@@ -1320,6 +1457,37 @@ const BudgetApp = () => {
       
       <form onSubmit={handleAfficherLiquidationList}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+           <div>
+              <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
+              <select
+                name="exercice"
+                value={formData.exercice || ''}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+                required
+                disabled
+              >
+                <option value="">Sélectionner l'exercice</option>
+                <option value="2024">2024</option>
+                <option value="2025">2025</option>
+                <option value="2026">2026</option>
+              </select>
+            </div>
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Projet</label>
+              <select
+                name="projet"
+                value={formData.projet || ''}
+                onChange={handleInputChange}
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+                required
+                      >
+                        <option value="">Sélectionner un projet</option>
+                        <option value="611">611 - Projet 1</option>
+                        <option value="612">612 - Projet 2</option>
+                        <option value="613">613 - Projet 3</option>
+               </select>
+            </div>
           <div>
             <label className="block text-gray-700 font-medium mb-2">Référence Engagement</label>
             <select
@@ -1377,11 +1545,11 @@ const BudgetApp = () => {
             </select>
           </div>
           <div>
-            <label className="block text-gray-700 font-medium mb-2">N° de Facture</label>
+            <label className="block text-gray-700 font-medium mb-2">N° de pièce</label>
             <input
               type="text"
               name="numeroFacture"
-              value={formData.numeroFacture || ''}
+              value={formData.piece || ''}
               onChange={handleInputChange}
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
               placeholder="N° de facture"
