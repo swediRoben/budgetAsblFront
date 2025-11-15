@@ -1,8 +1,7 @@
-// src/services/projetService.js
+ 
 import axios from "axios";
-
-// Base URL de ton API
-const API_URL = "/api/classes";
+ 
+const API_URL = "http://localhost:8080/api/classes";
 
 export const getAllClasse = async () => {
   try {
@@ -14,70 +13,41 @@ export const getAllClasse = async () => {
   }
 }
 
-  export const getClasseById = async (id) => {
+  export const getClasseById = async (id:number) => {
     try {
       const response = await axios.get(`${API_URL}/${id}`);
-      return response.data;
-    } catch (error) {
-      console.error("Erreur getProjetById:", error);
+      return response;
+    } catch (error) { 
       throw error;
     }
   };
   
   
-  export const createClasse = async (data) => {
-    try {
-      
-       const token = sessionStorage.getItem("token");
-      if (!token) throw new Error("Utilisateur non authentifié");
-  
-      const response = await axios.post(API_URL, data,{
-          headers: {
-              Authorization: `Bearer ${token}`
-          }
-      });
-      return response.data;
-    } catch (error) {
-      console.error("Erreur createProjet:", error);
+  export const createClasse = async (data:any) => {
+    try { 
+      const response = await axios.post(API_URL, data);
+      return response;
+    } catch (error) { 
       throw error;
     }
   };
   
   
-  export const updateClasse = async (id, data) => {
-    try {
-      
-       const token = sessionStorage.getItem("token");
-      if (!token) throw new Error("Utilisateur non authentifié");
-  
-      const response = await axios.put(`${API_URL}/${id}`, data,{
-          headers: {
-              Authorization: `Bearer ${token}`,
-              "Content-Type":"multipart/form-data"
-          }
-      });
+  export const updateClasse = async (id:number, data:any) => {
+    try { 
+      const response = await axios.put(`${API_URL}/${id}`, data);
       return response.data;
     } catch (error) {
-      console.error("Erreur updateProjet:", error);
       throw error;
     }
   };
   
   
-  export const deleteClasse = async (id) => {
+  export const deleteClasse = async (id:number) => {
     try {
-      
-       const token = sessionStorage.getItem("token");
-      if (!token) throw new Error("Utilisateur non authentifié");
-  
-      const response = await axios.delete(`${API_URL}/${id}`,{
-          headers: {
-              Authorization: `Bearer ${token}`
-          }
-      });
+      const response = await axios.delete(`${API_URL}/${id}`);
       return response.data;
     } catch (error) {
-      console.error("Erreur deleteProjet:", error);
       throw error;
      } 
   };

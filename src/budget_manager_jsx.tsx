@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
 import {createClasse,deleteClasse,getAllClasse,updateClasse} from "./data/classification/classes"
 
@@ -6,12 +6,10 @@ import { useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
 
 const BudgetApp = () => {
-  const [classes,setClasses]=useState({ data: [
-    {
-      id:null,
-      libelle:null
-    }
-  ] })
+
+ const [classes, setClasses] = useState([])
+
+
   const [plancomptables, setPlancomptables] = useState({ data: [] });
   const [projets, setProjets] = useState({ data: [] });
   const [categories, setCategories] = useState([]);
@@ -23,6 +21,10 @@ const BudgetApp = () => {
     setClasses(data) 
   } 
 
+useEffect(() => { 
+      dataClasse();  
+}, []); 
+
   // CREATED 
     const {
       register: registerClasse,
@@ -31,10 +33,8 @@ const BudgetApp = () => {
       formState: { errors: errorsClasse },
     } = useForm();
 
-  const onSubmitClasse = async (data) => {
-          try {
-            console.log(data.id)
-            data.montant=parseFloat(data.montant) 
+  const onSubmitClasse = async (data:any) => { 
+          try { 
             if (!data.id) { 
               await createClasse(data);
             } else { 
@@ -42,13 +42,36 @@ const BudgetApp = () => {
             }
             toast.success("Operation effectuée avec succès !");
             resetClasse();
-            dataClasse()
+            dataClasse();
             closeModal();
-          } catch {
+          } catch (error:any) {
             toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
-            alert();
           }
       };
+
+  const hendleDelete=(id:number,type:string)=>{
+    try {
+       if(type==='classe'){
+      deleteClasse(id);
+    }
+    toast.success("Supression effectuée avec succès !");
+    dataClasse();
+    } catch (error) {
+    toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+      dataClasse();
+    }
+  }
+  
+ const hendleUpdata=(data:any,type:string)=>{
+  try {
+    if(type==='classe'){
+      resetClasse(data); 
+      openModal('classe')
+    }
+  } catch (error) {
+    
+  }
+ }
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeMenu, setActiveMenu] = useState('classification');
@@ -110,9 +133,10 @@ const BudgetApp = () => {
     setShowModal(true);
   };
 
+  //FERMER ET VIDER TOUS LES FORMULAIRE
   const closeModal = () => {
-    setShowModal(false);
-    setFormData({});
+    resetClasse({ id:null,code: null, libelle: null })
+    setShowModal(false); 
   };
 
   const handleInputChange = (e) => {
@@ -356,20 +380,19 @@ const BudgetApp = () => {
             </tr>
           </thead>
           <tbody>
-       {Array.isArray(classes?.data) &&
-                    classes.data.map((datas,i) =>( 
+    {classes?.map((datas, i) => (
+  <tr key={datas.id} className="hover:bg-gray-50">
+    <td className="border border-gray-300 px-4 py-2">{i+1}</td>
+    {/* <td className="border border-gray-300 px-4 py-2">{datas.code}</td> */}
+    <td className="border border-gray-300 px-4 py-2">{datas.libelle}</td>
+    <td className="border border-gray-300 px-4 py-2">Dépense</td>
+    <td className="border border-gray-300 px-4 py-2 text-center">
+      <button className="text-blue-600 hover:text-blue-800 mr-2" onClick={()=>hendleUpdata(datas,'classe')}>Modifier</button>
+      <button className="text-red-600 hover:text-red-800" onClick={()=>hendleDelete(datas.id,'classe')}>Supprimer</button>
+    </td>
+  </tr>
+))}
 
-            <tr key={datas.id} className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">{i+1}</td>
-              <td className="border border-gray-300 px-4 py-2">{datas.libelle}</td>
-              <td className="border border-gray-300 px-4 py-2">Dépense</td>
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr>
-               
-               ))}
 
           </tbody>
         </table>
@@ -1637,243 +1660,186 @@ const BudgetApp = () => {
     </div>
   );
 
-  const renderModalForm = () => {
-    if (modalType === 'classe') {
-      return (
-        <>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Code</label>
-            <input
-              type="text"
-              name="code"
-              value={formData.code || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: 1"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Libellé</label>
-            <input
-              type="text"
-              name="libelle"
-              value={formData.libelle || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: Charges de Personnel"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Type</label>
-            <select
-              name="type"
-              value={formData.type || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Sélectionner un type</option>
-              <option value="Dépense">Dépense</option>
-              <option value="Recette">Recette</option>
-            </select>
-          </div>
-        </>
-      );
-    } else if (modalType === 'planComptable') {
-      return (
-        <>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Numéro de Compte</label>
-            <input
-              type="text"
-              name="numero"
-              value={formData.numero || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: 611"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-            <input
-              type="text"
-              name="intitule"
-              value={formData.libelle || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: Salaires et Traitements"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Classe</label>
-            <select
-              name="classe"
-              value={formData.classe || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Sélectionner une classe</option>
-              <option value="Classe 1">Classe 1</option> 
-            </select>
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Statut</label>
-            <select
-              name="statut"
-              value={formData.typeCompte || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Sélectionner un type de compte</option>
-              <option value="Actif">Actif</option>
-              <option value="Inactif">passif</option>
-              <option value="Inactif">neutre</option>
-            </select>
-          </div>
-        </>
-      );
-    } else if (modalType === 'projet') {
-      return (
-        <>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">code</label>
-            <input
-              type="text"
-              name="code"
-              value={formData.code || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: 611"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-            <input
-              type="text"
-              name="intitule"
-              value={formData.libelle || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: Salaires et Traitements"
-            />
-          </div>
-          <div className="mb-4"> 
-            <label className="block text-gray-700 font-semibold mb-2">Date de début</label>
-            <input
-              type="date"
-              name="dateDebut"
-              value={formData.dateDebut || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            />
-          </div>
-          <div className="mb-4"> 
-            <label className="block text-gray-700 font-semibold mb-2">Date de fin</label>
-            <input
-              type="date"
-              name="dateFin"
-              value={formData.dateFin || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            />
-          </div>
-        </>
-      );
-    } else if (modalType === 'categorie') {
-      return (
-        <>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">code</label>
-            <input
-              type="text"
-              name="code"
-              value={formData.code || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: 611"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-            <input
-              type="text"
-              name="intitule"
-              value={formData.libelle || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: Salaires et Traitements"
-            />
-          </div>
-          <div className="mb-4"> 
-            <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-            <select
-              name="projet"
-              value={formData.projet || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Selectionner un projet</option>
-              <option value="projet1">Projet 1</option>
-              <option value="projet2">Projet 2</option>
-            </select>
-          </div>
-        </>
-      );
-    } else if (modalType === 'activite') {
-      return (
-        <>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">code</label>
-            <input
-              type="text"
-              name="code"
-              value={formData.code || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: 611"
-            />
-          </div>
-          <div className="mb-4">
-            <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-            <input
-              type="text"
-              name="intitule"
-              value={formData.libelle || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Ex: Salaires et Traitements"
-            />
-          </div>
-          <div className="mb-4"> 
-            <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-            <select
-              name="projet"
-              value={formData.projet || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Selectionner un projet</option>
-              <option value="projet1">Projet 1</option>
-              <option value="projet2">Projet 2</option>
-            </select>
-          </div>
-          <div className="mb-4"> 
-            <label className="block text-gray-700 font-semibold mb-2">categorie</label>
-            <select
-              name="categorie"
-              value={formData.categorie || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Selectionner une categorie</option>
-              <option value="categorie1">Categorie 1</option>
-              <option value="categorie2">Categorie 2</option>
-            </select>
-          </div>
-        </>
-      );
-    }
-    return null;
-  };
+  const renderModalForm = () => {  
+    if (modalType === "classe") {
+    return (
+      <form onSubmit={handleSubmitClasse(onSubmitClasse)} className='p-6'>
+        <div className="mb-4">
+          <label>Code</label>
+           <input {...registerClasse("id", { required: false})} readOnly hidden/>
+          <input {...registerClasse("code", { required: "Code obligatoire" })}
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsClasse.code ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: 1" />
+          {errorsClasse.code && <span>{"Code obligatoire"}</span>}
+        </div>
+        <div className="mb-4">
+          <label>Libellé</label>
+          <input {...registerClasse("libelle", { required: "Libellé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsClasse.code ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: Charges de Personnel" />
+          {errorsClasse.libelle && <span>{"Libellé obligatoire"}</span>}
+        </div>
+        <div className="mb-4">
+          <label>Type</label>
+          <select {...registerClasse("type", { required: "Type obligatoire" })}
+                    className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsClasse.code ? "border-red-500" : "border-gray-300"
+          }`}>
+            <option value="">Sélectionner un type</option>
+            <option value="Dépense">Dépense</option>
+            <option value="Recette">Recette</option>
+          </select>
+          {errorsClasse.type && <span>{"Type obligatoire"}</span>}
+        </div>
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer
+                 {/* {registerClasse("id").value==null ? "Enregistrer" : "Mettre à jour"} */}
+       </button>
+    </div>
+      </form>
+    );
+  }
+
+  if (modalType === "planComptable") {
+    return (
+      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2" >Numéro de Compte</label>
+          <input {...register("numero", { required: "Numéro obligatoire" })} placeholder="Ex: 611" />
+          {errors.numero && <span>{errors.numero.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
+          <input {...register("libelle", { required: "Intitulé obligatoire" })} placeholder="Ex: Salaires et Traitements" />
+          {errors.libelle && <span>{errors.libelle.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Classe</label>
+          <select {...register("classe", { required: "Classe obligatoire" })}>
+            <option value="">Sélectionner une classe</option>
+            <option value="Classe 1">Classe 1</option>
+          </select>
+          {errors.classe && <span>{errors.classe.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Statut</label>
+          <select {...register("typeCompte", { required: "Statut obligatoire" })}>
+            <option value="">Sélectionner un type de compte</option>
+            <option value="Actif">Actif</option>
+            <option value="Passif">Passif</option>
+            <option value="Neutre">Neutre</option>
+          </select>
+          {errors.typeCompte && <span>{errors.typeCompte.message}</span>}
+        </div>
+        <button type="submit">Créer</button>
+      </form>
+    );
+  }
+
+  if (modalType === "projet") {
+    return (
+      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Code</label>
+          <input {...register("code", { required: "Code obligatoire" })} />
+          {errors.code && <span>{errors.code.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
+          <input {...register("libelle", { required: "Intitulé obligatoire" })} />
+          {errors.libelle && <span>{errors.libelle.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Date de début</label>
+          <input type="date" {...register("dateDebut")} />
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Date de fin</label>
+          <input type="date" {...register("dateFin")} />
+        </div>
+        <button type="submit">Créer</button>
+      </form>
+    );
+  }
+
+  if (modalType === "categorie") {
+    return (
+      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Code</label>
+          <input {...register("code", { required: "Code obligatoire" })} />
+          {errors.code && <span>{errors.code.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
+          <input {...register("libelle", { required: "Intitulé obligatoire" })} />
+          {errors.libelle && <span>{errors.libelle.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Projet</label>
+          <select {...register("projet", { required: "Projet obligatoire" })}>
+            <option value="">Sélectionner un projet</option>
+            <option value="projet1">Projet 1</option>
+            <option value="projet2">Projet 2</option>
+          </select>
+          {errors.projet && <span>{errors.projet.message}</span>}
+        </div>
+        <button type="submit">Créer</button>
+      </form>
+    );
+  }
+
+  if (modalType === "activite") {
+    return (
+      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Code</label>
+          <input {...register("code", { required: "Code obligatoire" })} />
+          {errors.code && <span>{errors.code.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
+          <input {...register("libelle", { required: "Intitulé obligatoire" })} />
+          {errors.libelle && <span>{errors.libelle.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Projet</label>
+          <select {...register("projet", { required: "Projet obligatoire" })}>
+            <option value="">Sélectionner un projet</option>
+            <option value="projet1">Projet 1</option>
+            <option value="projet2">Projet 2</option>
+          </select>
+          {errors.projet && <span>{errors.projet.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Catégorie</label>
+          <select {...register("categorie", { required: "Catégorie obligatoire" })}>
+            <option value="">Sélectionner une catégorie</option>
+            <option value="categorie1">Catégorie 1</option>
+            <option value="categorie2">Catégorie 2</option>
+          </select>
+          {errors.categorie && <span>{errors.categorie.message}</span>}
+        </div>
+        <button type="submit">Créer</button>
+      </form>
+    );
+  }
+
+  return null;
+};
+ 
 
   const renderContent = () => {
     if (activeMenu === 'classification' && activeSubMenu === 'economique') {
@@ -2034,25 +2000,8 @@ const BudgetApp = () => {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-6">
               {renderModalForm()}
-
-              <div className="flex gap-4 mt-6">
-                <button
-                  type="button"
-                  onClick={closeModal}
-                  className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                >
-                  Enregistrer
-                </button>
-              </div>
-            </form>
+ 
           </div>
         </div>
       )}
