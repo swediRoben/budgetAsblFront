@@ -1,19 +1,37 @@
 import React, { useEffect, useState } from 'react';
 import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
-import {createClasse,deleteClasse,getAllClasse,updateClasse} from "./data/classification/classes"
+import {createClasse,deleteClasse,getAllClasse,updateClasse} from "./data/classification/classes";
+import {createPlancompte,deletePlancompte,getAllPlancompte,updatePlancompte} from "./data/classification/planComptable";
+import {createProjet,deleteProjet,getAllProjet,updateProjet} from "./data/classification/projet";
+import {createCategorie,deleteCategorie,getAllCategorie,updateCategorie,getAllCategorieByProgramme} from "./data/classification/categorie";
+import {createActivite,deleteActivite,getAllActivite,updateActivite} from "./data/classification/activite";
+import {createTypebailleur,deleteTypebailleur,getAllTypebailleur,updateTypebailleur} from "./data/classification/typebailleur";
+import {createBailleur,deleteBailleur,getAllBailleur,updateBailleur} from "./data/classification/bailleur";
+import {createBeneficiere,deleteBeneficiere,getAllBeneficiere,updateBeneficiere} from "./data/classification/beneficiere";
+import {createExercice,deleteExercice,getAllExercice,updateExercice} from "./data/classification/exercice";
+import {createDevise,deleteDevise,getAllDevise,updateDevise} from "./data/classification/devise";
+import {createPlanfontprojet,deletePlanfontprojet,getAllPlanfontprojet,updatePlanfontprojet} from "./data/classification/planfontprojet";
+import {createPlanfontnature,deletePlanfontnature,getAllPlanfontnature,updatePlanfontnature} from "./data/classification/planfontnature";
+import {createPrevision,deletePrevision,getAllPrevision,updatePrevision} from "./data/classification/prevision";
 
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
 
 const BudgetApp = () => {
 
- const [classes, setClasses] = useState([])
-
-
-  const [plancomptables, setPlancomptables] = useState({ data: [] });
-  const [projets, setProjets] = useState({ data: [] });
+ const [classes, setClasses] = useState([]) 
+  const [plancomptables, setPlancomptables] = useState([]);
+  const [projets, setProjets] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [activites, setActivites] = useState({data: []});
+  const [activites, setActivites] = useState([]);
+  const [typebailleurs, setTypebailleurs] = useState([]);
+  const [bailleurs, setBailleurs] = useState([]); 
+  const [beneficieres, setBeneficieres] = useState([]);
+  const [exercices, setExercices] = useState([]);
+  const [devises, setDevises] = useState([]);
+  const [planfondprojets, setPlanfontprojets] = useState([]);
+  const [planfontNatures, setPlanfontNature] = useState([]);
+  const [previsions, setPrevisions] = useState([]);
 
   // GET
   const dataClasse =async ()=>{
@@ -21,9 +39,91 @@ const BudgetApp = () => {
     setClasses(data) 
   } 
 
-useEffect(() => { 
-      dataClasse();  
-}, []); 
+  const dataPlancompte =async ()=>{
+    const data=await getAllPlancompte(); 
+    setPlancomptables(data) 
+  }
+  
+  const dataProjet =async ()=>{
+    const data=await getAllProjet(); 
+    setProjets(data) 
+  }
+  
+  const dataCategorie =async ()=>{
+    const data=await getAllCategorie(); 
+    setCategories(data) 
+  } 
+
+ const getCategorieByPrograme=async (e)=>{
+    const data=await getAllCategorieByProgramme(e); 
+    setCategories(data) 
+  } 
+
+ const dataActivite =async ()=>{
+    const data=await getAllActivite(); 
+    setActivites(data) 
+  } 
+
+   const dataTypebailleur =async ()=>{
+    const data=await getAllTypebailleur(); 
+    setTypebailleurs(data)   
+  } 
+   const dataBailleur =async ()=>{
+    const data=await getAllBailleur(); 
+    setBailleurs(data) 
+  } 
+   const dataBenefiere =async ()=>{
+    const data=await getAllBeneficiere(); 
+    setBeneficieres(data) 
+  } 
+   const dataExercice =async ()=>{
+    const data=await getAllExercice(); 
+    setExercices(data)
+  } 
+
+  const dataDevise =async ()=>{
+    const data=await getAllDevise(); 
+    setDevises(data) 
+  }
+
+  const dataPlanfontprojet =async ()=>{
+    const data=await getAllPlanfontprojet(); 
+    setPlanfontprojets(data) 
+  }
+
+  const dataPlanfontNature =async ()=>{
+    const data=await getAllPlanfontnature(); 
+    setPlanfontNature(data) 
+  }
+
+  const dataPrevision =async ()=>{
+    const data=await getAllPrevision(); 
+    setPrevisions(data) 
+  }
+
+  const getAllDataInTable=(type:string)=>{ 
+    if(type==='classe'){
+      dataClasse();
+    }else if(type==='planComptable'){
+      dataPlancompte();
+    }else if(type==='projet'){
+      dataProjet();
+    }else if(type==='categorie'){
+      dataCategorie();
+    }else if(type==='activite'){
+      dataActivite();
+    }else if(type==='typeBailleur'){
+      dataTypebailleur();
+    }else if(type==='bailleur'){
+      dataBailleur();
+    }else if(type==='beneficiaire'){
+      dataBenefiere();
+    }else if(type==='exercice'){
+      dataExercice();
+    }else if(type==='devise'){
+      dataDevise();
+    }
+  }
 
   // CREATED 
     const {
@@ -31,6 +131,100 @@ useEffect(() => {
       handleSubmit: handleSubmitClasse,
       reset: resetClasse,
       formState: { errors: errorsClasse },
+    } = useForm();
+
+        const {
+      register: registerPlancompte,
+      handleSubmit: handleSubmitPlancompte,
+      reset: resetPlancompte,
+      formState: { errors: errorsPlancompte },
+    } = useForm();
+
+    const {
+      register: registerProjet,
+      handleSubmit: handleSubmitProjet,
+      reset: resetProjet,
+      formState: { errors: errorsProjet },
+    } = useForm();
+
+    const {
+      register: registerCategorie,
+      handleSubmit: handleSubmitCategorie,
+      reset: resetCategorie,
+      formState: { errors: errorsCategorie },
+    } = useForm();
+
+    const {
+      register: registerActivite,
+      handleSubmit: handleSubmitActivite,
+      reset: resetActivite,
+      formState: { errors: errorsActivite },
+    } = useForm();
+
+    const {
+      register: registerTypebailleur,
+      handleSubmit: handleSubmitTypebailleur,
+      reset: resetTypebailleur,
+      formState: { errors: errorsTypebailleur },
+    } = useForm();
+
+    const {
+      register: registerBailleur,
+      handleSubmit: handleSubmitBailleur,
+      reset: resetBailleur,
+      formState: { errors: errorsBailleur },
+    } = useForm();
+
+    
+    const {
+      register: registerBeneficiere,
+      handleSubmit: handleSubmitBeneficiere,
+      reset: resetBeneficiere,
+      formState: { errors: errorsBeneficiere },
+    } = useForm();
+    
+    const {
+      register: registerExercice,
+      handleSubmit: handleSubmitExercice,
+      reset: resetExercice,
+      formState: { errors: errorsExercice },
+    } = useForm();
+
+        
+    const {
+      register: registerDevise,
+      handleSubmit: handleSubmitDevise,
+      reset: resetDevise,
+      formState: { errors: errorsDevise },
+    } = useForm();
+
+    const {
+      register: registerPlanfontprojet,
+      handleSubmit: handleSubmitPlanfontprojet,
+      control,
+      reset: resetPlanfontprojet,
+      formState: { errors: errorsPlanfontprojet },
+    } = useForm({
+        defaultValues: {
+          exercice: null,
+          details: [
+            {iddata: null, idProjet: null, idSource: null, montant: "" }
+          ]
+        }
+});
+
+    const {
+      register: registerPlanfontNature,
+      handleSubmit: handleSubmitPlanfontNature,
+      reset: resetPlanfontNature,
+      formState: { errors: errorsPlanfontNature },
+    } = useForm();
+
+    const {
+      register: registerPrevision,
+      handleSubmit: handleSubmitPrevision,
+      reset: resetPrevision,
+      formState: { errors: errorsPrevision },
     } = useForm();
 
   const onSubmitClasse = async (data:any) => { 
@@ -49,43 +243,293 @@ useEffect(() => {
           }
       };
 
+  const onSubmitPlancompte = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createPlancompte(data);
+            } else { 
+              await updatePlancompte(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetPlancompte();
+            dataPlancompte();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitProjet = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createProjet(data);
+            } else { 
+              await updateProjet(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetProjet();
+            dataProjet();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitCategorie = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createCategorie(data);
+            } else { 
+              await updateCategorie(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetCategorie();
+            dataCategorie();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitActivite = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createActivite(data);
+            } else { 
+              await updateActivite(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetActivite();
+            dataActivite();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitTypebailleur = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createTypebailleur(data);
+            } else { 
+              await updateTypebailleur(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetTypebailleur();
+            dataTypebailleur();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitBailleur = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createBailleur(data);
+            } else { 
+              await updateBailleur(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetBailleur();
+            dataBailleur();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitBeneficiere = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createBeneficiere(data);
+            } else { 
+              await updateBeneficiere(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetBeneficiere();
+            dataBenefiere();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitDevise = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createDevise(data);
+            } else { 
+              await updateDevise(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetDevise();
+            dataDevise();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+  const onSubmitExercice = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createExercice(data);
+            } else { 
+              await updateExercice(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetExercice();
+            dataExercice();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+  
+  const onSubmitPlanfontprojet = async (data:any) => { 
+          try { 
+            console.log(data);
+            // if (!data.id) { 
+            //   await createPlanfontprojet(data);
+            // } else { 
+            //   await updatePlanfontprojet(data.id,data); 
+            // }
+            // toast.success("Operation effectuée avec succès !");
+            // resetPlanfontprojet();
+            // dataPlanfontprojet(); 
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+  
+ 
+  const onSubmitPlanfontnature = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createPlanfontnature(data);
+            } else { 
+              await updatePlanfontnature(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetPlanfontNature();
+            dataPlanfontNature();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+ 
+  const onSubmitPrevision = async (data:any) => { 
+          try { 
+            if (!data.id) { 
+              await createPrevision(data);
+            } else { 
+              await updatePrevision(data.id,data); 
+            }
+            toast.success("Operation effectuée avec succès !");
+            resetPrevision();
+            dataPrevision();
+            closeModal();
+          } catch (error:any) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+          }
+      };
+
+   
   const hendleDelete=(id:number,type:string)=>{
     try {
        if(type==='classe'){
       deleteClasse(id);
+    }else if(type==='planComptable'){
+      deletePlancompte(id); 
+      dataPlancompte();
+    }else if(type==='projet'){
+      deleteProjet(id);  
+      dataProjet();
+    }else if(type==='categorie'){
+      deleteCategorie(id);  
+      dataCategorie();
+    }else if(type==='activite'){
+      deleteActivite(id);  
+      dataActivite();
+    }else if(type==='typeBailleur'){
+      deleteTypebailleur(id);  
+      dataTypebailleur();
+    }else if(type==='bailleur'){
+      deleteBailleur(id);  
+      dataBailleur();
+    }else if(type==='beneficiaire'){
+      deleteBeneficiere(id);  
+      dataBenefiere();
+    }else if(type==='exercice'){
+      deleteExercice(id);  
+      dataExercice();
+    }else if(type==='devise'){
+      deleteDevise(id);  
+      dataDevise();
     }
     toast.success("Supression effectuée avec succès !");
-    dataClasse();
+ 
     } catch (error) {
     toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
       dataClasse();
     }
   }
-  
- const hendleUpdata=(data:any,type:string)=>{
-  try {
+
+ const hendleUpdata=(data:any,type:string)=>{ 
     if(type==='classe'){
       resetClasse(data); 
       openModal('classe')
+    }else if(type==='planComptable'){
+      resetPlancompte(data); 
+      openModal('planComptable')
+    }else if(type==='projet'){
+      resetProjet(data); 
+      openModal('projet')
+    }else if(type==='categorie'){
+      resetCategorie(data); 
+      openModal('categorie')
+    }else if(type==='activite'){
+      resetActivite(data); 
+      openModal('activite')
+    }else if(type==='typeBailleur'){
+      resetTypebailleur(data); 
+      openModal('typeBailleur')
+    }else if(type==='bailleur'){
+      resetBailleur(data); 
+      openModal('bailleur')
+    }else if(type==='beneficiere'){
+      resetBeneficiere(data); 
+      openModal('beneficiaire')
+    }else if(type==='exercice'){
+      resetExercice(data); 
+      openModal('exercice')
+    }else if(type==='devise'){
+      resetDevise(data); 
+      openModal('devise')
     }
-  } catch (error) {
-    
-  }
- }
+  }  
 
   const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeMenu, setActiveMenu] = useState('classification');
-  const [activeSubMenu, setActiveSubMenu] = useState('economique');
-  const [activePage, setActivePage] = useState('classe');
+  const [activeMenu, setActiveMenu] = useState('');
+  const [activeSubMenu, setActiveSubMenu] = useState('');
+  const [activePage, setActivePage] = useState('');
   const [expandedMenus, setExpandedMenus] = useState({
-    classification: true,
+    classification: true,  
+    prevision: false, 
+    execution: false,
+    tresorerie:false,
+    parametre:false
+  });
+
+ const [expandedSubMenus, setExpandedSubMenus] = useState({ 
     economique: false,
     programmatique: false,
-    srcFinancement: false,
-    prevision: false,
-    etatSortie: false,
-    execution: false
+    srcFinancement: false, 
+    etatSortie: false, 
   });
+
   const [showModal, setShowModal] = useState(false);
   const [modalType, setModalType] = useState('');
   const [formData, setFormData] = useState({});
@@ -103,28 +547,26 @@ useEffect(() => {
   ]);
 
   const toggleMenu = (menu) => {
-    setExpandedMenus(prev => ({
+  setExpandedMenus(prev => {
+    const newState = {};
+
+    Object.keys(prev).forEach(key => {
+      newState[key] = key === menu ? !prev[key] : false;
+    });
+
+    return newState;
+  });
+};
+
+  const toggleSubMenu = (menu) => {
+    setExpandedSubMenus(prev => ({
       ...prev,
-      [menu]: !prev[menu]
+      [menu]: !prev[menu] 
     }));
   };
-
-  const handleSubMenuClick = (subMenu) => {
+ 
+  const handleSubMenuClick = (subMenu) => { 
     setActiveSubMenu(subMenu);
-    if (subMenu === 'economique') {
-      setActivePage('classe');
-    } else if (subMenu === 'programmatique') {
-      setActivePage('projet');
-    } else if (subMenu === 'srcFinancement') {
-      setActivePage('typeBailleur');
-    } else if (subMenu === 'etatSortie') {
-      setActivePage('parClasse');
-    } else if (subMenu === 'elaboration') {
-      setActivePage(null);
-    } else if (subMenu === 'engagement' || subMenu === 'liquidation' || 
-               subMenu === 'rapportEngagement' || subMenu === 'rapportLiquidation') {
-      setActivePage(null);
-    }
   };
 
   const openModal = (type) => {
@@ -135,7 +577,16 @@ useEffect(() => {
 
   //FERMER ET VIDER TOUS LES FORMULAIRE
   const closeModal = () => {
-    resetClasse({ id:null,code: null, libelle: null })
+    resetClasse({ id:null,code: null, libelle: null,type:null })
+    resetPlancompte({ id:null,code: null, libelle: null,projet:null,categorie:null })
+    resetProjet({  id:null,code: null, libelle: null,dateDebut:null,dateFin:null })
+    resetCategorie({ id:null,code: null, libelle: null,projetId:null })
+    resetActivite({ id:null,code: null, libelle: null,type:null })
+    resetBailleur({ id:null,code: null, libelle: null,idTypeSourcefinancement:null })
+    resetTypebailleur({ id:null, libelle: null })
+    resetBeneficiere({ id:null, libelle: null})
+    resetExercice({ id:null,code: null, libelle: null,dateDebut:null,dateFin:null,cloture:false})
+    resetDevise({ id:null,code: null, libelle: null,symbole:null,actif:true })
     setShowModal(false); 
   };
 
@@ -152,15 +603,19 @@ useEffect(() => {
     closeModal();
   };
 
-  const addDetailLine = () => {
-    setDetailLines([...detailLines, { id: detailLines.length + 1, compte: '', montant: '' }]);
-  };
+  
+const addDetailLinePlanfontprojet = () => {
+  append({ iddata: null, idProjet: null, idSource: null, montant: "" });
+};
 
-  const removeDetailLine = (id) => {
-    if (detailLines.length > 1) {
-      setDetailLines(detailLines.filter(line => line.id !== id));
-    }
-  };
+const { fields, append, remove } = useFieldArray({
+  control,
+  name: "details",
+});
+
+const removeDetailLinePlanfontprojet = (index: number) => {
+  remove(index);
+};
 
   const handleDetailChange = (id, field, value) => {
     setDetailLines(detailLines.map(line => 
@@ -402,7 +857,7 @@ useEffect(() => {
 
   const renderPlanComptablePage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Plan Comptable</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion du Plan Comptable</h2>
       
       <div className="mb-6">
         <button 
@@ -420,8 +875,12 @@ useEffect(() => {
           className="flex-1 border border-gray-300 rounded px-4 py-2"
         />
         <select className="border border-gray-300 rounded px-4 py-2">
-          <option>Toutes les classes</option>
-          <option>Classe 1</option> 
+          <option value="">Toutes les classes</option>
+          {classes?.map((classe) => (
+            <option key={classe.id} value={classe.id}>
+              {classe.libelle}
+            </option>
+          ))}
         </select>
       </div>
 
@@ -429,26 +888,41 @@ useEffect(() => {
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2 text-left">Numéro</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Intitulé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Classe</th>
-              <th className="border border-gray-300 px-4 py-2 text-center">Statut</th>
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">611</td>
-              <td className="border border-gray-300 px-4 py-2">Salaires et Traitements</td>
-              <td className="border border-gray-300 px-4 py-2">Classe 1</td>
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-sm">Actif</span>
-              </td>
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
+            {plancomptables?.map((plancompte, index) => {
+              // const classe = classes.find(c => c.id === plancompte.classeId);
+              return (
+                <tr key={plancompte.id} className="hover:bg-gray-50">
+                  <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                  <td className="border border-gray-300 px-4 py-2">{plancompte.numero}</td>
+                  <td className="border border-gray-300 px-4 py-2">{plancompte.libelle}</td>
+                  <td className="border border-gray-300 px-4 py-2">
+                   {plancompte?.classe?.libelle ?? 'N/A'}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    <button 
+                      className="text-blue-600 hover:text-blue-800 mr-2"
+                      onClick={() => hendleUpdata(plancompte, 'planComptable')}
+                    >
+                      Modifier
+                    </button>
+                    <button 
+                      className="text-red-600 hover:text-red-800"
+                      onClick={() => hendleDelete(plancompte.id, 'planComptable')}
+                    >
+                      Supprimer
+                    </button>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
@@ -457,44 +931,42 @@ useEffect(() => {
 
     const renderProjetPage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Projet</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Projets</h2>
       
       <div className="mb-6">
         <button 
           onClick={() => openModal('projet')}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          + Ajouter un projet
+          + Ajouter un Projet
         </button>
       </div>
 
-      <div className="mb-4 flex gap-4">
+      <div className="mb-4 flex gap-4 items-center">
         <input 
           type="text" 
           placeholder="Rechercher un projet..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"
         />
-        <p>du</p>
-           <input 
-          type="date" 
-          placeholder="Date de début..."
-          className="flex-1 border border-gray-300 rounded px-4 py-2"
-        />
-        <p>au</p>
+        <p className="whitespace-nowrap">du</p>
         <input 
           type="date" 
-          placeholder="Date de fin..."
-          className="flex-1 border border-gray-300 rounded px-4 py-2"
+          className="border border-gray-300 rounded px-4 py-2"
+        />
+        <p className="whitespace-nowrap">au</p>
+        <input 
+          type="date" 
+          className="border border-gray-300 rounded px-4 py-2"
         />
       </div>
-      <hr />
-      <br />  
+      <hr className="my-4" />
+      
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
-              <th className="border border-gray-300 px-4 py-2 text-left">Numéro</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">code</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Intitulé</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Date de début</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Date de fin</th> 
@@ -502,17 +974,33 @@ useEffect(() => {
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">611</td>
-              <td className="border border-gray-300 px-4 py-2">001</td>
-              <td className="border border-gray-300 px-4 py-2">Projet 1</td>
-              <td className="border border-gray-300 px-4 py-2">01/01/2022</td>
-              <td className="border border-gray-300 px-4 py-2">31/12/2022</td>
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
+            {projets?.map((projet, index) => (
+              <tr key={projet.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-300 px-4 py-2">{projet.code || 'N/A'}</td>
+                <td className="border border-gray-300 px-4 py-2">{projet.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {projet.dateDebut ? new Date(projet.dateDebut).toLocaleDateString() : 'N/A'}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {projet.dateFin ? new Date(projet.dateFin).toLocaleDateString() : 'N/A'}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(projet, 'projet')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(projet.id, 'projet')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -521,51 +1009,70 @@ useEffect(() => {
 
   const renderCategoriePage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Categorie</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Catégories</h2>
       
       <div className="mb-6">
         <button 
           onClick={() => openModal('categorie')}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          + Ajouter une categorie
+          + Ajouter une Catégorie
         </button>
       </div>
 
-      <div className="mb-4 flex gap-4">
+      <div className="mb-4 flex gap-4 items-center">
         <input 
           type="text" 
-          placeholder="Rechercher un compte..."
+          placeholder="Rechercher une catégorie..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"
         />
         <select className="border border-gray-300 rounded px-4 py-2">
-          <option>Toutes les projet</option>
-          <option>projet 1</option> 
+          <option value="">Tous les projets</option>
+          {projets?.map((projet) => (
+            <option key={projet.id} value={projet.id}>
+              {projet.libelle}
+            </option>
+          ))}
         </select>
       </div>
-      <hr />
-      <br />  
+      <hr className="my-4" />
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Intitulé</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Projet</th> 
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Projet</th>
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">611</td>
-              <td className="border border-gray-300 px-4 py-2">Salaires et Traitements</td>
-              <td className="border border-gray-300 px-4 py-2">priet 1</td> 
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
+            {categories?.map((categorie, index) => (
+              <tr key={categorie.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-300 px-4 py-2">{categorie.code || 'N/A'}</td>
+                <td className="border border-gray-300 px-4 py-2">{categorie.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {categorie.projet?.libelle || 'N/A'}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(categorie, 'categorie')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(categorie.id, 'categorie')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -574,57 +1081,56 @@ useEffect(() => {
 
   const renderTypeBailleurPage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Type de bailleur</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Types de Bailleurs</h2>
       
       <div className="mb-6">
         <button 
           onClick={() => openModal('typeBailleur')}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          + Ajouter un type de bailleur
+          + Ajouter un Type de Bailleur
         </button>
       </div>
 
-      <div className="mb-4 flex gap-4">
+      <div className="mb-4">
         <input 
           type="text" 
-          placeholder="Rechercher un compte..."
-          className="flex-1 border border-gray-300 rounded px-4 py-2"
+          placeholder="Rechercher un type de bailleur..."
+          className="w-full md:w-1/3 border border-gray-300 rounded px-4 py-2"
         />
       </div>
-      <hr />
-      <br />  
+      <hr className="my-4" />
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-100"> 
-              <th className="border border-gray-300 px-4 py-2 text-left">Intitulé</th> 
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th> 
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50"> 
-              <td className="border border-gray-300 px-4 py-2">ONG</td>    
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr>
-            <tr className="hover:bg-gray-50">  
-              <td className="border border-gray-300 px-4 py-2">Banque</td>   
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
-            <tr className="hover:bg-gray-50">  
-              <td className="border border-gray-300 px-4 py-2">Gouvernement</td>   
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
+            {typebailleurs?.map((type, index) => (
+              <tr key={type.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td> 
+                <td className="border border-gray-300 px-4 py-2">{type.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(type, 'typeBailleur')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(type.id, 'typeBailleur')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -633,62 +1139,162 @@ useEffect(() => {
 
   const renderBailleurPage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Bailleur</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Bailleurs</h2>
       
       <div className="mb-6">
         <button 
           onClick={() => openModal('bailleur')}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          + Ajouter un bailleur
+          + Ajouter un Bailleur
         </button>
       </div>
 
-      <div className="mb-4 flex gap-4">
-        <input 
-          type="text" 
-          placeholder="Rechercher un compte..."
-          className="flex-1 border border-gray-300 rounded px-4 py-2"
-        />
-        <select className="border border-gray-300 rounded px-4 py-2">
-          <option>Toutes les types de bailleur</option> 
-           <option>ong</option> 
-           <option>banque</option> 
-           <option>gouvernement</option> 
-        </select>
-
-        <select className="border border-gray-300 rounded px-4 py-2">
-          <option>Sources</option>
-          <option>Interne</option> 
-           <option>Externe</option> 
-           <option>Mixte</option>  
-        </select>
+      <div className="mb-4 flex flex-col md:flex-row gap-4">
+        <div className="flex-1">
+          <input 
+            type="text" 
+            placeholder="Rechercher un bailleur..."
+            className="w-full border border-gray-300 rounded px-4 py-2"
+          />
+        </div>
+        
+        <div className="flex gap-4">
+          <select className="border border-gray-300 rounded px-4 py-2">
+            <option value="">Tous les types de bailleur</option>
+            {typebailleurs?.map((type) => (
+              <option key={type.id} value={type.id}>
+                {type.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
       </div>
-      <hr />
-      <br />  
+      
+      <hr className="my-4" />
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Intitulé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Type de bailleur</th> 
-              <th className="border border-gray-300 px-4 py-2 text-left">Source</th> 
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">611</td>
-              <td className="border border-gray-300 px-4 py-2">Salaires et Traitements</td>
-              <td className="border border-gray-300 px-4 py-2">ONG </td> 
-              <td className="border border-gray-300 px-4 py-2">Interne </td> 
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
+            {bailleurs?.map((bailleur, index) => (
+              <tr key={bailleur.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-300 px-4 py-2">{bailleur.code || 'N/A'}</td>
+                <td className="border border-gray-300 px-4 py-2">{bailleur.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {bailleur.typeBailleur?.libelle || 'N/A'}
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(bailleur, 'bailleur')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(bailleur.id, 'bailleur')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+
+  const renderActivitePage = () => (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Activités</h2>
+      
+      <div className="mb-6">
+        <button 
+          onClick={() => openModal('activite')}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          + Ajouter une Activité
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <div className="flex flex-col md:flex-row gap-4">
+          <input 
+            type="text" 
+            placeholder="Rechercher une activité..."
+            className="flex-1 border border-gray-300 rounded px-4 py-2"
+          />
+          <select className="border border-gray-300 rounded px-1 py-2">
+            <option value="">Tous les projets</option>
+            {projets?.map((projet) => (
+              <option key={projet.id} value={projet.id}>
+                {projet.libelle}
+              </option>
+            ))}
+          </select>
+          <select className="border border-gray-300 rounded px-1 py-2">
+            <option value="">Tous les Categories</option>
+            {categories?.map((data) => (
+              <option key={data.id} value={data.id}>
+                {data.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+      <hr className="my-4" />
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Categorie</th> 
+              <th className="border border-gray-300 px-4 py-2 text-left">Projet</th> 
+              <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {activites?.map((activite, index) => (
+              <tr key={activite.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-300 px-4 py-2 font-medium">{activite.code || 'N/A'}</td>
+                <td className="border border-gray-300 px-4 py-2">{activite.libelle}</td>
+               <td className="border border-gray-300 px-4 py-2">
+                  {activite.categorie?.libelle || 'N/A'}
+                </td> 
+                <td className="border border-gray-300 px-4 py-2">
+                  {activite.categorie?.projet?.libelle || 'N/A'}
+                </td> 
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(activite, 'activite')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(activite.id, 'activite')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -697,102 +1303,193 @@ useEffect(() => {
 
   const renderBeneficiairePage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Beneficiaire</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Bénéficiaires</h2>
       
       <div className="mb-6">
         <button 
           onClick={() => openModal('beneficiaire')}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          + Ajouter un beneficiaire
+          + Ajouter un Bénéficiaire
         </button>
       </div>
 
-      <div className="mb-4 flex gap-4">
+      <div className="mb-4">
         <input 
           type="text" 
-          placeholder="Rechercher un compte..."
-          className="flex-1 border border-gray-300 rounded px-4 py-2"
+          placeholder="Rechercher un bénéficiaire..."
+          className="w-full md:w-1/3 border border-gray-300 rounded px-4 py-2"
         />
       </div>
-      <hr />
-      <br />  
+      <hr className="my-4" />
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
-            <tr className="bg-gray-100"> 
-              <th className="border border-gray-300 px-4 py-2 text-left">Intitulé</th> 
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th> 
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th> 
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50"> 
-              <td className="border border-gray-300 px-4 py-2">Beneficiaire 1</td> 
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
+            {beneficieres?.map((beneficiere, index) => (
+              <tr key={beneficiere.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-300 px-4 py-2">{beneficiere.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(beneficiere, 'beneficiere')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(beneficiere.id, 'beneficiere')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table> 
+      </div>
+    </div>
+  );
+
+  const renderExercicePage = () => (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Exercices Budgétaires</h2>
+      
+      <div className="mb-6">
+        <button 
+          onClick={() => openModal('exercice')}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          + Ajouter un Exercice
+        </button>
+      </div>
+
+      <div className="mb-4">
+        <input 
+          type="text" 
+          placeholder="Rechercher un exercice..."
+          className="w-full md:w-1/3 border border-gray-300 rounded px-4 py-2"
+        />
+      </div>
+      <hr className="my-4" />
+
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Date de début</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Date de fin</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Statut</th>
+              <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {exercices?.map((exercice, index) => (
+              <tr key={exercice.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-300 px-4 py-2">{exercice.code || 'N/A'}</td>
+                <td className="border border-gray-300 px-4 py-2">{exercice.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {exercice.dateDebut ? new Date(exercice.dateDebut).toLocaleDateString() : 'N/A'}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  {exercice.dateFin ? new Date(exercice.dateFin).toLocaleDateString() : 'N/A'}
+                </td>
+                <td className="border border-gray-300 px-4 py-2">
+                  <span className={`px-2 py-1 rounded-full text-xs ${
+                    exercice.cloture === false 
+                      ? 'bg-green-100 text-green-800' 
+                      : exercice.cloture === true
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                  }`}>
+                    {exercice.cloture || 'N/A'}
+                  </span>
+                </td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(exercice, 'exercice')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(exercice.id, 'exercice')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
     </div>
   );
 
-  const renderActivitePage = () => (
-       <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Activite</h2>
+const renderDevisePage = () => (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Devises</h2>
       
       <div className="mb-6">
         <button 
-          onClick={() => openModal('activite')}
+          onClick={() => openModal('devise')}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          + Ajouter une activite
+          + Ajouter une Devise
         </button>
       </div>
-
-      <div className="mb-4 flex gap-4">
-        <input 
-          type="text" 
-          placeholder="Rechercher un compte..."
-          className="flex-1 border border-gray-300 rounded px-4 py-2"
-        />
-        <select className="border border-gray-300 rounded px-4 py-2">
-          <option>Toutes les projet</option>
-          <option>projet 1</option> 
-        </select>
-        <select className="border border-gray-300 rounded px-4 py-2">
-          <option>Toutes les categorie</option>
-          <option> categorie 1</option> 
-        </select>
-      </div>
-      <hr />
-      <br />  
+ 
+      <hr className="my-4" />
 
       <div className="overflow-x-auto">
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">N°</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Intitulé</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">categorie</th> 
-              <th className="border border-gray-300 px-4 py-2 text-left">Projet</th> 
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Symbole</th> 
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            <tr className="hover:bg-gray-50">
-              <td className="border border-gray-300 px-4 py-2">611</td>
-              <td className="border border-gray-300 px-4 py-2">activite Salaires et Traitements</td>
-              <td className="border border-gray-300 px-4 py-2">categorie 1</td> 
-              <td className="border border-gray-300 px-4 py-2">priet 1</td> 
-              <td className="border border-gray-300 px-4 py-2 text-center">
-                <button className="text-blue-600 hover:text-blue-800 mr-2">Modifier</button>
-                <button className="text-red-600 hover:text-red-800">Supprimer</button>
-              </td>
-            </tr> 
+            {devises?.map((devise, index) => (
+              <tr key={devise.id} className="hover:bg-gray-50">
+                <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                <td className="border border-gray-300 px-4 py-2 font-medium">{devise.code || 'N/A'}</td>
+                <td className="border border-gray-300 px-4 py-2">{devise.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <span className="text-lg">{devise.symbole || 'N/A'}</span>
+                </td> 
+                <td className="border border-gray-300 px-4 py-2 text-center">
+                  <button 
+                    className="text-blue-600 hover:text-blue-800 mr-2"
+                    onClick={() => hendleUpdata(devise, 'devise')}
+                  >
+                    Modifier
+                  </button>
+                  <button 
+                    className="text-red-600 hover:text-red-800"
+                    onClick={() => hendleDelete(devise.id, 'devise')}
+                  >
+                    Supprimer
+                  </button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
@@ -1019,122 +1716,134 @@ useEffect(() => {
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Planfond de dépense</h2>
       
-      <form onSubmit={handleAfficher}>
-        <div className="bg-gray-50 p-6 rounded-lg mb-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
-              <select
-                name="exercice"
-                value={formData.exercice || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-              >
-                <option value="">Sélectionner l'exercice</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-              </select>
-            </div>
-          </div>
-        </div>
+      <form onSubmit={handleSubmitPlanfontprojet(onSubmitPlanfontprojet)}>
+  <div className="bg-gray-50 p-6 rounded-lg mb-6">
+    <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
 
-        <div className="bg-gray-50 p-6 rounded-lg mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-700">Détails des projets</h3>
-            <button
-              type="button"
-              onClick={addDetailLine}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
-            >
-              + Ajouter une ligne
-            </button>
-          </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-gray-700 font-medium mb-2">
+          Exercice Budgétaire
+        </label>
 
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="border border-gray-300 px-4 py-2 text-left">Projet</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detailLines.map((line) => (
-                  <tr key={line.id} className="hover:bg-gray-100">
-                    <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        value={line.projet}
-                        onChange={(e) => handleDetailChange(line.id, 'projet', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        required
-                      >
-                        <option value="">Sélectionner un projet</option>
-                        <option value="611">611 - Projet 1</option>
-                        <option value="612">612 - Projet 2</option>
-                        <option value="613">613 - Projet 3</option>
-                      </select>
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        value={line.bailleur}
-                        onChange={(e) => handleDetailChange(line.id, 'bailleur', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                      >
-                        <option value="">Sélectionner un bailleur</option>
-                        <option value="611">1 - bailleur 1</option>
-                        <option value="612">2 - bailleur 2</option>
-                      </select>
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      <input
-                        type="number"
-                        value={line.montant}
-                        onChange={(e) => handleDetailChange(line.id, 'montant', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        placeholder="0.00"
-                        step="0.01"
-                        required
-                      />
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2 text-center">
-                      <button
-                        type="button"
-                        onClick={() => removeDetailLine(line.id)}
-                        className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-                        disabled={detailLines.length === 1}
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                <tr className="bg-blue-50 font-semibold" > 
-                  <td className="border border-gray-300 px-4 py-2 text-center"  colSpan={2}>Total</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center"  colSpan={2}>
-                    {calculateTotal().toLocaleString('fr-FR', { minimumFractionDigits: 2 })} 
-                  </td> 
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        <select
+          {...registerPlanfontprojet("exercice", { required: true })}
+          className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+        >
+          <option value="">Sélectionner l'exercice</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
 
-        <div className="flex justify-end">
-            <div className="flex gap-4 justify-end">
-            <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
-              Enregistrer
-            </button>
-            <button className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition">
-              Imprimer
-            </button>
-          </div>
-        </div>
-      </form>
+        {errorsPlanfontprojet.exercice && (
+          <p className="text-red-500 text-sm">Champ obligatoire</p>
+        )}
+      </div>
+    </div>
+  </div>
+
+  <div className="bg-gray-50 p-6 rounded-lg mb-6">
+    <div className="flex items-center justify-between mb-4">
+      <h3 className="text-lg font-semibold text-gray-700">Détails des projets</h3>
+
+      <button
+        type="button"
+        onClick={() => addDetailLinePlanfontprojet({ iddata: null,idProjet: null, idSource: null, montant: '' })}
+        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
+      >
+        + Ajouter une ligne
+      </button>
+    </div>
+
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
+        <thead>
+          <tr className="bg-gray-200"> 
+            <th className="border border-gray-300 px-4 py-2 text-left">Projet</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
+            <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {fields.map((field, index) => (
+            <tr key={field.id} className="hover:bg-gray-100">
+       
+           <td className="border border-gray-300 px-2 py-2" hidden>
+                <input
+                  type="number"
+                  {...registerPlanfontprojet(`details.${index}.iddata`, { required: false })}
+                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                  placeholder="0.00" 
+                />
+              </td>
+              {/* Projet */}
+              <td className="border border-gray-300 px-2 py-2">
+                <select
+                  {...registerPlanfontprojet(`details.${index}.idProjet`, { required: true })}
+                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">Sélectionner un projet</option>
+                  <option value="611">611 - Projet 1</option>
+                  <option value="612">612 - Projet 2</option>
+                  <option value="613">613 - Projet 3</option>
+                </select>
+              </td> 
+
+              {/* Bailleur */}
+              <td className="border border-gray-300 px-2 py-2">
+                <select
+                  {...registerPlanfontprojet(`details.${index}.idSource`)}
+                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                >
+                  <option value="">Sélectionner un bailleur</option>
+                  <option value="1">1 - bailleur 1</option>
+                  <option value="2">2 - bailleur 2</option>
+                </select>
+              </td>
+
+              {/* Montant */}
+              <td className="border border-gray-300 px-2 py-2">
+                <input
+                  type="number"
+                  step="0.01"
+                  {...registerPlanfontprojet(`details.${index}.montant`, { required: true })}
+                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                  placeholder="0.00"
+                />
+              </td>
+
+              {/* Delete button */}
+              <td className="border border-gray-300 px-2 py-2 text-center">
+                <button
+                  type="button"
+                  onClick={() => removeDetailLinePlanfontprojet(index)}
+                  className="text-red-600 hover:text-red-800 disabled:text-gray-400"
+                  disabled={fields.length === 1}
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </td>
+
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div className="flex justify-end gap-4 mt-4">
+    <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
+      Enregistrer
+    </button>
+    <button className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition">
+      Imprimer
+    </button>
+  </div>
+</form>
+
     </div>
   );
 
@@ -1687,7 +2396,7 @@ useEffect(() => {
           <label>Type</label>
           <select {...registerClasse("type", { required: "Type obligatoire" })}
                     className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsClasse.code ? "border-red-500" : "border-gray-300"
+              errorsClasse.type ? "border-red-500" : "border-gray-300"
           }`}>
             <option value="">Sélectionner un type</option>
             <option value="Dépense">Dépense</option>
@@ -1704,8 +2413,7 @@ useEffect(() => {
                   type="submit"
                   className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
                 >
-                  Enregistrer
-                 {/* {registerClasse("id").value==null ? "Enregistrer" : "Mettre à jour"} */}
+                  Enregistrer 
        </button>
     </div>
       </form>
@@ -1714,150 +2422,466 @@ useEffect(() => {
 
   if (modalType === "planComptable") {
     return (
-      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+      <form onSubmit={handleSubmitPlancompte(onSubmitPlancompte)} className='p-6'>
         <div className="mb-4">
+           <input {...registerPlancompte("id", { required: false})} readOnly hidden/>
           <label className="block text-gray-700 font-semibold mb-2" >Numéro de Compte</label>
-          <input {...register("numero", { required: "Numéro obligatoire" })} placeholder="Ex: 611" />
-          {errors.numero && <span>{errors.numero.message}</span>}
+          <input {...registerPlancompte("numero", { required: "Numéro obligatoire" })}  
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsPlancompte.numero ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: 611" />
+          {errorsPlancompte.numero && <span>{errorsPlancompte.numero.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input {...register("libelle", { required: "Intitulé obligatoire" })} placeholder="Ex: Salaires et Traitements" />
-          {errors.libelle && <span>{errors.libelle.message}</span>}
+          <input {...registerPlancompte("libelle", { required: "Intitulé obligatoire" })}
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsPlancompte.libelle ? "border-red-500" : "border-gray-300"
+          }`} placeholder="Ex: Salaires et Traitements" />
+          {errorsPlancompte.libelle && <span>{errorsPlancompte.libelle.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Classe</label>
-          <select {...register("classe", { required: "Classe obligatoire" })}>
+          <select {...registerPlancompte("classe", { required: false })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500`}>
             <option value="">Sélectionner une classe</option>
-            <option value="Classe 1">Classe 1</option>
+            {
+              classes?.map((element)=>(
+                <option value={element.id}>{element.libelle}</option>
+              ))
+            }
           </select>
-          {errors.classe && <span>{errors.classe.message}</span>}
-        </div>
+         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Statut</label>
-          <select {...register("typeCompte", { required: "Statut obligatoire" })}>
+          <select {...registerPlancompte("sens", { required: "Statut obligatoire" })}
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsPlancompte.sens ? "border-red-500" : "border-gray-300"
+          }`}>
             <option value="">Sélectionner un type de compte</option>
-            <option value="Actif">Actif</option>
-            <option value="Passif">Passif</option>
-            <option value="Neutre">Neutre</option>
+            <option value="ACTIF">Actif</option>
+            <option value="PASSIF">Passif</option>
+            <option value="NEUTRE">Neutre</option>
           </select>
-          {errors.typeCompte && <span>{errors.typeCompte.message}</span>}
+          {errorsPlancompte.sens && <span>{errorsPlancompte.sens.message}</span>}
         </div>
-        <button type="submit">Créer</button>
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+         </button>
+       </div>
       </form>
     );
   }
 
   if (modalType === "projet") {
     return (
-      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+      <form onSubmit={handleSubmitProjet(onSubmitProjet)} className='p-6'>
         <div className="mb-4">
+          <input {...registerProjet("id", { required: false})} readOnly hidden/>
           <label className="block text-gray-700 font-semibold mb-2">Code</label>
-          <input {...register("code", { required: "Code obligatoire" })} />
-          {errors.code && <span>{errors.code.message}</span>}
+          <input {...registerProjet("code", { required: "Code obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsProjet.code ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsProjet.code && <span>{errorsProjet.code.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input {...register("libelle", { required: "Intitulé obligatoire" })} />
-          {errors.libelle && <span>{errors.libelle.message}</span>}
+          <input {...registerProjet("libelle", { required: "Intitulé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsClasse.libelle ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsProjet.libelle && <span>{errorsProjet.libelle.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Date de début</label>
-          <input type="date" {...register("dateDebut")} />
+          <input type="date" {...registerProjet("dateDebut")} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsProjet.dateDebut ? "border-red-500" : "border-gray-300"
+          }`}/>
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Date de fin</label>
-          <input type="date" {...register("dateFin")} />
+          <input type="date" {...registerProjet("dateFin")} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsProjet.dateFin ? "border-red-500" : "border-gray-300"
+          }`}/>
         </div>
-        <button type="submit">Créer</button>
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+         </button>
+       </div>
       </form>
     );
   }
 
   if (modalType === "categorie") {
     return (
-      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+      <form onSubmit={handleSubmitCategorie(onSubmitCategorie)} className='p-6'>
         <div className="mb-4">
+          <input {...registerCategorie("id", { required: false})} readOnly hidden/>
           <label className="block text-gray-700 font-semibold mb-2">Code</label>
-          <input {...register("code", { required: "Code obligatoire" })} />
-          {errors.code && <span>{errors.code.message}</span>}
+          <input {...registerCategorie("code", { required: "Code obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsProjet.code ? "border-red-500" : "border-gray-300"
+          }`} />
+          {errorsCategorie.code && <span>{errorsCategorie.code.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input {...register("libelle", { required: "Intitulé obligatoire" })} />
-          {errors.libelle && <span>{errors.libelle.message}</span>}
+          <input {...registerCategorie("libelle", { required: "Intitulé obligatoire" })}  
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsCategorie.libelle ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsCategorie.libelle && <span>{errorsCategorie.libelle.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-          <select {...register("projet", { required: "Projet obligatoire" })}>
+          <select {...registerCategorie("projet", { required: "Projet obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsCategorie.projet ? "border-red-500" : "border-gray-300"
+          }`} >
             <option value="">Sélectionner un projet</option>
-            <option value="projet1">Projet 1</option>
-            <option value="projet2">Projet 2</option>
+            {
+              projets?.map((element)=>(
+                <option value={element.id}>{element.libelle}</option>
+              ))
+            }
           </select>
-          {errors.projet && <span>{errors.projet.message}</span>}
+          {errorsCategorie.projet && <span>{errorsCategorie.projet.message}</span>}
         </div>
-        <button type="submit">Créer</button>
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+         </button>
+       </div>
       </form>
     );
   }
 
   if (modalType === "activite") {
     return (
-      <form onSubmit={handleSubmit(submitForm)} className='p-6'>
+      <form onSubmit={handleSubmitActivite(onSubmitActivite)} className='p-6'>
         <div className="mb-4">
+          <input {...registerActivite("id", { required: false})} readOnly hidden/>
           <label className="block text-gray-700 font-semibold mb-2">Code</label>
-          <input {...register("code", { required: "Code obligatoire" })} />
-          {errors.code && <span>{errors.code.message}</span>}
+          <input {...registerActivite("code", { required: "Code obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsActivite.code ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsActivite.code && <span>{errorsActivite.code.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input {...register("libelle", { required: "Intitulé obligatoire" })} />
-          {errors.libelle && <span>{errors.libelle.message}</span>}
-        </div>
+          <input {...registerActivite("libelle", { required: "Intitulé obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsActivite.libelle ? "border-red-500" : "border-gray-300"
+          }`} />
+          {errorsActivite.libelle && <span>{errorsActivite.libelle.message}</span>}
+        </div> 
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-          <select {...register("projet", { required: "Projet obligatoire" })}>
+          <select {...registerActivite("projet", { required: "Projet obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsActivite.projet ? "border-red-500" : "border-gray-300"
+          }`} onChange={(e)=>getCategorieByPrograme(e)}>
             <option value="">Sélectionner un projet</option>
-            <option value="projet1">Projet 1</option>
-            <option value="projet2">Projet 2</option>
+           {
+              projets?.map((element)=>(
+                <option value={element.id}>{element.libelle}</option>
+              ))
+            }
           </select>
-          {errors.projet && <span>{errors.projet.message}</span>}
+          {errorsActivite.projet && <span>{errorsActivite.projet.message}</span>}
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Catégorie</label>
-          <select {...register("categorie", { required: "Catégorie obligatoire" })}>
+          <select {...registerActivite("categorie", { required: "Catégorie obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsActivite.categorie ? "border-red-500" : "border-gray-300"
+          }`}>
             <option value="">Sélectionner une catégorie</option>
-            <option value="categorie1">Catégorie 1</option>
-            <option value="categorie2">Catégorie 2</option>
+            {
+              categories?.map((element)=>(
+                <option value={element.id}>{element.libelle}</option>
+              ))
+            }
           </select>
-          {errors.categorie && <span>{errors.categorie.message}</span>}
+          {errorsActivite.categorie && <span>{errorsActivite.categorie.message}</span>}
         </div>
-        <button type="submit">Créer</button>
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+         </button>
+       </div>
       </form>
     );
   }
+  if (modalType === "typeBailleur") {
+    return (
+      <form onSubmit={handleSubmitTypebailleur(onSubmitTypebailleur)} className='p-6'>
+        <div className="mb-4">
+          <label>Libellé</label>
+           <input {...registerTypebailleur("id", { required: false})} readOnly hidden/>
+          <input {...registerTypebailleur("libelle", { required: "Libellé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsTypebailleur.libelle ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: Charges de Personnel" />
+          {errorsTypebailleur.libelle && <span>{"Libellé obligatoire"}</span>}
+        </div> 
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+       </button>
+    </div>
+      </form>
+    );
+  }
+  if (modalType === "beneficiaire") {
+    return (
+      <form onSubmit={handleSubmitBeneficiere(onSubmitBeneficiere)} className='p-6'>
+        <div className="mb-4">
+          <label>Libellé</label>
+           <input {...registerBeneficiere("id", { required: false})} readOnly hidden/>
+          <input {...registerBeneficiere("libelle", { required: "Libellé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsBeneficiere.libelle ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: Charges de Personnel" />
+          {errorsBeneficiere.libelle && <span>{"Libellé obligatoire"}</span>}
+        </div> 
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+       </button>
+    </div>
+      </form>
+    );
+  }
+  if (modalType === "bailleur") {
+    return (
+      <form onSubmit={handleSubmitBailleur(onSubmitBailleur)} className='p-6'>
+        <div className="mb-4">
+          <input {...registerBailleur("id", { required: false})} readOnly hidden/>
+          <label className="block text-gray-700 font-semibold mb-2">Code</label>
+          <input {...registerBailleur("code", { required: "Code obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsProjet.code ? "border-red-500" : "border-gray-300"
+          }`} />
+          {errorsBailleur.code && <span>{errorsBailleur.code.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
+          <input {...registerBailleur("libelle", { required: "Intitulé obligatoire" })}  
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsBailleur.libelle ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsBailleur.libelle && <span>{errorsBailleur.libelle.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Bailleur</label>
+          <select {...registerBailleur("idTypeSourcefinancement", { required: "Type obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsBailleur.idTypeSourcefinancement ? "border-red-500" : "border-gray-300"
+          }`} >
+            <option value="">Sélectionner type de bailleur</option>
+            {
+              typebailleurs?.map((element)=>(
+                <option value={element.id}>{element.libelle}</option>
+              ))
+            }
+          </select>
+          {errorsBailleur.idTypeSourcefinancement && <span>{errorsBailleur.idTypeSourcefinancement.message}</span>}
+        </div>
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+         </button>
+       </div>
+      </form>
+    );
+  }
+    if (modalType === "exercice") {
+    return (
+      <form onSubmit={handleSubmitExercice(onSubmitExercice)} className='p-6'>
+        <div className="mb-4">
+          <input {...registerExercice("id", { required: false})} readOnly hidden/>
+          <label className="block text-gray-700 font-semibold mb-2">Code</label>
+          <input {...registerExercice("code", { required: "Code obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsExercice.code ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsExercice.code && <span>{errorsExercice.code.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
+          <input {...registerExercice("libelle", { required: "Intitulé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsClasse.libelle ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsExercice.libelle && <span>{errorsExercice.libelle.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Date de début</label>
+          <input type="date" {...registerExercice("dateDebut",{ required: "date obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsExercice.dateDebut ? "border-red-500" : "border-gray-300"
+          }`}/>
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Date de fin</label>
+          <input type="date" {...registerExercice("dateFin",{ required: "date obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsExercice.dateFin ? "border-red-500" : "border-gray-300"
+          }`}/>
+        </div>
 
+         <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Cloture</label>
+          <input type="checkbox" {...registerExercice("cloture",{value:true})} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsExercice.cloture ? "border-red-500" : "border-gray-300"
+          }`}/>
+        </div>
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+         </button>
+       </div>
+      </form>
+    );
+  }
+    if (modalType === "devise") {
+    return (
+      <form onSubmit={handleSubmitDevise(onSubmitDevise)} className='p-6'>
+        <div className="mb-4">
+          <input {...registerDevise("id", { required: false})} readOnly hidden/>
+          <label className="block text-gray-700 font-semibold mb-2">Code</label>
+          <input {...registerDevise("code", { required: "Code obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsDevise.code ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsDevise.code && <span>{errorsDevise.code.message}</span>}
+        </div>
+        <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
+          <input {...registerDevise("libelle", { required: "Intitulé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsClasse.libelle ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsDevise.libelle && <span>{errorsDevise.libelle.message}</span>}
+        </div>
+         <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Symbole</label>
+          <input {...registerDevise("symbole", { required: "Intitulé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsClasse.symbole ? "border-red-500" : "border-gray-300"
+          }`}/>
+          {errorsDevise.symbole && <span>{errorsDevise.symbole.message}</span>}
+        </div>
+
+         <div className="mb-4">
+          <label className="block text-gray-700 font-semibold mb-2">Actif</label>
+          <input type="checkbox" {...registerDevise("cloture",{value:true})} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsDevise.actif ? "border-red-500" : "border-gray-300"
+          }`}/>
+        </div>
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+         </button>
+       </div>
+      </form>
+    );
+  }
   return null;
 };
  
 
   const renderContent = () => {
-    if (activeMenu === 'classification' && activeSubMenu === 'economique') {
+    // if (activeMenu === 'classification' && activeSubMenu === 'economique') {
+    if (activeSubMenu === 'economique') {
       if (activePage === 'classe') return renderClassePage();
       if (activePage === 'planComptable') return renderPlanComptablePage();
     }
     
-    if (activeMenu === 'classification' && activeSubMenu === 'programmatique') {
+    if (activeSubMenu === 'programmatique') {
       if (activePage === 'projet') return renderProjetPage();
       if (activePage === 'categorie') return renderCategoriePage();
       if (activePage === 'activite') return renderActivitePage();
     }
     
-    if (activeMenu === 'classification' && activeSubMenu === 'srcFinancement') {
+    if (activeSubMenu === 'srcFinancement') {
       if (activePage === 'typeBailleur') return renderTypeBailleurPage();
       if (activePage === 'bailleur') return renderBailleurPage();
       if (activePage === 'beneficiaire') return renderBeneficiairePage();
     }
+
+    if (activeMenu === 'parametre') { 
+      if (activeSubMenu === 'exercice') return renderExercicePage();
+      if (activeSubMenu === 'devise') return renderDevisePage(); 
+    } 
     
     if (activeMenu === 'prevision' && activeSubMenu === 'elaboration') {
       return renderElaborationPage();
@@ -1926,13 +2950,14 @@ useEffect(() => {
                     <div key={subMenu.id}>
                       <button
                         onClick={() => {
+                          getAllDataInTable(subMenu.id);
                           handleSubMenuClick(subMenu.id);
                           if (subMenu.pages) {
-                            toggleMenu(subMenu.id);
+                            toggleSubMenu(subMenu.id);
                           }
                         }}
                         className={`w-full flex items-center justify-between p-2 rounded text-sm transition ${
-                          activeSubMenu === subMenu.id ? 'bg-blue-500' : 'hover:bg-gray-700'
+                          activeSubMenu === subMenu.id ? 'text-green-500' : 'hover:bg-gray-700'
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -1940,18 +2965,21 @@ useEffect(() => {
                           <span>{subMenu.name}</span>
                         </div>
                         {subMenu.pages && (
-                          expandedMenus[subMenu.id] ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />
+                          expandedSubMenus[subMenu.id] ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />
                         )}
                       </button>
 
-                      {subMenu.pages && expandedMenus[subMenu.id] && (
+                      {subMenu.pages && expandedSubMenus[subMenu.id] && (
                         <div className="ml-6 mt-1 space-y-1">
                           {subMenu.pages.map(page => (
                             <button
                               key={page.id}
-                              onClick={() => setActivePage(page.id)}
+                              onClick={() => {
+                                setActivePage(page.id);
+                                getAllDataInTable(page.id);
+                              }}
                               className={`w-full text-left p-2 rounded text-sm transition ${
-                                activePage === page.id ? 'bg-blue-400' : 'hover:bg-gray-700'
+                                activePage === page.id ? 'bg-green-400' : 'hover:bg-gray-700'
                               }`}
                             >
                               {page.name}
