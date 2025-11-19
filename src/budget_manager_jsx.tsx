@@ -33,6 +33,22 @@ const BudgetApp = () => {
   const [planfontNatures, setPlanfontNature] = useState([]);
   const [previsions, setPrevisions] = useState([]);
 
+    const [data, setData] = useState([
+      { projet: 1, categorie: 1, activite: 1, montant: 7000 },
+      { projet: 1, categorie: 2, activite: 1, montant: 1000 },
+      { projet: 1, categorie: 2, activite: 2, montant: 3300 },
+      { projet: 2, categorie: 1, activite: 1, montant: 5500 },
+      { projet: 2, categorie: 1, activite: 2, montant: 2000 },
+    ]);
+  
+    // Grouper Projet → Catégorie → Activités
+    const grouped = {};
+    data.forEach((item) => {
+      if (!grouped[item.projet]) grouped[item.projet] = {};
+      if (!grouped[item.projet][item.categorie]) grouped[item.projet][item.categorie] = [];
+      grouped[item.projet][item.categorie].push(item);
+    });
+
   // GET
   const dataClasse =async ()=>{
     const data=await getAllClasse(); 
@@ -100,6 +116,11 @@ const BudgetApp = () => {
     const data=await getAllPrevision(); 
     setPrevisions(data) 
   }
+
+    useEffect(()=>{
+     const f=dataPlanfontprojet() 
+        console.log(f);
+  },[])
 
   const getAllDataInTable=(type:string)=>{ 
     if(type==='classe'){
@@ -208,7 +229,7 @@ const BudgetApp = () => {
         defaultValues: {
           exercice: null,
           details: [
-            {iddata: null, idProjet: null, idSource: null, montant: "" }
+            {id: null, idProjet: null, idSource: null, montant: "",exercice:null }
           ]
         }
 });
@@ -216,16 +237,35 @@ const BudgetApp = () => {
     const {
       register: registerPlanfontNature,
       handleSubmit: handleSubmitPlanfontNature,
+      controlNature,
       reset: resetPlanfontNature,
       formState: { errors: errorsPlanfontNature },
-    } = useForm();
+    }  = useForm({
+        defaultValues: {
+          exercice: null,
+          idProjet:null,
+          details: [
+            {id: null, categorie: null, idSource: null, montant: "",exercice:null }
+          ]
+        }
+});
 
     const {
       register: registerPrevision,
       handleSubmit: handleSubmitPrevision,
+      controlPrevision,
       reset: resetPrevision,
       formState: { errors: errorsPrevision },
-    } = useForm();
+    } = useForm({
+        defaultValues: {
+          exercice: null,
+          idProjet: null,
+          idCategorie: null,
+          details: [
+            {id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null }
+          ]
+        }
+});
 
   const onSubmitClasse = async (data:any) => { 
           try { 
@@ -389,48 +429,90 @@ const BudgetApp = () => {
   
   const onSubmitPlanfontprojet = async (data:any) => { 
           try { 
-            console.log(data);
-            // if (!data.id) { 
-            //   await createPlanfontprojet(data);
-            // } else { 
-            //   await updatePlanfontprojet(data.id,data); 
-            // }
-            // toast.success("Operation effectuée avec succès !");
-            // resetPlanfontprojet();
-            // dataPlanfontprojet(); 
+            const exercices=data.exercice;
+            data.details.map(async element=>{
+              element.id=parseInt(element.id);
+              element.montant=element.montant; 
+              element.idProjet=parseInt(element.idProjet);
+              element.idSource=parseInt(element.idSource);
+              element.idExercice=parseInt(exercices);  
+             if (!element.id) { 
+              await createPlanfontprojet(element);
+            } else { 
+              await updatePlanfontprojet(element.id,element); 
+            }
+            })
+           
+            toast.success("Operation effectuée avec succès !");
+            resetPlanfontprojet();  
           } catch (error:any) {
             toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
           }
       };
   
+//  function getResetPlanFonProjet(){ 
+//     resetPlanfontprojet({
+//       exercice: 10065,
+//       details: [
+//             {id: null, idProjet: 10038, idSource: null, montant: "",exercice:null }
+//           ]
+//         });
+//   }     
  
   const onSubmitPlanfontnature = async (data:any) => { 
-          try { 
-            if (!data.id) { 
-              await createPlanfontnature(data);
+       try { 
+      const exercices=data.exercice;
+      const idProjet=data.idProjet;
+            data.details.map(async element=>{
+              element.id=parseInt(element.id);
+              element.montant=element.montant; 
+              element.categorie=parseInt(element.categorie); 
+              element.idProjet=parseInt(idProjet);
+              element.idSource=parseInt(element.idSource);
+              element.idExercice=parseInt(exercices);  
+             if (!element.id) { 
+              await createPlanfontnature(element);
             } else { 
-              await updatePlanfontnature(data.id,data); 
+              await updatePlanfontnature(element.id,element); 
             }
+            })
+           
             toast.success("Operation effectuée avec succès !");
-            resetPlanfontNature();
-            dataPlanfontNature();
-            closeModal();
+            resetPlanfontNature();  
           } catch (error:any) {
             toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
           }
       };
  
   const onSubmitPrevision = async (data:any) => { 
-          try { 
-            if (!data.id) { 
-              await createPrevision(data);
+     try { 
+      const exercices=data.exercice;
+      const idProjet=data.idProjet;
+      const idCategorie=data.idCategorie;
+            data.details.map(async element=>{
+              element.id=parseInt(element.id);
+              element.montant=element.montant; 
+              element.categorie=parseInt(element.categorie); 
+              element.idCategorie=parseInt(idCategorie); 
+              element.idProjet=parseInt(idProjet);
+              element.idSource=parseInt(element.idSource);
+              element.idSource=parseInt(element.idActivite);
+              element.idSource=parseInt(element.idPlanComptable);
+              element.idSource=parseInt(element.idBeneficiaire);
+              element.idSource=parseInt(element.ligneBudgetaire);
+              element.idSource=parseInt(element.uniteMesure);
+              element.idSource=parseInt(element.quantite);
+              element.idSource=parseInt(element.prixUnitaire);
+              element.idExercice=parseInt(exercices);  
+             if (!element.id) { 
+              await createPrevision(element);
             } else { 
-              await updatePrevision(data.id,data); 
+              await updatePrevision(element.id,element); 
             }
+            })
+            
             toast.success("Operation effectuée avec succès !");
-            resetPrevision();
-            dataPrevision();
-            closeModal();
+            resetPrevision();  
           } catch (error:any) {
             toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
           }
@@ -575,6 +657,37 @@ const BudgetApp = () => {
     setShowModal(true);
   };
 
+  // tous mes get by :
+  const getExerciceencours=()=>{
+    dataExercice();
+  }
+   const getProjets=()=>{
+    dataProjet()
+  }
+
+  const getBailleurs=()=>{
+    dataBailleur()
+  }
+
+  const getClasses=()=>{
+    dataClasse()
+  }
+
+  const getCategorie=()=>{
+    dataCategorie();
+  }
+
+    const getActivites=()=>{
+    dataActivite();
+  }
+  
+    const getPlancomptables=()=>{
+    dataPlancompte();
+  }
+
+      const getBeneficiaires=()=>{
+    dataBenefiere();
+  }
   //FERMER ET VIDER TOUS LES FORMULAIRE
   const closeModal = () => {
     resetClasse({ id:null,code: null, libelle: null,type:null })
@@ -605,11 +718,22 @@ const BudgetApp = () => {
 
   
 const addDetailLinePlanfontprojet = () => {
-  append({ iddata: null, idProjet: null, idSource: null, montant: "" });
+  append({ id: null, idProjet: null, idSource: null, montant: "" });
 };
+
+const addDetailLinePlanfontnature = () => {
+  append({id: null, categorie: null, idSource: null, montant: "",exercice:null });
+};
+
+const addDetailLinePlanfontPrevision= () => {
+  append({id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null });
+};
+
 
 const { fields, append, remove } = useFieldArray({
   control,
+  controlNature, 
+  controlPrevision,
   name: "details",
 });
 
@@ -1508,7 +1632,215 @@ const renderDevisePage = () => (
         </button>
       </div>
       <p className="text-gray-600">Contenu de la section {title} à venir...</p>
-    </div>
+
+<div className="bg-white p-6 rounded-lg border border-gray-300 shadow-md max-w-5xl mx-auto">
+    <h2 className="text-center text-gray-800 text-2xl mb-5">État de Sortie</h2>
+
+    <table className="w-full border-collapse mt-2">
+        <thead>
+            <tr className="bg-blue-900 text-white text-left text-sm">
+                <th className="p-2 border border-gray-300">PROJET</th>
+                <th className="p-2 border border-gray-300">NATURE</th>
+                <th className="p-2 border border-gray-300">CATEGORIE</th>
+                <th className="p-2 border border-gray-300">MONTANT</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
+                <td className="p-2 border border-gray-300 text-sm">Charges personnelles</td>
+                <td className="p-2 border border-gray-300 text-sm">Cat 1</td>
+                <td className="p-2 border border-gray-300 text-sm">5 000</td>
+            </tr>
+            <tr>
+                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
+                <td className="p-2 border border-gray-300 text-sm">Charges personnelles</td>
+                <td className="p-2 border border-gray-300 text-sm">Cat 2</td>
+                <td className="p-2 border border-gray-300 text-sm">10 000</td>
+            </tr>
+            <tr className="bg-orange-100 font-bold">
+                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
+                <td className="p-2 border border-gray-300 text-sm">Charges personnelles (Total)</td>
+                <td className="p-2 border border-gray-300 text-sm"></td>
+                <td className="p-2 border border-gray-300 text-sm">15 000</td>
+            </tr>
+            <tr>
+                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
+                <td className="p-2 border border-gray-300 text-sm">Charges divers</td>
+                <td className="p-2 border border-gray-300 text-sm">Cat 5</td>
+                <td className="p-2 border border-gray-300 text-sm">4 000</td>
+            </tr>
+            <tr className="bg-orange-100 font-bold">
+                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
+                <td className="p-2 border border-gray-300 text-sm">Charges divers (Total)</td>
+                <td className="p-2 border border-gray-300 text-sm"></td>
+                <td className="p-2 border border-gray-300 text-sm">9 000</td>
+            </tr>
+            <tr className="bg-green-200 font-bold text-base">
+                <td className="p-2 border border-gray-300 text-sm" colspan="3">TOTAL PROJET 1</td>
+                <td className="p-2 border border-gray-300 text-sm">24 000</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+   
+    <h2 className="text-center mb-6 text-gray-800 text-2xl font-semibold">État de Sortie</h2>
+
+    <table className="w-full border-collapse mt-4">
+        <thead>
+            <tr>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">CODE</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">DESCRIPTION</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">DEBUT</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">FIN</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">QUANTITE</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">C. UNITAIRE</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">TOTAL</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">SOURCE FINANCEMENT</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {/* <!-- PROJET 1 --> */}
+            <tr className="bg-[#d9e1f2] font-semibold">
+                <td className="p-3 border border-gray-300">01</td>
+                <td className="p-3 border border-gray-300" colSpan={5}>Projet 1</td>
+                <td className="p-3 border border-gray-300">24 000</td> 
+                <td className="p-3 border border-gray-300">FAP</td>
+            </tr>
+
+            {/* <!-- CATEGORIE 1 --> */}
+            <tr className="bg-[#fce4d6] font-semibold">
+                <td className="p-3 border border-gray-300">003</td>
+                <td className="p-3 border border-gray-300" colSpan={5}>CATEGORIE</td> 
+                <td className="p-3 border border-gray-300">5000</td>
+                <td className="p-3 border border-gray-300">FAP</td>
+            </tr>
+
+            <tr>
+                <td className="p-3 border border-gray-300">00011</td>
+                <td className="p-3 border border-gray-300">ACTIVIE 1</td>
+                <td className="p-3 border border-gray-300">12/05/2026</td>
+                <td className="p-3 border border-gray-300">12/09/2026</td>
+                <td className="p-3 border border-gray-300">5 </td>
+                <td className="p-3 border border-gray-300">5 000</td>
+                <td className="p-3 border border-gray-300">25 000</td>
+                <td className="p-3 border border-gray-300">FAP</td>
+            </tr>
+
+             <tr>
+                <td className="p-3 border border-gray-300">00012</td>
+                <td className="p-3 border border-gray-300">ACTIVIE SSS JDSD D  DSKDS2</td>
+                <td className="p-3 border border-gray-300">12/05/2026</td>
+                <td className="p-3 border border-gray-300">12/09/2026</td>
+                <td className="p-3 border border-gray-300">5 </td>
+                <td className="p-3 border border-gray-300">5 000</td>
+                <td className="p-3 border border-gray-300">25 000</td>
+                <td className="p-3 border border-gray-300">EIRENE</td>
+            </tr>
+ 
+      {/* <!-- CATEGORIE 2 --> */}
+            <tr className="bg-[#fce4d6] font-semibold">
+                <td className="p-3 border border-gray-300">002</td>
+                <td className="p-3 border border-gray-300" colSpan={5}>CATEGORIE 2</td> 
+                <td className="p-3 border border-gray-300">5000</td>
+                <td className="p-3 border border-gray-300">EIRENE</td>
+            </tr>
+
+            <tr>
+                <td className="p-3 border border-gray-300">00011</td>
+                <td className="p-3 border border-gray-300">ACTIVIE 1</td>
+                <td className="p-3 border border-gray-300">12/05/2026</td>
+                <td className="p-3 border border-gray-300">12/09/2026</td>
+                <td className="p-3 border border-gray-300">5 </td>
+                <td className="p-3 border border-gray-300">5 000</td>
+                <td className="p-3 border border-gray-300">25 000</td>
+                <td className="p-3 border border-gray-300">ZEP</td>
+            </tr>
+
+             <tr>
+                <td className="p-3 border border-gray-300">00012</td>
+                <td className="p-3 border border-gray-300">ACTIVIE SSS JDSD D  DSKDS2</td>
+                <td className="p-3 border border-gray-300">12/05/2026</td>
+                <td className="p-3 border border-gray-300">12/09/2026</td>
+                <td className="p-3 border border-gray-300">5 </td>
+                <td className="p-3 border border-gray-300">5 000</td>
+                <td className="p-3 border border-gray-300">25 000</td>
+                <td className="p-3 border border-gray-300">EIRENE</td>
+            </tr>
+
+            {/* <!-- TOTAL --> */}
+            <tr className="bg-[#c6efce] font-bold text-base">
+                <td className="p-3 border border-gray-300" colSpan={6}>TOTAL PROJET 1</td>
+                <td className="p-3 border border-gray-300" colSpan={2}>24 000</td>
+            </tr>
+
+        </tbody>
+    </table>
+
+       <div className="bg-gray-100 p-6 min-h-screen">
+          <div className="bg-white p-6 rounded-xl shadow">
+            <h2 className="text-2xl font-bold text-blue-600 mb-4">
+              Projet → Catégorie → Activité avec Montants
+            </h2>
+    
+            <table className="min-w-full border-collapse border border-gray-300">
+              <thead>
+                <tr className="bg-gray-200">
+                  <th className="border border-gray-300 px-4 py-2 w-40">Type</th>
+                  <th className="border border-gray-300 px-4 py-2">Nom</th>
+                  <th className="border border-gray-300 px-4 py-2">Montant</th>
+                </tr>
+              </thead>
+              <tbody>
+                {Object.entries(grouped).map(([projet, categories]) => {
+                  const projetTotal = Object.values(categories)
+                    .flat()
+                    .reduce((sum, a) => sum + a.montant, 0);
+    
+                  return (
+                    <React.Fragment key={`projet-${projet}`}>
+                      {/* Ligne Projet */}
+                      <tr className="bg-blue-50 font-semibold">
+                        <td className="border border-gray-300 px-4 py-2">Projet</td>
+                        <td className="border border-gray-300 px-4 py-2">{`Projet ${projet}`}</td>
+                        <td className="border border-gray-300 px-4 py-2">{`${projetTotal.toLocaleString()} FC`}</td>
+                      </tr>
+    
+                      {/* Lignes Catégorie + Activités */}
+                      {Object.entries(categories).map(([categorie, acts]) => {
+                        const categorieTotal = acts.reduce((sum, a) => sum + a.montant, 0);
+                        return (
+                          <React.Fragment key={`categorie-${projet}-${categorie}`}>
+                            {/* Ligne Catégorie */}
+                            <tr className="bg-gray-50 font-medium">
+                              <td className="border border-gray-300 px-4 py-2">Catégorie</td>
+                              <td className="border border-gray-300 px-4 py-2">{`Catégorie ${categorie}`}</td>
+                              <td className="border border-gray-300 px-4 py-2">{`${categorieTotal.toLocaleString()} FC`}</td>
+                            </tr>
+    
+                            {/* Lignes Activités */}
+                            {acts.map((a) => (
+                              <tr key={`activite-${projet}-${categorie}-${a.activite}`}>
+                                <td className="border border-gray-300 px-4 py-2">Activité</td>
+                                <td className="border border-gray-300 px-4 py-2">{`Activité ${a.activite}`}</td>
+                                <td className="border border-gray-300 px-4 py-2">{`${a.montant.toLocaleString()} FC`}</td>
+                              </tr>
+                            ))}
+                          </React.Fragment>
+                        );
+                      })}
+                    </React.Fragment>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+</div> 
   );
 
   const renderElaborationPage = () => (
@@ -1526,7 +1858,7 @@ const renderDevisePage = () => (
       </div>
 
 
-      <form onSubmit={handleAfficher}>
+      {/* <form onSubmit={handleAfficher}>
         <div className="bg-gray-50 p-6 rounded-lg mb-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -1707,8 +2039,200 @@ const renderDevisePage = () => (
           </div>
         </div>
       
-      </form>
+      </form> */}
 
+    <form onSubmit={handleSubmitPrevision(onSubmitPrevision)}>
+      {/* En-tête */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-6">
+        <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          {/* Exercice */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
+            <select
+              {...registerPrevision("exercice", { required: true })}
+              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+            >
+              <option value="">Sélectionner l'exercice</option>
+              <option value="2024">2024</option>
+              <option value="2025">2025</option>
+              <option value="2026">2026</option>
+            </select>
+          </div>
+
+          {/* Projet */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Projet</label>
+            <select
+              {...registerPrevision("projet", { required: true })}
+              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+            >
+              <option value="">Sélectionner un projet</option>
+              <option value="Initial">611 - Projet 1</option>
+              <option value="projet">612 - Projet 2</option>
+              <option value="projet1">613 - Projet 3</option>
+            </select>
+          </div>
+
+          {/* Catégorie */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Categorie</label>
+            <select
+              {...registerPrevision("categorie", { required: true })}
+              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+            >
+              <option value="">Sélectionner une categorie</option>
+              <option value="Initial">611 - Categorie 1</option>
+              <option value="projet">612 - Categorie 2</option>
+              <option value="projet1">613 - Categorie 3</option>
+            </select>
+          </div>
+
+          {/* Classe */}
+          <div>
+            <label className="block text-gray-700 font-medium mb-2">Classe</label>
+            <input
+              type="text"
+              {...registerPrevision("classeId")}
+              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+              readOnly
+            />
+          </div>
+
+          <div>
+            <span className="px-4 py-2 bg-green-600 text-white rounded-full font-semibold text-sm shadow">
+              Montant restant par catégorie: <strong>5 000 000 000</strong>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      {/* Détails des lignes budgétaires */}
+      <div className="bg-gray-50 p-6 rounded-lg mb-6">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-semibold text-gray-700">Détails des Lignes Budgétaires</h3>
+          <button
+            type="button"
+            onClick={()=>addDetailLinePlanfontPrevision({id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null })}
+            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
+          >
+            + Ajouter une ligne
+          </button>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead>
+              <tr className="bg-gray-200">
+                <th className="border border-gray-300 px-4 py-2 text-left">Compte</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Beneficiaire</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Ligne Budgetaire</th>
+                <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {fields.map((field, index) => (
+                <tr key={field.id} className="hover:bg-gray-100">
+
+                  {/* Compte */}
+                  <td className="border border-gray-300 px-2 py-2">
+                    <select
+                      {...registerPrevision(`details.${index}.compte`, { required: true })}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">Sélectionner un compte</option>
+                      <option value="611">611 - Salaires et Traitements</option>
+                      <option value="612">612 - Charges Sociales</option>
+                      <option value="621">621 - Fournitures de Bureau</option>
+                      <option value="622">622 - Services Extérieurs</option>
+                      <option value="623">623 - Déplacements</option>
+                    </select>
+                  </td>
+
+                  {/* Bailleur */}
+                  <td className="border border-gray-300 px-2 py-2">
+                    <select
+                      {...registerPrevision(`details.${index}.bailleur`, { required: true })}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">Source de financement</option>
+                      <option value="611">611 - CSS</option>
+                      <option value="612">612 - Banque Sociales</option>
+                    </select>
+                  </td>
+
+                  {/* Beneficiaire */}
+                  <td className="border border-gray-300 px-2 py-2">
+                    <select
+                      {...registerPrevision(`details.${index}.beneficiere`, { required: true })}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                    >
+                      <option value="">Beneficiaire</option>
+                      <option value="611">611 - Fap</option>
+                      <option value="612">612 - Employé</option>
+                    </select>
+                  </td>
+
+                  {/* Montant */}
+                  <td className="border border-gray-300 px-2 py-2">
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...registerPrevision(`details.${index}.montant`, { required: true })}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                      placeholder="0.00"
+                    />
+                  </td>
+
+                  {/* Ligne Budgetaire */}
+                  <td className="border border-gray-300 px-2 py-2">
+                    <input
+                      type="text"
+                      {...registerPrevision(`details.${index}.ligneBudgetaire`)}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                      placeholder="ligne budgetaire"
+                      readOnly
+                    />
+                  </td>
+
+                  {/* Action */}
+                  <td className="border border-gray-300 px-2 py-2 text-center">
+                    <button
+                      type="button"
+                      onClick={() => remove(index)}
+                      disabled={fields.length === 1}
+                      className="text-red-600 hover:text-red-800 disabled:text-gray-400"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </td>
+
+                </tr>
+              ))}
+
+              {/* Total */}
+              <tr className="bg-blue-50 font-semibold">
+                <td className="border border-gray-300 px-4 py-2 text-right" colSpan={3}>Total</td>
+                <td className="border border-gray-300 px-4 py-2" colSpan={3}>
+                  {calculateTotal().toLocaleString('fr-FR', { minimumFractionDigits: 2 })} FBU
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div> 
+      <div className="flex justify-end gap-4 mt-4">
+        <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
+          Enregistrer
+        </button>
+      </div>
+    </form>
+    
     </div>
   );
 
@@ -1729,11 +2253,14 @@ const renderDevisePage = () => (
         <select
           {...registerPlanfontprojet("exercice", { required: true })}
           className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-        >
+         onClick={getExerciceencours}
+       >
           <option value="">Sélectionner l'exercice</option>
-          <option value="2024">2024</option>
-          <option value="2025">2025</option>
-          <option value="2026">2026</option>
+          {
+            exercices.map((element)=>(
+             <option value={element.id}>{element.libelle}</option>
+            ))
+          }
         </select>
 
         {errorsPlanfontprojet.exercice && (
@@ -1749,7 +2276,7 @@ const renderDevisePage = () => (
 
       <button
         type="button"
-        onClick={() => addDetailLinePlanfontprojet({ iddata: null,idProjet: null, idSource: null, montant: '' })}
+        onClick={() => addDetailLinePlanfontprojet({ id: null,idProjet: null, idSource: null, montant: '' })}
         className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
       >
         + Ajouter une ligne
@@ -1774,7 +2301,7 @@ const renderDevisePage = () => (
            <td className="border border-gray-300 px-2 py-2" hidden>
                 <input
                   type="number"
-                  {...registerPlanfontprojet(`details.${index}.iddata`, { required: false })}
+                  {...registerPlanfontprojet(`details.${index}.id`, { required: false })}
                   className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                   placeholder="0.00" 
                 />
@@ -1784,11 +2311,14 @@ const renderDevisePage = () => (
                 <select
                   {...registerPlanfontprojet(`details.${index}.idProjet`, { required: true })}
                   className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                >
+                 onClick={getProjets}
+               >
                   <option value="">Sélectionner un projet</option>
-                  <option value="611">611 - Projet 1</option>
-                  <option value="612">612 - Projet 2</option>
-                  <option value="613">613 - Projet 3</option>
+                  {
+                    projets.map((element)=>(
+                    <option value={element.id}>{element.libelle}</option>
+                    ))
+                  }
                 </select>
               </td> 
 
@@ -1797,10 +2327,14 @@ const renderDevisePage = () => (
                 <select
                   {...registerPlanfontprojet(`details.${index}.idSource`)}
                   className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                  onClick={getBailleurs}
                 >
                   <option value="">Sélectionner un bailleur</option>
-                  <option value="1">1 - bailleur 1</option>
-                  <option value="2">2 - bailleur 2</option>
+                  {
+                    bailleurs.map((element)=>(
+                    <option value={element.id}>{element.libelle}</option>
+                    ))
+                  }
                 </select>
               </td>
 
@@ -1850,133 +2384,165 @@ const renderDevisePage = () => (
  const renderPlafondNaturePage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Planfond par nature</h2>
-      
-      <form onSubmit={handleAfficher}>
+
+      <form onSubmit={handleSubmitPlanfontNature(onSubmitPlanfontnature)}>
+        {/* En-tête */}
         <div className="bg-gray-50 p-6 rounded-lg mb-6">
           <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Exercice */}
             <div>
-              <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
+              <label className="block text-gray-700 font-medium mb-2">
+                Exercice Budgétaire
+              </label> 
+
               <select
-                name="exercice"
-                value={formData.exercice || ''}
-                onChange={handleInputChange}
+                {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-              >
+                  onClick={getExerciceencours}
+                >
                 <option value="">Sélectionner l'exercice</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
+                {
+                  exercices.map((element)=>(
+                  <option value={element.id}>{element.libelle}</option>
+                  ))
+                }
               </select>
             </div>
+
+            {/* Projet */}
             <div>
-            <label className="block text-gray-700 font-medium mb-2">Projet</label>
-              <select
-                name="projet"
-                value={formData.projet || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-                      >
-                        <option value="">Sélectionner un projet</option>
-                        <option value="611">611 - Projet 1</option>
-                        <option value="612">612 - Projet 2</option>
-                        <option value="613">613 - Projet 3</option>
-               </select>
+              <label className="block text-gray-700 font-medium mb-2">Projet</label>
+             <select
+                  {...registerPlanfontNature(`idProjet`, { required: true })}
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+              onClick={getProjets}
+               >
+                  <option value="">Sélectionner un projet</option>
+                  {
+                    projets.map((element)=>(
+                    <option value={element.id}>{element.libelle}</option>
+                    ))
+                  }
+                </select>
             </div>
           </div>
         </div>
 
+        {/* Détails */}
         <div className="bg-gray-50 p-6 rounded-lg mb-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-lg font-semibold text-gray-700">Détails des projets</h3>
             <button
               type="button"
-              onClick={addDetailLine}
+              onClick={() =>
+                addDetailLinePlanfontnature({id: null, categorie: null, idSource: null, montant: "",exercice:null })
+              }
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
             >
               + Ajouter une ligne
             </button>
           </div>
 
+          {/* Table */}
           <div className="overflow-x-auto">
             <table className="w-full border-collapse">
               <thead>
-                <tr className="bg-gray-200"> 
-                  <th className="border border-gray-300 px-4 py-2 text-left">Nature</th>
+                <tr className="bg-gray-200">
                   <th className="border border-gray-300 px-4 py-2 text-left">Categorie</th>
+                  <th className="border border-gray-300 px-4 py-2 text-left">Nature</th>
                   <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
                   <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
                 </tr>
               </thead>
+
               <tbody>
-                {detailLines.map((line) => (
-                  <tr key={line.id} className="hover:bg-gray-100">
+                {fields.map((field, index) => (
+                  <tr key={field.id} className="hover:bg-gray-100">
+                
+
+                    {/* Catégorie */}
                     <td className="border border-gray-300 px-2 py-2">
                       <select
-                        value={line.classe}
-                        onChange={(e) => handleDetailChange(line.id, 'classe', e.target.value)}
+                        {...registerPlanfontNature(`details.${index}.categorie`, { required: true })}
                         className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        required
-                      >
-                        <option value="">Sélectionner une classe</option>
-                        <option value="611">611 - Bien et services</option>
-                        <option value="612">612 - Deplacement</option> 
-                      </select>
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        value={line.categorie}
-                        onChange={(e) => handleDetailChange(line.id, 'categorie', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        required
+                             onClick={getCategorie}
                      >
-                        <option value="">Sélectionner un categorie</option>
-                        <option value="611">1 - categorie 1</option>
-                        <option value="612">2 - categorie 2</option>
+                        <option value="">Sélectionner une catégorie</option>
+                        {
+                          categories.map((element)=>(
+                          <option value={element.id}>{element.libelle}</option>
+                          ))
+                        }
                       </select>
                     </td>
+                        
+                    {/* Classe */}
+                    <td className="border border-gray-300 px-2 py-2">
+                      <select
+                        {...registerPlanfontNature(`details.${index}.idSource`, { required: false })}
+                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                      onClick={getClasses}
+                        >
+                        <option value="">Sélectionner la nature de depense</option>
+                        {
+                          classes.map((element)=>(
+                          <option value={element.id}>{element.libelle}</option>
+                          ))
+                        }
+                      </select>
+                    </td>
+
+                    {/* Montant */}
                     <td className="border border-gray-300 px-2 py-2">
                       <input
                         type="number"
-                        value={line.montant}
-                        onChange={(e) => handleDetailChange(line.id, 'montant', e.target.value)}
+                        step="0.01"
+                        {...registerPlanfontNature(`details.${index}.montant`, { required: true })}
                         className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                         placeholder="0.00"
-                        step="0.01"
-                        required
                       />
                     </td>
+
+                    {/* Supprimer */}
                     <td className="border border-gray-300 px-2 py-2 text-center">
                       <button
                         type="button"
-                        onClick={() => removeDetailLine(line.id)}
+                        onClick={() => remove(index)}
+                        disabled={fields.length === 1}
                         className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-                        disabled={detailLines.length === 1}
                       >
                         <X className="w-5 h-5" />
                       </button>
                     </td>
                   </tr>
                 ))}
-                <tr className="bg-blue-50 font-semibold" > 
-                  <td className="border border-gray-300 px-4 py-2 text-center"  colSpan={2}>Total</td>
-                  <td className="border border-gray-300 px-4 py-2 text-center"  colSpan={2}>
-                    {calculateTotal().toLocaleString('fr-FR', { minimumFractionDigits: 2 })} 
-                  </td> 
+
+                {/* Total */}
+                <tr className="bg-blue-50 font-semibold">
+                  <td className="border border-gray-300 px-4 py-2 text-center" colSpan={2}>
+                    Total
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2 text-center" colSpan={2}>
+                    {calculateTotal().toLocaleString("fr-FR", {
+                      minimumFractionDigits: 2,
+                    })}
+                  </td>
                 </tr>
               </tbody>
             </table>
           </div>
         </div>
 
+        {/* Actions */}
         <div className="flex justify-end">
-            <div className="flex gap-4 justify-end">
+          <div className="flex gap-4 justify-end">
             <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
               Enregistrer
             </button>
-            <button className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition">
+
+            <button type="button" className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition">
               Imprimer
             </button>
           </div>

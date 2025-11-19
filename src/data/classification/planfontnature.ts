@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/planfontnatures";
+const API_URL = "http://localhost:8080/api/planFonds";
 
 export const getAllPlanfontnature = async () => {
   try {

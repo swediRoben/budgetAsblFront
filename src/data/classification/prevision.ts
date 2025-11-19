@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/previsions";
+const API_URL = "http://localhost:8080/api/planActivites";
 
 export const getAllPrevision = async () => {
   try {

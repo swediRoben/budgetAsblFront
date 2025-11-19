@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/planfontprojets";
+const API_URL = "http://localhost:8080/api/planfondProjets";
 
 export const getAllPlanfontprojet = async () => {
   try {
@@ -21,7 +21,7 @@ export const getPlanfontprojetById = async (id: number) => {
 };
 
 export const createPlanfontprojet = async (data: any) => {
-  try {
+  try { 
     const response = await axios.post(API_URL, data);
     return response;
   } catch (error) {
@@ -30,7 +30,7 @@ export const createPlanfontprojet = async (data: any) => {
 };
 
 export const updatePlanfontprojet = async (id: number, data: any) => {
-  try {
+  try { 
     const response = await axios.put(`${API_URL}/${id}`, data);
     return response.data;
   } catch (error) {
