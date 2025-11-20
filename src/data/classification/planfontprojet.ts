@@ -2,9 +2,13 @@ import axios from "axios";
 
 const API_URL = "http://localhost:8080/api/planfondProjets";
 
-export const getAllPlanfontprojet = async () => {
+export const getAllPlanfontprojet = async (exercice:any) => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(API_URL,{
+      params:{
+        exercice
+      }
+    }); 
     return response.data;
   } catch (error) {
     throw error;

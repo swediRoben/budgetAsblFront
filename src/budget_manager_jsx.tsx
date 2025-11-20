@@ -102,8 +102,8 @@ const BudgetApp = () => {
     setDevises(data) 
   }
 
-  const dataPlanfontprojet =async ()=>{
-    const data=await getAllPlanfontprojet(); 
+  const dataPlanfontprojet =async (e:any)=>{
+    const data=await getAllPlanfontprojet(e); 
     setPlanfontprojets(data) 
   }
 
@@ -116,11 +116,6 @@ const BudgetApp = () => {
     const data=await getAllPrevision(); 
     setPrevisions(data) 
   }
-
-    useEffect(()=>{
-     const f=dataPlanfontprojet() 
-        console.log(f);
-  },[])
 
   const getAllDataInTable=(type:string)=>{ 
     if(type==='classe'){
@@ -143,6 +138,18 @@ const BudgetApp = () => {
       dataExercice();
     }else if(type==='devise'){
       dataDevise();
+    }else if(type==='plafond'){
+      dataExercice();
+      dataBailleur();
+      dataProjet();
+    }else if(type==='plafondNature'){
+      dataExercice(); 
+      dataClasse(); 
+      dataProjet();
+    }else if(type==='elaboration'){
+      dataExercice();
+      dataBailleur();
+      dataProjet();
     }
   }
 
@@ -222,7 +229,8 @@ const BudgetApp = () => {
     const {
       register: registerPlanfontprojet,
       handleSubmit: handleSubmitPlanfontprojet,
-      control,
+      control,   
+      getValues, 
       reset: resetPlanfontprojet,
       formState: { errors: errorsPlanfontprojet },
     } = useForm({
@@ -443,21 +451,11 @@ const BudgetApp = () => {
             }
             })
            
-            toast.success("Operation effectuée avec succès !");
-            resetPlanfontprojet();  
+            toast.success("Operation effectuée avec succès !");  
           } catch (error:any) {
             toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
           }
-      };
-  
-//  function getResetPlanFonProjet(){ 
-//     resetPlanfontprojet({
-//       exercice: 10065,
-//       details: [
-//             {id: null, idProjet: 10038, idSource: null, montant: "",exercice:null }
-//           ]
-//         });
-//   }     
+      };  
  
   const onSubmitPlanfontnature = async (data:any) => { 
        try { 
@@ -551,6 +549,18 @@ const BudgetApp = () => {
       deleteDevise(id);  
       dataDevise();
     }
+    toast.success("Supression effectuée avec succès !");
+ 
+    } catch (error) {
+    toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+      dataClasse();
+    }
+  }
+
+  const hendleDeletePlanfondProjet=(id:number,exercice:any)=>{ 
+    try {
+      deletePlanfontprojet(id);  
+      getPlanfondByExercice(exercice)
     toast.success("Supression effectuée avec succès !");
  
     } catch (error) {
@@ -685,9 +695,26 @@ const BudgetApp = () => {
     dataPlancompte();
   }
 
-      const getBeneficiaires=()=>{
+  const getBeneficiaires=()=>{
     dataBenefiere();
   }
+
+  const getPlanfondByExercice=async (e)=>{ 
+        const data=await getAllPlanfontprojet(e.target.value);  
+      if (data.length > 0) { 
+      resetPlanfontprojet({
+        exercice:e.target.value, // exemple : même exercice pour tous
+        details: data.map((p) => ({
+          id: p.id,
+          idProjet: p.idProjet,
+          idSource: p.idSource,
+          montant: p.montant, 
+        })),
+      });
+    }
+  }
+
+  
   //FERMER ET VIDER TOUS LES FORMULAIRE
   const closeModal = () => {
     resetClasse({ id:null,code: null, libelle: null,type:null })
@@ -1855,191 +1882,7 @@ const renderDevisePage = () => (
         >
           Afficher l’Aperçu
         </button>
-      </div>
-
-
-      {/* <form onSubmit={handleAfficher}>
-        <div className="bg-gray-50 p-6 rounded-lg mb-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
-              <select
-                name="exercice"
-                value={formData.exercice || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-              >
-                <option value="">Sélectionner l'exercice</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Projet</label>
-              <select
-                name="typeBudget"
-                value={formData.projet || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-              >
-                <option value="">Sélectionner un projet</option>
-                <option value="Initial">611 - Projet 1</option>
-                <option value="projet">612 - Projet 2</option>
-                <option value="projet1">613 - Projet 3</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Categorie</label>
-              <select
-                name="typeBudget"
-                value={formData.categorie || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-              >
-                <option value="">Sélectionner une categorie</option>
-                <option value="Initial">611 - Categorie 1</option>
-                <option value="projet">612 - Categorie 2</option>
-                <option value="projet1">613 - Categorie 3</option>
-              </select>
-            </div>
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Classe</label>
-              <input
-                type="text"
-                name="classeId"
-                value={formData.classeId || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-                readOnly
-              />
-            </div>
-            <div>
-                <span className="px-4 py-2 bg-green-600 text-white rounded-full font-semibold text-sm shadow">
-                  Montant restant par catégorie: <strong>5 000 000 000</strong>
-                </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-gray-50 p-6 rounded-lg mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-700">Détails des Lignes Budgétaires</h3>
-            <button
-              type="button"
-              onClick={addDetailLine}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
-            >
-              + Ajouter une ligne
-            </button>
-          </div>
-
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="border border-gray-300 px-4 py-2 text-left">Compte</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Beneficiaire</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Ligne Budgetaire</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                {detailLines.map((line) => (
-                  <tr key={line.id} className="hover:bg-gray-100">
-                    <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        value={line.compte}
-                        onChange={(e) => handleDetailChange(line.id, 'compte', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        required
-                      >
-                        <option value="">Sélectionner un compte</option>
-                        <option value="611">611 - Salaires et Traitements</option>
-                        <option value="612">612 - Charges Sociales</option>
-                        <option value="621">621 - Fournitures de Bureau</option>
-                        <option value="622">622 - Services Extérieurs</option>
-                        <option value="623">623 - Déplacements</option>
-                      </select>
-                    </td>
-                  <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        value={line.bailleur}
-                        onChange={(e) => handleDetailChange(line.id, 'bailleur', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        required
-                      >
-                        <option value="">source de financement</option>
-                        <option value="611">611 - CSS</option>
-                        <option value="612">612 - Banque Sociales</option>
-                      </select>
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        value={line.beneficiere}
-                        onChange={(e) => handleDetailChange(line.id, 'beneficiere', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        required
-                      >
-                        <option value="">beneficiere</option>
-                        <option value="611">611 - Fap</option>
-                        <option value="612">612 - Empoyer</option>
-                      </select>
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2">
-                      <input
-                        type="number"
-                        value={line.montant}
-                        onChange={(e) => handleDetailChange(line.id, 'montant', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        placeholder="0.00"
-                        step="0.01"
-                        required
-                      />
-                    </td>
-                     <td className="border border-gray-300 px-2 py-2">
-                      <input
-                        type="text"
-                        value={line.ligneBudgetaire}
-                        onChange={(e) => handleDetailChange(line.id, 'ligneBudgetaire', e.target.value)}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        placeholder="ligne budgetaire" 
-                        readOnly
-                        required
-                      />
-                    </td>
-                    <td className="border border-gray-300 px-2 py-2 text-center">
-                      <button
-                        type="button"
-                        onClick={() => removeDetailLine(line.id)}
-                        className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-                        disabled={detailLines.length === 1}
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                <tr className="bg-blue-50 font-semibold">
-                  <td className="border border-gray-300 px-4 py-2 text-right">Total</td>
-                  <td className="border border-gray-300 px-4 py-2">
-                    {calculateTotal().toLocaleString('fr-FR', { minimumFractionDigits: 2 })} FBU
-                  </td>
-                  <td className="border border-gray-300"></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      
-      </form> */}
+      </div> 
 
     <form onSubmit={handleSubmitPrevision(onSubmitPrevision)}>
       {/* En-tête */}
@@ -2249,11 +2092,10 @@ const renderDevisePage = () => (
         <label className="block text-gray-700 font-medium mb-2">
           Exercice Budgétaire
         </label>
-
         <select
           {...registerPlanfontprojet("exercice", { required: true })}
           className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-         onClick={getExerciceencours}
+          onChange={getPlanfondByExercice} 
        >
           <option value="">Sélectionner l'exercice</option>
           {
@@ -2353,7 +2195,12 @@ const renderDevisePage = () => (
               <td className="border border-gray-300 px-2 py-2 text-center">
                 <button
                   type="button"
-                  onClick={() => removeDetailLinePlanfontprojet(index)}
+                  onClick={ () =>{
+                    const id = getValues(`details.${index}.id`);
+                    const exercice = getValues("exercice");
+                    hendleDeletePlanfondProjet(id, exercice);
+                    removeDetailLinePlanfontprojet(index); 
+                  }}
                   className="text-red-600 hover:text-red-800 disabled:text-gray-400"
                   disabled={fields.length === 1}
                 >
