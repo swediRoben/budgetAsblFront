@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
 import {createClasse,deleteClasse,getAllClasse,updateClasse} from "./data/classification/classes";
 import {createPlancompte,deletePlancompte,getAllPlancompte,updatePlancompte} from "./data/classification/planComptable";
@@ -32,22 +32,255 @@ const BudgetApp = () => {
   const [planfondprojets, setPlanfontprojets] = useState([]);
   const [planfontNatures, setPlanfontNature] = useState([]);
   const [previsions, setPrevisions] = useState([]);
+    const [dataCategorieTest,setDataCategorieTest]=useState([
 
-    const [data, setData] = useState([
-      { projet: 1, categorie: 1, activite: 1, montant: 7000 },
-      { projet: 1, categorie: 2, activite: 1, montant: 1000 },
-      { projet: 1, categorie: 2, activite: 2, montant: 3300 },
-      { projet: 2, categorie: 1, activite: 1, montant: 5500 },
-      { projet: 2, categorie: 1, activite: 2, montant: 2000 },
-    ]);
-  
-    // Grouper Projet → Catégorie → Activités
-    const grouped = {};
-    data.forEach((item) => {
-      if (!grouped[item.projet]) grouped[item.projet] = {};
-      if (!grouped[item.projet][item.categorie]) grouped[item.projet][item.categorie] = [];
-      grouped[item.projet][item.categorie].push(item);
+    {
+      id: 1,
+     idCategorie: 10043,
+      "categorie":{
+            "id":1,
+            "libelle":"consolidation categorie" 
+        },
+     idClasse: 10004,
+    "classe":{
+            "id":10004,
+            "libelle":"charger personnel" 
+        },
+     montant: "5000",
+     exercice: null,
+     idProjet: 10038,
+     "projet":{
+            "id":1,
+            "libelle":"consolidation"
+        }
+     },
+     {
+      id: 2,
+     idCategorie: 10043,
+      "categorie":{
+            "id":2,
+            "libelle":"consolidation categorie 2" 
+        },
+     idClasse: 10004,
+    "classe":{
+            "id":10004,
+            "libelle":"charger personnel" 
+        },
+     montant: "5000",
+     exercice: null,
+     idProjet: 10038,
+     "projet":{
+            "id":1,
+            "libelle":"consolidation"
+        }
+     } 
+]
+)
+  const [dataTest,setDataTest]=useState([
+    {
+        "id": 10161,
+        "idProjet": 10038,
+        "projet":{
+            "id":1,
+            "libelle":"consolidation"
+        },
+        "idExercice": 10065,
+        "idSource": 10060,
+        "bailleur":{
+            "id":1,
+            "libelle":"FAP"
+        },
+        "idCategorie": 1,
+        "categorie":{
+            "id":1,
+            "libelle":"consolidation categorie" 
+        },
+        "activite": {
+            "id":1,
+            "libelle":"activite 1"
+        },
+        "datebebut":"12/01/2025",
+        "datefin":"12/11/2025",
+        "ligne":"0030440444",
+        "pu": "28",
+        "quantite": "28",
+        "montant": "212443.98"
+    },
+     {
+        "id": 10161,
+        "idProjet": 10038,
+        "projet":{
+            "id":1,
+            "libelle":"consolidation"
+        },
+        "idExercice": 10065,
+        "idSource": 10060,
+        "bailleur":{
+            "id":2,
+            "libelle":"FPAD"
+        },
+        "idCategorie": 1,
+        "categorie":{
+            "id":1,
+            "libelle":"consolidation categorie" 
+        },
+        "activite": {
+            "id":2,
+            "libelle":"activite 2"
+        },
+        "datebebut":"12/01/2025",
+        "datefin":"12/11/2025",
+        "ligne":"0030440444",
+        "pu": "28",
+        "quantite": "28",
+        "montant": "212443.98"
+    },
+     {
+        "id": 10161,
+        "idProjet": 10038,
+        "projet":{
+            "id":1,
+            "libelle":"consolidation"
+        },
+        "idExercice": 10065,
+        "idSource": 10060,
+        "bailleur":{
+            "id":1,
+            "libelle":"FAP"
+        },
+        "idCategorie": 2,
+        "categorie":{
+            "id":2,
+            "libelle":"consolidation categorie 2" 
+        },
+        "activite": {
+            "id":3,
+            "libelle":"activite 3"
+        },
+        "datebebut":"12/01/2025",
+        "datefin":"12/11/2025",
+        "ligne":"0030440444",
+        "pu": "28",
+        "quantite": "28",
+        "montant": "212443.98"
+    },,
+     {
+        "id": 10161,
+        "idProjet": 10038,
+        "projet":{
+            "id":1,
+            "libelle":"consolidation"
+        },
+        "idExercice": 10065,
+        "idSource": 10060,
+        "bailleur":{
+            "id":1,
+            "libelle":"FAP"
+        },
+        "idCategorie": 2,
+        "categorie":{
+            "id":2,
+            "libelle":"consolidation categorie 2" 
+        },
+        "activite": {
+            "id":4,
+            "libelle":"activite 4"
+        },
+        "datebebut":"12/01/2025",
+        "datefin":"12/11/2025",
+        "ligne":"0030440444",
+        "pu": "28",
+        "quantite": "28",
+        "montant": "212443.98"
+    }
+])
+
+
+//ETAT DE SORTIE CATEGORIE
+  const groupeCategorieid = useMemo(() => {
+  const res = {};
+
+  dataCategorieTest.forEach(item => {
+    const pid = item.projet?.id ?? item.idProjet;
+    const cid = item.categorie?.id ?? item.idCategorie;
+    const classId = item.classe?.id ?? item.idClasse;
+
+    if (!res[pid]) {
+      res[pid] = {
+        projet: item.projet,
+        classes: {}
+      };
+    }
+
+    if (!res[pid].classes[classId]) {
+      res[pid].classes[classId] = {
+        classe: item.classe,
+        categories: []
+      };
+    }
+
+    res[pid].classes[classId].categories.push({
+      ...item,
+      montant: Number(String(item.montant).replace(/,/g, "")) || 0
     });
+  });
+
+  return res;
+}, [dataTest]);
+const totalClasse = (cats) =>
+  cats.reduce((sum, c) => sum + c.montant, 0);
+
+const totalProjetcategorie = (classes) =>
+  Object.values(classes).reduce(
+    (sum, cl) => sum + totalClasse(cl.categories),
+    0
+  );
+
+    // ETAT DE SORTIE ACTIVITE
+ const grouped = useMemo(() => {
+  const res = {};
+
+  dataTest.forEach((item) => {
+    const pid = item.projet?.id ?? item.idProjet;
+    const cid = item.categorie?.id ?? item.idCategorie;
+
+    if (!res[pid])
+      res[pid] = {
+        projet: item.projet,
+        categories: {},
+      };
+
+    if (!res[pid].categories[cid])
+      res[pid].categories[cid] = {
+        categorie: item.categorie,
+        acts: [],
+      };
+
+    // Convertir pu, quantite, montant
+    const pu = Number(String(item.pu).replace(/,/g, "")) || 0;
+    const quantite = Number(String(item.quantite).replace(/,/g, "")) || 0;
+    const montant = Number(String(item.montant).replace(/,/g, "")) || 0;
+
+    res[pid].categories[cid].acts.push({
+      ...item,
+      pu,
+      quantite,
+      montant,
+      bailleur: item.bailleur,
+    });
+  });
+
+  return res;
+}, [dataTest]);
+
+ const totalCategorie = (acts) =>
+    acts.reduce((sum, a) => sum + a.montant, 0);
+
+  const totalProjet = (categories) =>
+    Object.values(categories).reduce(
+      (sum, cat) => sum + totalCategorie(cat.acts),
+      0
+    );
 
   // GET
   const dataClasse =async ()=>{
@@ -325,6 +558,7 @@ const BudgetApp = () => {
 
   const onSubmitCategorie = async (data:any) => { 
           try { 
+            data.projetId=parseInt(data.projetId);
             if (!data.id) { 
               await createCategorie(data);
             } else { 
@@ -873,8 +1107,9 @@ const removeDetailLinePlanfontprojet = (index: number) => {
           name: 'État de Sortie',
           icon: <FileText className="w-4 h-4" />,
           pages: [
-            { id: 'parClasse', name: 'Par Classe' },
-            { id: 'parProjet', name: 'Par Projet' }
+            { id: 'parProjet', name: 'Plafond par projet' },
+            { id: 'parClasse', name: 'Prevision par nature' },
+            { id: 'parActivite', name: 'prevision annuelle' }
           ]
         }
       ]
@@ -1661,55 +1896,69 @@ const renderDevisePage = () => (
       <p className="text-gray-600">Contenu de la section {title} à venir...</p>
 
 <div className="bg-white p-6 rounded-lg border border-gray-300 shadow-md max-w-5xl mx-auto">
-    <h2 className="text-center text-gray-800 text-2xl mb-5">État de Sortie</h2>
+  <h2 className="text-center text-gray-800 text-2xl mb-5">État de Sortie</h2>
 
-    <table className="w-full border-collapse mt-2">
-        <thead>
-            <tr className="bg-blue-900 text-white text-left text-sm">
-                <th className="p-2 border border-gray-300">PROJET</th>
-                <th className="p-2 border border-gray-300">NATURE</th>
-                <th className="p-2 border border-gray-300">CATEGORIE</th>
-                <th className="p-2 border border-gray-300">MONTANT</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
-                <td className="p-2 border border-gray-300 text-sm">Charges personnelles</td>
-                <td className="p-2 border border-gray-300 text-sm">Cat 1</td>
-                <td className="p-2 border border-gray-300 text-sm">5 000</td>
-            </tr>
-            <tr>
-                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
-                <td className="p-2 border border-gray-300 text-sm">Charges personnelles</td>
-                <td className="p-2 border border-gray-300 text-sm">Cat 2</td>
-                <td className="p-2 border border-gray-300 text-sm">10 000</td>
-            </tr>
-            <tr className="bg-orange-100 font-bold">
-                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
-                <td className="p-2 border border-gray-300 text-sm">Charges personnelles (Total)</td>
+  <table className="w-full border-collapse mt-2">
+    <thead>
+      <tr className="bg-blue-900 text-white text-left text-sm">
+        <th className="p-2 border border-gray-300">PROJET</th>
+        <th className="p-2 border border-gray-300">NATURE</th>
+        <th className="p-2 border border-gray-300">CATEGORIE</th>
+        <th className="p-2 border border-gray-300">MONTANT</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {Object.entries(groupeCategorieid).map(([pid, p]) => (
+        <>
+          {Object.entries(p.classes).map(([classId, c]) => (
+            <>
+              {c.categories.map(cat => (
+                <tr key={cat.id}>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {p.projet.libelle}
+                  </td>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {c.classe.libelle}
+                  </td>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {cat.categorie.libelle}
+                  </td>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {cat.montant.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+
+              {/* TOTAL CLASS */}
+              <tr className="bg-orange-100 font-bold">
+                <td className="p-2 border border-gray-300 text-sm">{p.projet.libelle}</td>
+                <td className="p-2 border border-gray-300 text-sm">
+                  {c.classe.libelle} (Total)
+                </td>
                 <td className="p-2 border border-gray-300 text-sm"></td>
-                <td className="p-2 border border-gray-300 text-sm">15 000</td>
-            </tr>
-            <tr>
-                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
-                <td className="p-2 border border-gray-300 text-sm">Charges divers</td>
-                <td className="p-2 border border-gray-300 text-sm">Cat 5</td>
-                <td className="p-2 border border-gray-300 text-sm">4 000</td>
-            </tr>
-            <tr className="bg-orange-100 font-bold">
-                <td className="p-2 border border-gray-300 text-sm">Projet 1</td>
-                <td className="p-2 border border-gray-300 text-sm">Charges divers (Total)</td>
-                <td className="p-2 border border-gray-300 text-sm"></td>
-                <td className="p-2 border border-gray-300 text-sm">9 000</td>
-            </tr>
-            <tr className="bg-green-200 font-bold text-base">
-                <td className="p-2 border border-gray-300 text-sm" colspan="3">TOTAL PROJET 1</td>
-                <td className="p-2 border border-gray-300 text-sm">24 000</td>
-            </tr>
-        </tbody>
-    </table>
+                <td className="p-2 border border-gray-300 text-sm">
+                  {totalClasse(c.categories).toLocaleString()}
+                </td>
+              </tr>
+            </>
+          ))}
+
+          {/* TOTAL PROJET */}
+          <tr className="bg-green-200 font-bold text-base">
+            <td className="p-2 border border-gray-300 text-sm" colSpan={3}>
+              TOTAL {p.projet.libelle}
+            </td>
+            <td className="p-2 border border-gray-300 text-sm">
+              {totalProjetcategorie(p.classes).toLocaleString()}
+            </td>
+          </tr>
+        </>
+      ))}
+    </tbody>
+  </table>
 </div>
+
 
    
     <h2 className="text-center mb-6 text-gray-800 text-2xl font-semibold">État de Sortie</h2>
@@ -1728,148 +1977,435 @@ const renderDevisePage = () => (
             </tr>
         </thead>
 
-        <tbody>
+          <tbody>
+  {Object.entries(grouped).map(([pid, projetData], pIndex) => {
+    const categories = projetData.categories;
+    const totProj = totalProjet(categories);
 
-            {/* <!-- PROJET 1 --> */}
-            <tr className="bg-[#d9e1f2] font-semibold">
-                <td className="p-3 border border-gray-300">01</td>
-                <td className="p-3 border border-gray-300" colSpan={5}>Projet 1</td>
-                <td className="p-3 border border-gray-300">24 000</td> 
-                <td className="p-3 border border-gray-300">FAP</td>
-            </tr>
+    return (
+      <React.Fragment key={pid}>
+        {/* PROJET */}
+        <tr className="bg-[#d9e1f2] font-semibold">
+          <td className="p-3 border border-gray-300">{String(pIndex + 1).padStart(2, "0")}</td>
+          <td className="p-3 border border-gray-300" colSpan={5}>
+            {projetData.projet?.libelle}
+          </td>
+          <td className="p-3 border border-gray-300">{totProj.toLocaleString()}</td>
+          <td className="p-3 border border-gray-300">—</td>
+        </tr>
 
-            {/* <!-- CATEGORIE 1 --> */}
-            <tr className="bg-[#fce4d6] font-semibold">
-                <td className="p-3 border border-gray-300">003</td>
-                <td className="p-3 border border-gray-300" colSpan={5}>CATEGORIE</td> 
-                <td className="p-3 border border-gray-300">5000</td>
-                <td className="p-3 border border-gray-300">FAP</td>
-            </tr>
+        {/* CATEGORIES */}
+        {Object.entries(categories).map(([cid, catData], cIndex) => {
+          const totCat = totalCategorie(catData.acts);
 
-            <tr>
-                <td className="p-3 border border-gray-300">00011</td>
-                <td className="p-3 border border-gray-300">ACTIVIE 1</td>
-                <td className="p-3 border border-gray-300">12/05/2026</td>
-                <td className="p-3 border border-gray-300">12/09/2026</td>
-                <td className="p-3 border border-gray-300">5 </td>
-                <td className="p-3 border border-gray-300">5 000</td>
-                <td className="p-3 border border-gray-300">25 000</td>
-                <td className="p-3 border border-gray-300">FAP</td>
-            </tr>
+          return (
+            <React.Fragment key={cid}>
+              {/* CATEGORIE */}
+              <tr className="bg-[#fce4d6] font-semibold">
+                <td className="p-3 border border-gray-300">{String(cIndex + 1).padStart(3, "0")}</td>
+                <td className="p-3 border border-gray-300" colSpan={5}>
+                  {catData.categorie?.libelle}
+                </td>
+                <td className="p-3 border border-gray-300">{totCat.toLocaleString()}</td>
+                <td className="p-3 border border-gray-300">—</td>
+              </tr>
 
-             <tr>
-                <td className="p-3 border border-gray-300">00012</td>
-                <td className="p-3 border border-gray-300">ACTIVIE SSS JDSD D  DSKDS2</td>
-                <td className="p-3 border border-gray-300">12/05/2026</td>
-                <td className="p-3 border border-gray-300">12/09/2026</td>
-                <td className="p-3 border border-gray-300">5 </td>
-                <td className="p-3 border border-gray-300">5 000</td>
-                <td className="p-3 border border-gray-300">25 000</td>
-                <td className="p-3 border border-gray-300">EIRENE</td>
-            </tr>
- 
-      {/* <!-- CATEGORIE 2 --> */}
-            <tr className="bg-[#fce4d6] font-semibold">
-                <td className="p-3 border border-gray-300">002</td>
-                <td className="p-3 border border-gray-300" colSpan={5}>CATEGORIE 2</td> 
-                <td className="p-3 border border-gray-300">5000</td>
-                <td className="p-3 border border-gray-300">EIRENE</td>
-            </tr>
+              {/* ACTIVITÉS */}
+              {catData.acts.map((act, aIndex) => (
+                <tr key={aIndex}>
+                  <td className="p-3 border border-gray-300">{act.ligne}</td>
+                  <td className="p-3 border border-gray-300">{act.activite?.libelle}</td>
+                  <td className="p-3 border border-gray-300">{act.datebebut}</td>
+                  <td className="p-3 border border-gray-300">{act.datefin}</td>
 
-            <tr>
-                <td className="p-3 border border-gray-300">00011</td>
-                <td className="p-3 border border-gray-300">ACTIVIE 1</td>
-                <td className="p-3 border border-gray-300">12/05/2026</td>
-                <td className="p-3 border border-gray-300">12/09/2026</td>
-                <td className="p-3 border border-gray-300">5 </td>
-                <td className="p-3 border border-gray-300">5 000</td>
-                <td className="p-3 border border-gray-300">25 000</td>
-                <td className="p-3 border border-gray-300">ZEP</td>
-            </tr>
+                  <td className="p-3 border border-gray-300">{act.quantite}</td>
+                  <td className="p-3 border border-gray-300">{act.pu.toLocaleString()}</td>
+                  <td className="p-3 border border-gray-300">{act.montant.toLocaleString()}</td>
+                  <td className="p-3 border border-gray-300">{act.bailleur?.libelle}</td>
+                </tr>
+              ))}
+            </React.Fragment>
+          );
+        })}
 
-             <tr>
-                <td className="p-3 border border-gray-300">00012</td>
-                <td className="p-3 border border-gray-300">ACTIVIE SSS JDSD D  DSKDS2</td>
-                <td className="p-3 border border-gray-300">12/05/2026</td>
-                <td className="p-3 border border-gray-300">12/09/2026</td>
-                <td className="p-3 border border-gray-300">5 </td>
-                <td className="p-3 border border-gray-300">5 000</td>
-                <td className="p-3 border border-gray-300">25 000</td>
-                <td className="p-3 border border-gray-300">EIRENE</td>
-            </tr>
-
-            {/* <!-- TOTAL --> */}
-            <tr className="bg-[#c6efce] font-bold text-base">
-                <td className="p-3 border border-gray-300" colSpan={6}>TOTAL PROJET 1</td>
-                <td className="p-3 border border-gray-300" colSpan={2}>24 000</td>
-            </tr>
-
-        </tbody>
+        {/* TOTAL FINAL PROJET */}
+        <tr className="bg-[#c6efce] font-bold text-base">
+          <td className="p-3 border border-gray-300" colSpan={6}>
+            TOTAL {projetData.projet?.libelle}
+          </td>
+          <td className="p-3 border border-gray-300" colSpan={2}>
+            {totProj.toLocaleString()}
+          </td>
+        </tr>
+      </React.Fragment>
+    );
+  })}
+</tbody>
     </table>
 
-       <div className="bg-gray-100 p-6 min-h-screen">
-          <div className="bg-white p-6 rounded-xl shadow">
-            <h2 className="text-2xl font-bold text-blue-600 mb-4">
-              Projet → Catégorie → Activité avec Montants
-            </h2>
-    
-            <table className="min-w-full border-collapse border border-gray-300">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="border border-gray-300 px-4 py-2 w-40">Type</th>
-                  <th className="border border-gray-300 px-4 py-2">Nom</th>
-                  <th className="border border-gray-300 px-4 py-2">Montant</th>
-                </tr>
-              </thead>
-              <tbody>
-                {Object.entries(grouped).map(([projet, categories]) => {
-                  const projetTotal = Object.values(categories)
-                    .flat()
-                    .reduce((sum, a) => sum + a.montant, 0);
-    
-                  return (
-                    <React.Fragment key={`projet-${projet}`}>
-                      {/* Ligne Projet */}
-                      <tr className="bg-blue-50 font-semibold">
-                        <td className="border border-gray-300 px-4 py-2">Projet</td>
-                        <td className="border border-gray-300 px-4 py-2">{`Projet ${projet}`}</td>
-                        <td className="border border-gray-300 px-4 py-2">{`${projetTotal.toLocaleString()} FC`}</td>
-                      </tr>
-    
-                      {/* Lignes Catégorie + Activités */}
-                      {Object.entries(categories).map(([categorie, acts]) => {
-                        const categorieTotal = acts.reduce((sum, a) => sum + a.montant, 0);
-                        return (
-                          <React.Fragment key={`categorie-${projet}-${categorie}`}>
-                            {/* Ligne Catégorie */}
-                            <tr className="bg-gray-50 font-medium">
-                              <td className="border border-gray-300 px-4 py-2">Catégorie</td>
-                              <td className="border border-gray-300 px-4 py-2">{`Catégorie ${categorie}`}</td>
-                              <td className="border border-gray-300 px-4 py-2">{`${categorieTotal.toLocaleString()} FC`}</td>
-                            </tr>
-    
-                            {/* Lignes Activités */}
-                            {acts.map((a) => (
-                              <tr key={`activite-${projet}-${categorie}-${a.activite}`}>
-                                <td className="border border-gray-300 px-4 py-2">Activité</td>
-                                <td className="border border-gray-300 px-4 py-2">{`Activité ${a.activite}`}</td>
-                                <td className="border border-gray-300 px-4 py-2">{`${a.montant.toLocaleString()} FC`}</td>
-                              </tr>
-                            ))}
-                          </React.Fragment>
-                        );
-                      })}
-                    </React.Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
+    {/* <div className="bg-gray-100 p-6 min-h-screen">
+      <div className="bg-white p-6 rounded-xl shadow">
+        <h2 className="text-2xl font-bold text-blue-600 mb-4">Projet → Catégorie → Activité avec Montants</h2>
+
+        <table className="min-w-full border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border border-gray-300 px-4 py-2 w-40">Type</th>
+              <th className="border border-gray-300 px-4 py-2">Nom</th>
+              <th className="border border-gray-300 px-4 py-2">Montant</th>
+            </tr>
+          </thead>
+          <tbody>
+            {Object.values(grouped).map((projGroup) => {
+              const projet = projGroup.projet;
+              const categories = projGroup.categories;
+              const projetTotal = Object.values(categories)
+                .flatMap((c) => c.acts)
+                .reduce((sum, a) => sum + a.montant, 0);
+
+              return (
+                <React.Fragment key={`projet-${projet.id}`}>
+                  <tr className="bg-blue-50 font-semibold">
+                    <td className="border border-gray-300 px-4 py-2">Projet</td>
+                    <td className="border border-gray-300 px-4 py-2">{projet.libelle}</td>
+                    <td className="border border-gray-300 px-4 py-2">{`${projetTotal.toLocaleString()} FC`}</td>
+                  </tr>
+
+                  {Object.values(categories).map((cat) => {
+                    const categorie = cat.categorie;
+                    const acts = cat.acts;
+                    const categorieTotal = acts.reduce((s, a) => s + a.montant, 0);
+
+                    return (
+                      <React.Fragment key={`cat-${projet.id}-${categorie.id}`}>
+                        <tr className="bg-gray-50 font-medium">
+                          <td className="border border-gray-300 px-4 py-2">Catégorie</td>
+                          <td className="border border-gray-300 px-4 py-2">{categorie.libelle}</td>
+                          <td className="border border-gray-300 px-4 py-2">{`${categorieTotal.toLocaleString()} FC`}</td>
+                        </tr>
+
+                        {acts.map((a) => (
+                          <tr key={`act-${projet.id}-${categorie.id}-${a.activite?.id ?? a.id}`}>
+                            <td className="border border-gray-300 px-4 py-2">Activité</td>
+                            <td className="border border-gray-300 px-4 py-2">{a.activite?.libelle}</td>
+                            <td className="border border-gray-300 px-4 py-2">{`${a.montant.toLocaleString()} FC`}</td>
+                          </tr>
+                        ))}
+                      </React.Fragment>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div> */}
+
+</div> 
+  );
+  // ETAT DE SORTIE
+
+  const renderparProjetPage = (title) => (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div>
+        <label className="block text-gray-700 font-medium mb-2">
+          Exercice Budgétaire
+        </label>
+        <select
+          {...registerPlanfontprojet("exercice", { required: true })}
+          className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+          onChange={getPlanfondByExercice} 
+       >
+          <option value="">Sélectionner l'exercice</option>
+          {
+            exercices.map((element)=>(
+             <option value={element.id}>{element.libelle}</option>
+            ))
+          }
+        </select>
+
+        {errorsPlanfontprojet.exercice && (
+          <p className="text-red-500 text-sm">Champ obligatoire</p>
+        )}
+      </div>
+    </div>
+    <br />
+
+<div className="bg-white p-6 rounded-lg border border-gray-300 shadow-md max-w-5xl mx-auto"> 
+
+  <table className="w-full border-collapse mt-2">
+    <thead>
+      <tr className="bg-blue-900 text-white text-left text-sm">
+        <th className="p-2 border border-gray-300">PROJET</th>
+        <th className="p-2 border border-gray-300">SOURCE FINANCEMENT</th>
+        <th className="p-2 border border-gray-300">MONTANT</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {planfondprojets.map((p) => (
+      
+          <tr className="bg-orange-100 font-bold">
+                <td className="p-2 border border-gray-300 text-sm">{p.projet.libelle} </td>
+                <td className="p-2 border border-gray-300 text-sm">{p.classe.libelle}</td>
+                <td className="p-2 border border-gray-300 text-sm">
+                  {p.montant.toLocaleString()}
+                </td>
+              </tr>
+              
+          ))}
+
+         
+    </tbody>
+  </table>
+</div>
+
+</div> 
+  );
+const renderparClassePage = (title) => (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
+       <div className="bg-gray-50 p-6 rounded-lg mb-6"> 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Exercice */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Exercice Budgétaire
+              </label> 
+
+              <select
+                {...registerPlanfontNature("exercice", { required: true })}
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+                  onClick={getExerciceencours}
+                >
+                <option value="">Sélectionner l'exercice</option>
+                {
+                  exercices.map((element)=>(
+                  <option value={element.id}>{element.libelle}</option>
+                  ))
+                }
+              </select>
+            </div>
+
+            {/* Projet */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Projet</label>
+             <select
+                  {...registerPlanfontNature(`idProjet`, { required: true })}
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+              onClick={getProjets}
+               >
+                  <option value="">Sélectionner un projet</option>
+                  {
+                    projets.map((element)=>(
+                    <option value={element.id}>{element.libelle}</option>
+                    ))
+                  }
+                </select>
+            </div>
           </div>
-        </div>
+        </div> 
+
+<div className="bg-white p-6 rounded-lg border border-gray-300 shadow-md max-w-5xl mx-auto"> 
+
+  <table className="w-full border-collapse mt-2">
+    <thead>
+      <tr className="bg-blue-900 text-white text-left text-sm">
+        <th className="p-2 border border-gray-300">PROJET</th>
+        <th className="p-2 border border-gray-300">NATURE</th>
+        <th className="p-2 border border-gray-300">CATEGORIE</th>
+        <th className="p-2 border border-gray-300">MONTANT</th>
+      </tr>
+    </thead>
+
+    <tbody>
+      {Object.entries(groupeCategorieid).map(([pid, p]) => (
+        <>
+          {Object.entries(p.classes).map(([classId, c]) => (
+            <>
+              {c.categories.map(cat => (
+                <tr key={cat.id}>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {p.projet.libelle}
+                  </td>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {c.classe.libelle}
+                  </td>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {cat.categorie.libelle}
+                  </td>
+                  <td className="p-2 border border-gray-300 text-sm">
+                    {cat.montant.toLocaleString()}
+                  </td>
+                </tr>
+              ))}
+
+              {/* TOTAL CLASS */}
+              <tr className="bg-orange-100 font-bold">
+                <td className="p-2 border border-gray-300 text-sm">{p.projet.libelle}</td>
+                <td className="p-2 border border-gray-300 text-sm">
+                  {c.classe.libelle} (Total)
+                </td>
+                <td className="p-2 border border-gray-300 text-sm"></td>
+                <td className="p-2 border border-gray-300 text-sm">
+                  {totalClasse(c.categories).toLocaleString()}
+                </td>
+              </tr>
+            </>
+          ))}
+
+          {/* TOTAL PROJET */}
+          <tr className="bg-green-200 font-bold text-base">
+            <td className="p-2 border border-gray-300 text-sm" colSpan={3}>
+              TOTAL {p.projet.libelle}
+            </td>
+            <td className="p-2 border border-gray-300 text-sm">
+              {totalProjetcategorie(p.classes).toLocaleString()}
+            </td>
+          </tr>
+        </>
+      ))}
+    </tbody>
+  </table>
+</div>
 
 </div> 
   );
 
+const renderparActivitePage = (title) => (
+    <div className="bg-white rounded-lg shadow-md p-6">
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
+       <div className="bg-gray-50 p-6 rounded-lg mb-6"> 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+            {/* Exercice */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">
+                Exercice Budgétaire
+              </label> 
+
+              <select
+                {...registerPlanfontNature("exercice", { required: true })}
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+                  onClick={getExerciceencours}
+                >
+                <option value="">Sélectionner l'exercice</option>
+                {
+                  exercices.map((element)=>(
+                  <option value={element.id}>{element.libelle}</option>
+                  ))
+                }
+              </select>
+            </div>
+
+            {/* Projet */}
+            <div>
+              <label className="block text-gray-700 font-medium mb-2">Projet</label>
+             <select
+                  {...registerPlanfontNature(`idProjet`, { required: true })}
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+              onClick={getProjets}
+               >
+                  <option value="">Sélectionner un projet</option>
+                  {
+                    projets.map((element)=>(
+                    <option value={element.id}>{element.libelle}</option>
+                    ))
+                  }
+                </select>
+            </div>
+          </div>
+        </div> 
+
+    <table className="w-full border-collapse mt-4">
+        <thead>
+            <tr>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">CODE</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">DESCRIPTION</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">DEBUT</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">FIN</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">QUANTITE</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">C. UNITAIRE</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">TOTAL</th>
+                <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">SOURCE FINANCEMENT</th>
+            </tr>
+        </thead>
+
+          <tbody>
+  {Object.entries(grouped).map(([pid, projetData], pIndex) => {
+    const categories = projetData.categories;
+    const totProj = totalProjet(categories);
+
+    return (
+      <React.Fragment key={pid}>
+        {/* PROJET */}
+        <tr className="bg-[#d9e1f2] font-semibold">
+          <td className="p-3 border border-gray-300">{String(pIndex + 1).padStart(2, "0")}</td>
+          <td className="p-3 border border-gray-300" colSpan={5}>
+            {projetData.projet?.libelle}
+          </td>
+          <td className="p-3 border border-gray-300">{totProj.toLocaleString()}</td>
+          <td className="p-3 border border-gray-300">—</td>
+        </tr>
+
+        {/* CATEGORIES */}
+        {Object.entries(categories).map(([cid, catData], cIndex) => {
+          const totCat = totalCategorie(catData.acts);
+
+          return (
+            <React.Fragment key={cid}>
+              {/* CATEGORIE */}
+              <tr className="bg-[#fce4d6] font-semibold">
+                <td className="p-3 border border-gray-300">{String(cIndex + 1).padStart(3, "0")}</td>
+                <td className="p-3 border border-gray-300" colSpan={5}>
+                  {catData.categorie?.libelle}
+                </td>
+                <td className="p-3 border border-gray-300">{totCat.toLocaleString()}</td>
+                <td className="p-3 border border-gray-300">—</td>
+              </tr>
+
+              {/* ACTIVITÉS */}
+              {catData.acts.map((act, aIndex) => (
+                <tr key={aIndex}>
+                  <td className="p-3 border border-gray-300">{act.ligne}</td>
+                  <td className="p-3 border border-gray-300">{act.activite?.libelle}</td>
+                  <td className="p-3 border border-gray-300">{act.datebebut}</td>
+                  <td className="p-3 border border-gray-300">{act.datefin}</td>
+
+                  <td className="p-3 border border-gray-300">{act.quantite}</td>
+                  <td className="p-3 border border-gray-300">{act.pu.toLocaleString()}</td>
+                  <td className="p-3 border border-gray-300">{act.montant.toLocaleString()}</td>
+                  <td className="p-3 border border-gray-300">{act.bailleur?.libelle}</td>
+                </tr>
+              ))}
+            </React.Fragment>
+          );
+        })}
+
+        {/* TOTAL FINAL PROJET */}
+        <tr className="bg-[#c6efce] font-bold text-base">
+          <td className="p-3 border border-gray-300" colSpan={6}>
+            TOTAL {projetData.projet?.libelle}
+          </td>
+          <td className="p-3 border border-gray-300" colSpan={2}>
+            {totProj.toLocaleString()}
+          </td>
+        </tr>
+      </React.Fragment>
+    );
+  })}
+</tbody>
+    </table> 
+    
+
+</div> 
+  );
+
+// FIN ETAT DE SORTIE
   const renderElaborationPage = () => (
     <div className="bg-white rounded-lg shadow-md p-6">
        <div className="flex items-center justify-between mb-6">
@@ -2967,7 +3503,7 @@ const renderDevisePage = () => (
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-          <select {...registerCategorie("projet", { required: "Projet obligatoire" })} 
+          <select {...registerCategorie("projetId", { required: "Projet obligatoire" })} 
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
               errorsCategorie.projet ? "border-red-500" : "border-gray-300"
           }`} >
@@ -3273,52 +3809,45 @@ const renderDevisePage = () => (
  
 
   const renderContent = () => {
-    // if (activeMenu === 'classification' && activeSubMenu === 'economique') {
-    if (activeSubMenu === 'economique') {
       if (activePage === 'classe') return renderClassePage();
       if (activePage === 'planComptable') return renderPlanComptablePage();
-    }
+ 
     
-    if (activeSubMenu === 'programmatique') {
       if (activePage === 'projet') return renderProjetPage();
       if (activePage === 'categorie') return renderCategoriePage();
       if (activePage === 'activite') return renderActivitePage();
-    }
+  
     
-    if (activeSubMenu === 'srcFinancement') {
       if (activePage === 'typeBailleur') return renderTypeBailleurPage();
       if (activePage === 'bailleur') return renderBailleurPage();
       if (activePage === 'beneficiaire') return renderBeneficiairePage();
-    }
+   
 
-    if (activeMenu === 'parametre') { 
       if (activeSubMenu === 'exercice') return renderExercicePage();
       if (activeSubMenu === 'devise') return renderDevisePage(); 
-    } 
+ 
     
-    if (activeMenu === 'prevision' && activeSubMenu === 'elaboration') {
+    if (activeSubMenu === 'elaboration') {
       return renderElaborationPage();
     }
     
-    if (activeMenu === 'prevision' && activeSubMenu === 'plafond') {
+    if (activeSubMenu === 'plafond') {
       return renderPlafondPage();
     }
     
-    if (activeMenu === 'prevision' && activeSubMenu === 'plafondNature') {
+    if (activeSubMenu === 'plafondNature') {
       return renderPlafondNaturePage();
     }
-    
-    if (activeMenu === 'prevision' && activeSubMenu === 'etatSortie') {
-      if (activePage === 'parClasse') return renderDefaultPage('État de Sortie par Classe');
-      if (activePage === 'parProjet') return renderDefaultPage('État de Sortie par Projet');
-    }
-    
-    if (activeMenu === 'execution') {
+
+      if (activePage === 'parProjet') return renderparProjetPage('État de Sortie par Projet');
+      if (activePage === 'parClasse') return renderparClassePage('État de Sortie par Nature');
+      if (activePage === 'parActivite') return renderparActivitePage('État de Sortie par Activite');
+   
       if (activeSubMenu === 'engagement') return renderEngagementPage();
       if (activeSubMenu === 'liquidation') return renderLiquidationPage();
       if (activeSubMenu === 'rapportEngagement') return renderDefaultPage('Rapport Engagement');
       if (activeSubMenu === 'rapportLiquidation') return renderDefaultPage('Rapport Liquidation');
-    }
+  
     
     return renderClassePage();
   };
