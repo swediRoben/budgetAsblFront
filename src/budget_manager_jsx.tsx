@@ -23,7 +23,9 @@ const BudgetApp = () => {
   const [plancomptables, setPlancomptables] = useState([]);
   const [projets, setProjets] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [projetId, setProjetId] = useState([]);
+  const [projetId, setProjetId] = useState();
+  const [exerciceId, setExerciceId] = useState();
+  const [categorieId, setCategorieId] = useState();
   const [activites, setActivites] = useState([]);
   const [typebailleurs, setTypebailleurs] = useState([]);
   const [bailleurs, setBailleurs] = useState([]); 
@@ -314,6 +316,10 @@ const totalProjetcategorie = (classes) =>
     dataActivite(data) 
   } 
 
+  const  getPlanfondNatureByprogramme=async (e:any)=>{ 
+    const data=await getAllPlanfontnature(exerciceId,e); 
+    dataPlanfondNature(data) 
+  } 
   const  getActiviteByCategorie=async (e:any)=>{ 
     const data=await getAllActivite(null,e); 
     dataActivite(data) 
@@ -498,7 +504,7 @@ const totalProjetcategorie = (classes) =>
           exercice: null,
           idProjet:null,
           details: [
-            {id: null, categorie: null, idSource: null, montant: "",exercice:null }
+            {id: null, idCategorie: null, idSource: null, montant: "",exercice:null }
           ]
         }
 });
@@ -995,7 +1001,7 @@ const addDetailLinePlanfontprojet = () => {
 };
 
 const addDetailLinePlanfontnature = () => {
-  append({id: null, categorie: null, idSource: null, montant: "",exercice:null });
+  append({id: null, idCategorie: null, idSource: null, montant: "",exercice:null });
 };
 
 const addDetailLinePlanfontPrevision= () => {
@@ -2191,6 +2197,7 @@ const renderparClassePage = (title) => (
                 {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
                   onClick={getExerciceencours}
+                  onChange={(e)=>setExerciceId(e.target.value)}
                 >
                 <option value="">Sélectionner l'exercice</option>
                 {
@@ -2208,6 +2215,7 @@ const renderparClassePage = (title) => (
                   {...registerPlanfontNature(`idProjet`, { required: true })}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
               onClick={getProjets}
+              onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
                >
                   <option value="">Sélectionner un projet</option>
                   {
@@ -2830,7 +2838,7 @@ const renderparActivitePage = (title) => (
             <button
               type="button"
               onClick={() =>
-                addDetailLinePlanfontnature({id: null, categorie: null, idSource: null, montant: "",exercice:null })
+                addDetailLinePlanfontnature({id: null, idCategorie: null, idSource: null, montant: "",exercice:null })
               }
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
             >
@@ -2858,7 +2866,7 @@ const renderparActivitePage = (title) => (
                     {/* Catégorie */}
                     <td className="border border-gray-300 px-2 py-2">
                       <select
-                        {...registerPlanfontNature(`details.${index}.categorie`, { required: true })}
+                        {...registerPlanfontNature(`details.${index}.idCategorie`, { required: true })}
                         className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                              onClick={getCategorie}
                      >
