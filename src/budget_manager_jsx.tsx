@@ -23,6 +23,7 @@ const BudgetApp = () => {
   const [plancomptables, setPlancomptables] = useState([]);
   const [projets, setProjets] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [projetId, setProjetId] = useState([]);
   const [activites, setActivites] = useState([]);
   const [typebailleurs, setTypebailleurs] = useState([]);
   const [bailleurs, setBailleurs] = useState([]); 
@@ -303,9 +304,19 @@ const totalProjetcategorie = (classes) =>
     setCategories(data) 
   } 
 
- const getCategorieByPrograme=async (e)=>{
-    const data=await getAllCategorieByProgramme(e); 
+ const getCategorieByProjet=async (e:any)=>{ 
+    const data=await getAllCategorie(e); 
+    setProjetId(e)
     setCategories(data) 
+  } 
+  const  getActiviteByProjet=async (e:any)=>{ 
+    const data=await getAllActivite(e,null); 
+    dataActivite(data) 
+  } 
+
+  const  getActiviteByCategorie=async (e:any)=>{ 
+    const data=await getAllActivite(null,e); 
+    dataActivite(data) 
   } 
 
  const dataActivite =async ()=>{
@@ -350,7 +361,8 @@ const totalProjetcategorie = (classes) =>
     setPrevisions(data) 
   }
 
-  const getAllDataInTable=(type:string)=>{ 
+  const getAllDataInTable=(type:string)=>{
+    console.log(type) 
     if(type==='classe'){
       dataClasse();
     }else if(type==='planComptable'){
@@ -773,7 +785,7 @@ const totalProjetcategorie = (classes) =>
     }else if(type==='bailleur'){
       deleteBailleur(id);  
       dataBailleur();
-    }else if(type==='beneficiaire'){
+    }else if(type==='beneficiaire'){ 
       deleteBeneficiere(id);  
       dataBenefiere();
     }else if(type==='exercice'){
@@ -1412,7 +1424,9 @@ const removeDetailLinePlanfontprojet = (index: number) => {
           placeholder="Rechercher une catégorie..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"
         />
-        <select className="border border-gray-300 rounded px-4 py-2">
+        <select className="border border-gray-300 rounded px-4 py-2"
+          onChange={(e)=>{getCategorieByProjet(e.target.value)}}
+              onClick={dataProjet}>
           <option value="">Tous les projets</option>
           {projets?.map((projet) => (
             <option key={projet.id} value={projet.id}>
@@ -1476,14 +1490,6 @@ const removeDetailLinePlanfontprojet = (index: number) => {
         >
           + Ajouter un Type de Bailleur
         </button>
-      </div>
-
-      <div className="mb-4">
-        <input 
-          type="text" 
-          placeholder="Rechercher un type de bailleur..."
-          className="w-full md:w-1/3 border border-gray-300 rounded px-4 py-2"
-        />
       </div>
       <hr className="my-4" />
 
@@ -1577,7 +1583,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
                 <td className="border border-gray-300 px-4 py-2">{bailleur.code || 'N/A'}</td>
                 <td className="border border-gray-300 px-4 py-2">{bailleur.libelle}</td>
                 <td className="border border-gray-300 px-4 py-2">
-                  {bailleur.typeBailleur?.libelle || 'N/A'}
+                  {bailleur?.typSourceFinancement?.libelle || 'N/A'}
                 </td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
                   <button 
@@ -1621,7 +1627,10 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             placeholder="Rechercher une activité..."
             className="flex-1 border border-gray-300 rounded px-4 py-2"
           />
-          <select className="border border-gray-300 rounded px-1 py-2">
+          <select className="border border-gray-300 rounded px-1 py-2"
+            onChange={(e)=>{getCategorieByProjet(e.target.value);getActiviteByProjet(e.target.value)}}
+              onClick={dataProjet}
+              >
             <option value="">Tous les projets</option>
             {projets?.map((projet) => (
               <option key={projet.id} value={projet.id}>
@@ -1629,7 +1638,8 @@ const removeDetailLinePlanfontprojet = (index: number) => {
               </option>
             ))}
           </select>
-          <select className="border border-gray-300 rounded px-1 py-2">
+          <select className="border border-gray-300 rounded px-1 py-2"
+           onChange={(e)=>{getActiviteByCategorie(e.target.value)}}>
             <option value="">Tous les Categories</option>
             {categories?.map((data) => (
               <option key={data.id} value={data.id}>
@@ -1732,7 +1742,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
                   </button>
                   <button 
                     className="text-red-600 hover:text-red-800"
-                    onClick={() => hendleDelete(beneficiere.id, 'beneficiere')}
+                    onClick={() => hendleDelete(beneficiere.id,'beneficiaire')}
                   >
                     Supprimer
                   </button>
@@ -3392,7 +3402,7 @@ const renderparActivitePage = (title) => (
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Classe</label>
-          <select {...registerPlancompte("classe", { required: false })} 
+          <select {...registerPlancompte("classeId", { required: false })} 
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500`}>
             <option value="">Sélectionner une classe</option>
             {
@@ -3551,9 +3561,11 @@ const renderparActivitePage = (title) => (
         </div> 
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-          <select {...registerActivite("projet", { required: "Projet obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+          <select {...registerActivite("projetId", { required: "Projet obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
               errorsActivite.projet ? "border-red-500" : "border-gray-300"
-          }`} onChange={(e)=>getCategorieByPrograme(e)}>
+          }`} onChange={(e)=>getCategorieByProjet(e.target.value)}
+              onClick={dataProjet}>
+
             <option value="">Sélectionner un projet</option>
            {
               projets?.map((element)=>(
@@ -3565,7 +3577,7 @@ const renderparActivitePage = (title) => (
         </div>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Catégorie</label>
-          <select {...registerActivite("categorie", { required: "Catégorie obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+          <select {...registerActivite("categorieId", { required: "Catégorie obligatoire" })} className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
               errorsActivite.categorie ? "border-red-500" : "border-gray-300"
           }`}>
             <option value="">Sélectionner une catégorie</option>

@@ -1,19 +1,20 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:8080/api/categories";
+// const API_URL = "http://localhost:8080/api/categories";
+const API_URL = "http://192.168.100.53:8080/budget/v1/api/categories";
 
-export const getAllCategorie = async () => {
+export const getAllCategorie = async (porjetId: any) => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(API_URL,{params:{projet:porjetId}});
     return response.data;
   } catch (error) {
     throw error;
   }
 };
 
-export const getAllCategorieByProgramme = async (programmeId: number) => {
+export const getAllCategorieByProgramme = async (porjetId: number) => {
   try {
-    const response = await axios.get(`${API_URL}/programme/${programmeId}`);
+    const response = await axios.get(`${API_URL}/${porjetId}`);
     return response.data;
   } catch (error) {
     throw error;
