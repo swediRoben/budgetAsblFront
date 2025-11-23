@@ -996,9 +996,10 @@ const totalProjetcategorie = (classes:any) =>
     dataBenefiere();
   }
 
-  const getPlanfondByExercice=async (e)=>{ 
+  const getPlanfondByExercice=async (e:any)=>{ 
     const value=e.target.value;
      if (value!=="") { 
+         setExerciceId(value)
          const data=await getAllPlanfontprojet(e.target.value);
          setPlanfontprojets(data)  
       if (data.length > 0) { 
@@ -1022,11 +1023,14 @@ const totalProjetcategorie = (classes:any) =>
     }else{
       resetPlanfontprojet({
         exercice: null,
-          details: [
-            {id: null, idProjet: null, idSource: null, montant: "",exercice:null }
-          ]
+        details: [
+          {id: null, idProjet: null, idSource: null, montant: "",exercice:null }
+        ]
       });
-    } 
+      setPlanfontprojets([]) 
+    }
+    setPlanfontNature([])
+    setPrevisions([])
   }
 
   
@@ -2274,7 +2278,7 @@ const renderparClassePage = (title:any) => (
                 {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
                   // onClick={getExerciceencours}
-                  onChange={(e)=>setExerciceId(e.target.value)}
+                   onChange={getPlanfondByExercice} 
                 >
                 <option value="">Sélectionner l'exercice</option>
                 {
@@ -2385,11 +2389,11 @@ const renderparActivitePage = (title:any) => (
               <select
                 {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                  onClick={getExerciceencours}
+                    onChange={getPlanfondByExercice} 
                 >
                 <option value="">Sélectionner l'exercice</option>
                 {
-                  exercices.map((element)=>(
+                  exercices.map((element:any)=>(
                   <option value={element.id}>{element.libelle}</option>
                   ))
                 }
@@ -2402,11 +2406,10 @@ const renderparActivitePage = (title:any) => (
              <select
                   {...registerPlanfontNature(`idProjet`, { required: true })}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              onClick={getProjets}
                >
                   <option value="">Sélectionner un projet</option>
                   {
-                    projets.map((element)=>(
+                    projets.map((element:any)=>(
                     <option value={element.id}>{element.libelle}</option>
                     ))
                   }
@@ -2877,7 +2880,7 @@ const renderparActivitePage = (title:any) => (
                 {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
                   // onClick={getExerciceencours}
-                   onChange={(e)=>setExerciceId(e.target.value)}
+                   onChange={getPlanfondByExercice}
                 >
                 <option value="">Sélectionner l'exercice</option>
                 {
