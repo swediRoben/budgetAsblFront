@@ -202,8 +202,10 @@ const BudgetApp = () => {
 //ETAT DE SORTIE CATEGORIE
   const groupeCategorieid = useMemo(() => {
   const res = {};
-
-  dataCategorieTest.forEach(item => {
+  
+console.log("eeee",planfontNatures)
+  // dataCategorieTest.forEach(item => {
+  planfontNatures.forEach(item => {
     const pid = item.projet?.id ?? item.idProjet;
     const cid = item.categorie?.id ?? item.idCategorie;
     const classId = item.classe?.id ?? item.idClasse;
@@ -229,13 +231,13 @@ const BudgetApp = () => {
   });
 
   return res;
-}, [dataTest]);
-const totalClasse = (cats) =>
-  cats.reduce((sum, c) => sum + c.montant, 0);
+}, [planfontNatures]);
+const totalClasse = (cats:any) =>
+  cats.reduce((sum, c:any) => sum + c.montant, 0);
 
-const totalProjetcategorie = (classes) =>
+const totalProjetcategorie = (classes:any) =>
   Object.values(classes).reduce(
-    (sum, cl) => sum + totalClasse(cl.categories),
+    (sum, cl:any) => sum + totalClasse(cl.categories),
     0
   );
 
@@ -243,7 +245,7 @@ const totalProjetcategorie = (classes) =>
  const grouped = useMemo(() => {
   const res = {};
 
-  dataTest.forEach((item) => {
+  dataTest.forEach((item:any) => {
     const pid = item.projet?.id ?? item.idProjet;
     const cid = item.categorie?.id ?? item.idCategorie;
 
@@ -276,12 +278,12 @@ const totalProjetcategorie = (classes) =>
   return res;
 }, [dataTest]);
 
- const totalCategorie = (acts) =>
-    acts.reduce((sum, a) => sum + a.montant, 0);
+ const totalCategorie = (acts:any) =>
+    acts.reduce((sum, a:any) => sum + a.montant, 0);
 
-  const totalProjet = (categories) =>
+  const totalProjet = (categories:any) =>
     Object.values(categories).reduce(
-      (sum, cat) => sum + totalCategorie(cat.acts),
+      (sum, cat:any) => sum + totalCategorie(cat.acts),
       0
     );
 
@@ -317,8 +319,44 @@ const totalProjetcategorie = (classes) =>
   } 
 
   const  getPlanfondNatureByprogramme=async (e:any)=>{ 
-    const data=await getAllPlanfontnature(exerciceId,e); 
-    dataPlanfondNature(data) 
+    
+    const value=e;
+    getCategorieByProjet(e)
+     if (value!=="") { 
+      const data=await getAllPlanfontnature(exerciceId,e); 
+      setPlanfontNature(data)
+
+      if (data.length > 0) { 
+        console.log("sssssssssssssssss",data)
+      resetPlanfontNature({
+        exercice:exerciceId,
+        idProjet:value,
+        details: data.map((p:any) => ({
+          id: p.id,
+          idCategorie:p.idCategorie,
+          idClasse:p.idClasse,
+          montant: p.montant, 
+          exercice:null 
+        })),
+      });
+     }else{
+      resetPlanfontNature({
+        exercice:exerciceId,
+        idProjet:value,
+          details: [
+            {id: null,idCategorie:null, idClasse:null,montant: "",exercice:null }
+          ]
+        });
+      }
+    }else{
+      resetPlanfontNature({
+        exercice:exerciceId,
+        idProjet:value,
+          details: [
+            {id: null,idCategorie:null, idClasse:null,montant: "",exercice:null }
+          ]
+      });
+    } 
   } 
   const  getActiviteByCategorie=async (e:any)=>{ 
     const data=await getAllActivite(null,e); 
@@ -401,6 +439,12 @@ const totalProjetcategorie = (classes) =>
       dataExercice();
       dataBailleur();
       dataProjet();
+    }else if(type==='parProjet'){
+      dataExercice();
+      dataBailleur();
+    }else if(type==='parClasse'){
+      dataExercice(); 
+      dataProjet();
     }
   }
 
@@ -480,7 +524,7 @@ const totalProjetcategorie = (classes) =>
     const {
       register: registerPlanfontprojet,
       handleSubmit: handleSubmitPlanfontprojet,
-      control,   
+      control:controlProjet,   
       getValues, 
       reset: resetPlanfontprojet,
       formState: { errors: errorsPlanfontprojet },
@@ -496,7 +540,7 @@ const totalProjetcategorie = (classes) =>
     const {
       register: registerPlanfontNature,
       handleSubmit: handleSubmitPlanfontNature,
-      controlNature,
+      control:controlNature,
       reset: resetPlanfontNature,
       formState: { errors: errorsPlanfontNature },
     }  = useForm({
@@ -504,7 +548,7 @@ const totalProjetcategorie = (classes) =>
           exercice: null,
           idProjet:null,
           details: [
-            {id: null, idCategorie: null, idSource: null, montant: "",exercice:null }
+            {id: null, idCategorie: null, idClasse: null, montant: "",exercice:null }
           ]
         }
 });
@@ -512,7 +556,7 @@ const totalProjetcategorie = (classes) =>
     const {
       register: registerPrevision,
       handleSubmit: handleSubmitPrevision,
-      controlPrevision,
+      control:controlPrevision,
       reset: resetPrevision,
       formState: { errors: errorsPrevision },
     } = useForm({
@@ -718,7 +762,7 @@ const totalProjetcategorie = (classes) =>
               element.montant=element.montant; 
               element.categorie=parseInt(element.categorie); 
               element.idProjet=parseInt(idProjet);
-              element.idSource=parseInt(element.idSource);
+              element.idClasse=parseInt(element.idClasse);
               element.idExercice=parseInt(exercices);  
              if (!element.id) { 
               await createPlanfontnature(element);
@@ -727,8 +771,7 @@ const totalProjetcategorie = (classes) =>
             }
             })
            
-            toast.success("Operation effectuée avec succès !");
-            resetPlanfontNature();  
+            toast.success("Operation effectuée avec succès !"); 
           } catch (error:any) {
             toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
           }
@@ -908,12 +951,14 @@ const totalProjetcategorie = (classes) =>
       [menu]: !prev[menu] 
     }));
   };
- 
-  const handleSubMenuClick = (subMenu) => { 
+ ///////////
+  const handleSubMenuClick = (subMenu:any) => { 
+    
+    console.log(subMenu)
     setActiveSubMenu(subMenu);
   };
 
-  const openModal = (type) => {
+  const openModal = (type:any) => {
     setModalType(type);
     setFormData({});
     setShowModal(true);
@@ -952,18 +997,36 @@ const totalProjetcategorie = (classes) =>
   }
 
   const getPlanfondByExercice=async (e)=>{ 
-        const data=await getAllPlanfontprojet(e.target.value);  
+    const value=e.target.value;
+     if (value!=="") { 
+         const data=await getAllPlanfontprojet(e.target.value);
+         setPlanfontprojets(data)  
       if (data.length > 0) { 
       resetPlanfontprojet({
         exercice:e.target.value, // exemple : même exercice pour tous
-        details: data.map((p) => ({
+        details: data.map((p:any) => ({
           id: p.id,
           idProjet: p.idProjet,
           idSource: p.idSource,
           montant: p.montant, 
         })),
       });
-    }
+     }else{
+      resetPlanfontprojet({
+        exercice:e.target.value,
+          details: [
+            {id: null, idProjet: null, idSource: null, montant: "",exercice:null }
+          ]
+      });
+    } 
+    }else{
+      resetPlanfontprojet({
+        exercice: null,
+          details: [
+            {id: null, idProjet: null, idSource: null, montant: "",exercice:null }
+          ]
+      });
+    } 
   }
 
   
@@ -982,60 +1045,74 @@ const totalProjetcategorie = (classes) =>
     setShowModal(false); 
   };
 
-  const handleInputChange = (e) => {
+  const handleInputChange = (e:any) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log('Form submitted:', formData);
+  const handleSubmit = (e:any) => {
+    e.preventDefault(); 
     closeModal();
   };
 
   
 const addDetailLinePlanfontprojet = () => {
-  append({ id: null, idProjet: null, idSource: null, montant: "" });
+  appendProjet({ id: null, idProjet: null, idSource: null, montant: "" });
 };
 
 const addDetailLinePlanfontnature = () => {
-  append({id: null, idCategorie: null, idSource: null, montant: "",exercice:null });
+  appendNature({id: null, idClasse: null, idSource: null, montant: "",exercice:null });
 };
 
 const addDetailLinePlanfontPrevision= () => {
-  append({id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null });
+  appendPrevision({id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null });
 };
 
+const { fields: fieldsProjet,append: appendProjet,remove: removeProjet} = useFieldArray({
+  control:controlProjet, 
+  name: "details",
+});
 
-const { fields, append, remove } = useFieldArray({
-  control,
-  controlNature, 
-  controlPrevision,
+const { fields: fieldsNature,append: appendNature,remove: removeNature} = useFieldArray({
+  control:controlNature, 
+  name: "details",
+});
+
+const {  fields: fieldsPrevision,append: appendPrevision,remove: removePrevision } = useFieldArray({
+  control:controlPrevision,  
   name: "details",
 });
 
 const removeDetailLinePlanfontprojet = (index: number) => {
-  remove(index);
+  removeProjet(index);
 };
 
-  const handleDetailChange = (id, field, value) => {
+const removeDetailLinePlanfontnature = (index: number) => {
+  removeNature(index);
+};
+
+const removeDetailLinePlanfontPrevision = (index: number) => {
+  removePrevision(index);
+};
+
+  const handleDetailChange = (id, field, value:any) => {
     setDetailLines(detailLines.map(line => 
       line.id === id ? { ...line, [field]: value } : line
     ));
   };
 
-  const handleAfficher = (e) => {
+  const handleAfficher = (e:any) => {
     e.preventDefault();
     setShowPreview(true);
   };
 
   const calculateTotal = () => {
-    return detailLines.reduce((sum, line) => sum + (parseFloat(line.montant) || 0), 0);
+    return detailLines.reduce((sum, line:any) => sum + (parseFloat(line.montant) || 0), 0);
   };
 
-  const handleAfficherEngagementList = (e) => {
+  const handleAfficherEngagementList = (e:any) => {
     e.preventDefault();
     const newEngagement = {
       id: engagements.length + 1,
@@ -1049,7 +1126,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
     setShowEngagementList(true);
   };
 
-  const handleAfficherLiquidationList = (e) => {
+  const handleAfficherLiquidationList = (e:any) => {
     e.preventDefault();
     const newLiquidation = {
       id: liquidations.length + 1,
@@ -1239,7 +1316,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-    {classes?.map((datas, i) => (
+    {classes?.map((datas, i:any) => (
   <tr key={datas.id} className="hover:bg-gray-50">
     <td className="border border-gray-300 px-4 py-2">{i+1}</td>
     {/* <td className="border border-gray-300 px-4 py-2">{datas.code}</td> */}
@@ -1280,7 +1357,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
         />
         <select className="border border-gray-300 rounded px-4 py-2">
           <option value="">Toutes les classes</option>
-          {classes?.map((classe) => (
+          {classes?.map((classe:any) => (
             <option key={classe.id} value={classe.id}>
               {classe.libelle}
             </option>
@@ -1300,7 +1377,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {plancomptables?.map((plancompte, index) => {
+            {plancomptables?.map((plancompte, index:any) => {
               // const classe = classes.find(c => c.id === plancompte.classeId);
               return (
                 <tr key={plancompte.id} className="hover:bg-gray-50">
@@ -1378,7 +1455,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {projets?.map((projet, index) => (
+            {projets?.map((projet, index:any) => (
               <tr key={projet.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                 <td className="border border-gray-300 px-4 py-2">{projet.code || 'N/A'}</td>
@@ -1434,7 +1511,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
           onChange={(e)=>{getCategorieByProjet(e.target.value)}}
               onClick={dataProjet}>
           <option value="">Tous les projets</option>
-          {projets?.map((projet) => (
+          {projets?.map((projet:any) => (
             <option key={projet.id} value={projet.id}>
               {projet.libelle}
             </option>
@@ -1455,7 +1532,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {categories?.map((categorie, index) => (
+            {categories?.map((categorie, index:any) => (
               <tr key={categorie.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                 <td className="border border-gray-300 px-4 py-2">{categorie.code || 'N/A'}</td>
@@ -1509,7 +1586,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {typebailleurs?.map((type, index) => (
+            {typebailleurs?.map((type, index:any) => (
               <tr key={type.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td> 
                 <td className="border border-gray-300 px-4 py-2">{type.libelle}</td>
@@ -1560,7 +1637,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
         <div className="flex gap-4">
           <select className="border border-gray-300 rounded px-4 py-2">
             <option value="">Tous les types de bailleur</option>
-            {typebailleurs?.map((type) => (
+            {typebailleurs?.map((type:any) => (
               <option key={type.id} value={type.id}>
                 {type.libelle}
               </option>
@@ -1583,7 +1660,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {bailleurs?.map((bailleur, index) => (
+            {bailleurs?.map((bailleur, index:any) => (
               <tr key={bailleur.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                 <td className="border border-gray-300 px-4 py-2">{bailleur.code || 'N/A'}</td>
@@ -1638,7 +1715,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
               onClick={dataProjet}
               >
             <option value="">Tous les projets</option>
-            {projets?.map((projet) => (
+            {projets?.map((projet:any) => (
               <option key={projet.id} value={projet.id}>
                 {projet.libelle}
               </option>
@@ -1647,7 +1724,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
           <select className="border border-gray-300 rounded px-1 py-2"
            onChange={(e)=>{getActiviteByCategorie(e.target.value)}}>
             <option value="">Tous les Categories</option>
-            {categories?.map((data) => (
+            {categories?.map((data:any) => (
               <option key={data.id} value={data.id}>
                 {data.libelle}
               </option>
@@ -1670,7 +1747,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {activites?.map((activite, index) => (
+            {activites?.map((activite, index:any) => (
               <tr key={activite.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                 <td className="border border-gray-300 px-4 py-2 font-medium">{activite.code || 'N/A'}</td>
@@ -1735,7 +1812,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {beneficieres?.map((beneficiere, index) => (
+            {beneficieres?.map((beneficiere, index:any) => (
               <tr key={beneficiere.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                 <td className="border border-gray-300 px-4 py-2">{beneficiere.libelle}</td>
@@ -1797,7 +1874,7 @@ const removeDetailLinePlanfontprojet = (index: number) => {
             </tr>
           </thead>
           <tbody>
-            {exercices?.map((exercice, index) => (
+            {exercices?.map((exercice, index:any) => (
               <tr key={exercice.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                 <td className="border border-gray-300 px-4 py-2">{exercice.code || 'N/A'}</td>
@@ -1868,7 +1945,7 @@ const renderDevisePage = () => (
             </tr>
           </thead>
           <tbody>
-            {devises?.map((devise, index) => (
+            {devises?.map((devise, index:any) => (
               <tr key={devise.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
                 <td className="border border-gray-300 px-4 py-2 font-medium">{devise.code || 'N/A'}</td>
@@ -1898,7 +1975,7 @@ const renderDevisePage = () => (
     </div>
   );
 
-  const renderDefaultPage = (title) => (
+  const renderDefaultPage = (title:any) => (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
       <div className="mb-6">
@@ -1925,9 +2002,9 @@ const renderDevisePage = () => (
     </thead>
 
     <tbody>
-      {Object.entries(groupeCategorieid).map(([pid, p]) => (
+      {Object.entries(groupeCategorieid).map(([pid, p]:any) => (
         <>
-          {Object.entries(p.classes).map(([classId, c]) => (
+          {Object.entries(p.classes).map(([classId, c]:any) => (
             <>
               {c.categories.map(cat => (
                 <tr key={cat.id}>
@@ -1994,7 +2071,7 @@ const renderDevisePage = () => (
         </thead>
 
           <tbody>
-  {Object.entries(grouped).map(([pid, projetData], pIndex) => {
+  {Object.entries(grouped).map(([pid, projetData], pIndex:any) => {
     const categories = projetData.categories;
     const totProj = totalProjet(categories);
 
@@ -2011,7 +2088,7 @@ const renderDevisePage = () => (
         </tr>
 
         {/* CATEGORIES */}
-        {Object.entries(categories).map(([cid, catData], cIndex) => {
+        {Object.entries(categories).map(([cid, catData], cIndex:any) => {
           const totCat = totalCategorie(catData.acts);
 
           return (
@@ -2027,7 +2104,7 @@ const renderDevisePage = () => (
               </tr>
 
               {/* ACTIVITÉS */}
-              {catData.acts.map((act, aIndex) => (
+              {catData.acts.map((act, aIndex:any) => (
                 <tr key={aIndex}>
                   <td className="p-3 border border-gray-300">{act.ligne}</td>
                   <td className="p-3 border border-gray-300">{act.activite?.libelle}</td>
@@ -2072,12 +2149,12 @@ const renderDevisePage = () => (
             </tr>
           </thead>
           <tbody>
-            {Object.values(grouped).map((projGroup) => {
+            {Object.values(grouped).map((projGroup:any) => {
               const projet = projGroup.projet;
               const categories = projGroup.categories;
               const projetTotal = Object.values(categories)
-                .flatMap((c) => c.acts)
-                .reduce((sum, a) => sum + a.montant, 0);
+                .flatMap((c:any) => c.acts)
+                .reduce((sum, a:any) => sum + a.montant, 0);
 
               return (
                 <React.Fragment key={`projet-${projet.id}`}>
@@ -2087,10 +2164,10 @@ const renderDevisePage = () => (
                     <td className="border border-gray-300 px-4 py-2">{`${projetTotal.toLocaleString()} FC`}</td>
                   </tr>
 
-                  {Object.values(categories).map((cat) => {
+                  {Object.values(categories).map((cat:any) => {
                     const categorie = cat.categorie;
                     const acts = cat.acts;
-                    const categorieTotal = acts.reduce((s, a) => s + a.montant, 0);
+                    const categorieTotal = acts.reduce((s, a:any) => s + a.montant, 0);
 
                     return (
                       <React.Fragment key={`cat-${projet.id}-${categorie.id}`}>
@@ -2100,7 +2177,7 @@ const renderDevisePage = () => (
                           <td className="border border-gray-300 px-4 py-2">{`${categorieTotal.toLocaleString()} FC`}</td>
                         </tr>
 
-                        {acts.map((a) => (
+                        {acts.map((a:any) => (
                           <tr key={`act-${projet.id}-${categorie.id}-${a.activite?.id ?? a.id}`}>
                             <td className="border border-gray-300 px-4 py-2">Activité</td>
                             <td className="border border-gray-300 px-4 py-2">{a.activite?.libelle}</td>
@@ -2122,7 +2199,7 @@ const renderDevisePage = () => (
   );
   // ETAT DE SORTIE
 
-  const renderparProjetPage = (title) => (
+  const renderparProjetPage = (title:any) => (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -2162,11 +2239,11 @@ const renderDevisePage = () => (
     </thead>
 
     <tbody>
-      {planfondprojets.map((p) => (
+      {planfondprojets.map((p:any) => (
       
           <tr className="bg-orange-100 font-bold">
-                <td className="p-2 border border-gray-300 text-sm">{p.projet.libelle} </td>
-                <td className="p-2 border border-gray-300 text-sm">{p.classe.libelle}</td>
+                <td className="p-2 border border-gray-300 text-sm">{p.projet?.libelle} </td>
+                <td className="p-2 border border-gray-300 text-sm">{p.sourceFinacement?.libelle}</td>
                 <td className="p-2 border border-gray-300 text-sm">
                   {p.montant.toLocaleString()}
                 </td>
@@ -2181,7 +2258,7 @@ const renderDevisePage = () => (
 
 </div> 
   );
-const renderparClassePage = (title) => (
+const renderparClassePage = (title:any) => (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
        <div className="bg-gray-50 p-6 rounded-lg mb-6"> 
@@ -2196,7 +2273,7 @@ const renderparClassePage = (title) => (
               <select
                 {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                  onClick={getExerciceencours}
+                  // onClick={getExerciceencours}
                   onChange={(e)=>setExerciceId(e.target.value)}
                 >
                 <option value="">Sélectionner l'exercice</option>
@@ -2214,8 +2291,7 @@ const renderparClassePage = (title) => (
              <select
                   {...registerPlanfontNature(`idProjet`, { required: true })}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              onClick={getProjets}
-              onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
+                 onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
                >
                   <option value="">Sélectionner un projet</option>
                   {
@@ -2241,9 +2317,9 @@ const renderparClassePage = (title) => (
     </thead>
 
     <tbody>
-      {Object.entries(groupeCategorieid).map(([pid, p]) => (
+      {Object.entries(groupeCategorieid).map(([pid, p]:any) => (
         <>
-          {Object.entries(p.classes).map(([classId, c]) => (
+          {Object.entries(p.classes).map(([classId, c]:any) => (
             <>
               {c.categories.map(cat => (
                 <tr key={cat.id}>
@@ -2294,7 +2370,7 @@ const renderparClassePage = (title) => (
 </div> 
   );
 
-const renderparActivitePage = (title) => (
+const renderparActivitePage = (title:any) => (
     <div className="bg-white rounded-lg shadow-md p-6">
       <h2 className="text-2xl font-bold mb-6 text-gray-800">{title}</h2>
        <div className="bg-gray-50 p-6 rounded-lg mb-6"> 
@@ -2354,7 +2430,7 @@ const renderparActivitePage = (title) => (
         </thead>
 
           <tbody>
-  {Object.entries(grouped).map(([pid, projetData], pIndex) => {
+  {Object.entries(grouped).map(([pid, projetData], pIndex:any) => {
     const categories = projetData.categories;
     const totProj = totalProjet(categories);
 
@@ -2371,7 +2447,7 @@ const renderparActivitePage = (title) => (
         </tr>
 
         {/* CATEGORIES */}
-        {Object.entries(categories).map(([cid, catData], cIndex) => {
+        {Object.entries(categories).map(([cid, catData], cIndex:any) => {
           const totCat = totalCategorie(catData.acts);
 
           return (
@@ -2387,7 +2463,7 @@ const renderparActivitePage = (title) => (
               </tr>
 
               {/* ACTIVITÉS */}
-              {catData.acts.map((act, aIndex) => (
+              {catData.acts.map((act, aIndex:any) => (
                 <tr key={aIndex}>
                   <td className="p-3 border border-gray-300">{act.ligne}</td>
                   <td className="p-3 border border-gray-300">{act.activite?.libelle}</td>
@@ -2532,7 +2608,7 @@ const renderparActivitePage = (title) => (
             </thead>
 
             <tbody>
-              {fields.map((field, index) => (
+              {fieldsPrevision.map((field, index:any) => (
                 <tr key={field.id} className="hover:bg-gray-100">
 
                   {/* Compte */}
@@ -2600,8 +2676,7 @@ const renderparActivitePage = (title) => (
                   <td className="border border-gray-300 px-2 py-2 text-center">
                     <button
                       type="button"
-                      onClick={() => remove(index)}
-                      disabled={fields.length === 1}
+                      onClick={() => removePrevision(index)} 
                       className="text-red-600 hover:text-red-800 disabled:text-gray-400"
                     >
                       <X className="w-5 h-5" />
@@ -2691,7 +2766,7 @@ const renderparActivitePage = (title) => (
         </thead>
 
         <tbody>
-          {fields.map((field, index) => (
+          {fieldsProjet.map((field, index:any) => (
             <tr key={field.id} className="hover:bg-gray-100">
        
            <td className="border border-gray-300 px-2 py-2" hidden>
@@ -2756,7 +2831,7 @@ const renderparActivitePage = (title) => (
                     removeDetailLinePlanfontprojet(index); 
                   }}
                   className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-                  disabled={fields.length === 1}
+                  // disabled={fields.length === 1}
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -2801,7 +2876,8 @@ const renderparActivitePage = (title) => (
               <select
                 {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                  onClick={getExerciceencours}
+                  // onClick={getExerciceencours}
+                   onChange={(e)=>setExerciceId(e.target.value)}
                 >
                 <option value="">Sélectionner l'exercice</option>
                 {
@@ -2818,7 +2894,7 @@ const renderparActivitePage = (title) => (
              <select
                   {...registerPlanfontNature(`idProjet`, { required: true })}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              onClick={getProjets}
+              onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
                >
                   <option value="">Sélectionner un projet</option>
                   {
@@ -2838,7 +2914,7 @@ const renderparActivitePage = (title) => (
             <button
               type="button"
               onClick={() =>
-                addDetailLinePlanfontnature({id: null, idCategorie: null, idSource: null, montant: "",exercice:null })
+                addDetailLinePlanfontnature({id: null, idCategorie: null, idClasse: null, montant: "",exercice:null })
               }
               className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
             >
@@ -2859,7 +2935,7 @@ const renderparActivitePage = (title) => (
               </thead>
 
               <tbody>
-                {fields.map((field, index) => (
+                {fieldsNature.map((field, index:any) => (
                   <tr key={field.id} className="hover:bg-gray-100">
                 
 
@@ -2868,7 +2944,6 @@ const renderparActivitePage = (title) => (
                       <select
                         {...registerPlanfontNature(`details.${index}.idCategorie`, { required: true })}
                         className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                             onClick={getCategorie}
                      >
                         <option value="">Sélectionner une catégorie</option>
                         {
@@ -2882,15 +2957,18 @@ const renderparActivitePage = (title) => (
                     {/* Classe */}
                     <td className="border border-gray-300 px-2 py-2">
                       <select
-                        {...registerPlanfontNature(`details.${index}.idSource`, { required: false })}
+                        {...registerPlanfontNature(`details.${index}.idClasse`, { required: false })}
                         className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                      onClick={getClasses}
                         >
                         <option value="">Sélectionner la nature de depense</option>
-                        {
-                          classes.map((element)=>(
-                          <option value={element.id}>{element.libelle}</option>
-                          ))
+                       {
+                          classes.map((element) => {
+                            return element.type === "Dépense" ? (
+                              <option key={element.id} value={element.id}>
+                                {element.libelle}
+                              </option>
+                            ) : null;
+                          })
                         }
                       </select>
                     </td>
@@ -2910,8 +2988,7 @@ const renderparActivitePage = (title) => (
                     <td className="border border-gray-300 px-2 py-2 text-center">
                       <button
                         type="button"
-                        onClick={() => remove(index)}
-                        disabled={fields.length === 1}
+                        onClick={() => removeNature(index)} 
                         className="text-red-600 hover:text-red-800 disabled:text-gray-400"
                       >
                         <X className="w-5 h-5" />
@@ -3121,7 +3198,7 @@ const renderparActivitePage = (title) => (
                 </tr>
               </thead>
               <tbody>
-                {engagements.map((eng) => (
+                {engagements.map((eng:any) => (
                   <tr key={eng.id} className="hover:bg-gray-50">
                     <td className="border border-gray-300 px-4 py-2">{eng.numero}</td>
                     <td className="border border-gray-300 px-4 py-2">{eng.date}</td>
@@ -3197,7 +3274,7 @@ const renderparActivitePage = (title) => (
               required
             >
               <option value="">Sélectionner un engagement</option>
-              {engagements.map((eng) => (
+              {engagements.map((eng:any) => (
                 <option key={eng.id} value={eng.numero}>
                   {eng.numero} - {eng.beneficiaire}
                 </option>
@@ -3307,7 +3384,7 @@ const renderparActivitePage = (title) => (
                 </tr>
               </thead>
               <tbody>
-                {liquidations.map((liq) => (
+                {liquidations.map((liq:any) => (
                   <tr key={liq.id} className="hover:bg-gray-50">
                     <td className="border border-gray-300 px-4 py-2">{liq.numero}</td>
                     <td className="border border-gray-300 px-4 py-2">{liq.engagement}</td>
@@ -3847,17 +3924,12 @@ const renderparActivitePage = (title) => (
       if (activeSubMenu === 'devise') return renderDevisePage(); 
  
     
-    if (activeSubMenu === 'elaboration') {
-      return renderElaborationPage();
-    }
+    if (activeSubMenu === 'elaboration') return renderElaborationPage();
     
-    if (activeSubMenu === 'plafond') {
-      return renderPlafondPage();
-    }
+    if (activeSubMenu === 'plafond') return renderPlafondPage();
     
-    if (activeSubMenu === 'plafondNature') {
-      return renderPlafondNaturePage();
-    }
+    if (activeSubMenu === 'plafondNature') return renderPlafondNaturePage();
+      
 
       if (activePage === 'parProjet') return renderparProjetPage('État de Sortie par Projet');
       if (activePage === 'parClasse') return renderparClassePage('État de Sortie par Nature');
@@ -3869,7 +3941,7 @@ const renderparActivitePage = (title) => (
       if (activeSubMenu === 'rapportLiquidation') return renderDefaultPage('Rapport Liquidation');
   
     
-    return renderClassePage();
+    return null;
   };
 
   return (

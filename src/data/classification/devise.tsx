@@ -1,7 +1,7 @@
 import axios from "axios";
 
 // const API_URL = "http://localhost:8080/api/devises";
-const API_URL = "http://192.168.100.53:8080/budget/v1/api/devises";
+const API_URL = "http://localhost:8080/budget/v1/api/devises";
 
 export const getAllDevise = async () => {
   try {
