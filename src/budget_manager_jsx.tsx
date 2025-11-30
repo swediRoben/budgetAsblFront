@@ -35,6 +35,8 @@ const BudgetApp = () => {
   const [planfondprojets, setPlanfontprojets] = useState([]);
   const [planfontNatures, setPlanfontNature] = useState([]);
   const [previsions, setPrevisions] = useState([]);
+  const [classeplafond, setClasseplafond] = useState();
+  const [montantplafond, setMontantplafond] = useState(0.0);
     const [dataCategorieTest,setDataCategorieTest]=useState([
 
     {
@@ -318,6 +320,7 @@ const totalProjetcategorie = (classes:any) =>
     dataActivite(data) 
   } 
 
+  
   const  getPlanfondNatureByprogramme=async (e:any)=>{ 
     
     const value=e;
@@ -327,7 +330,6 @@ const totalProjetcategorie = (classes:any) =>
       setPlanfontNature(data)
 
       if (data.length > 0) { 
-        console.log("sssssssssssssssss",data)
       resetPlanfontNature({
         exercice:exerciceId,
         idProjet:value,
@@ -358,9 +360,102 @@ const totalProjetcategorie = (classes:any) =>
       });
     } 
   } 
+
+  const  getPrevisionByCategorie=async (e:any)=>{ 
+    
+    const value=e; 
+     if (value!=="") { 
+      const data=await getAllPrevision(exerciceId,projetId,e); 
+      setPrevisions(data)
+
+      if (data.length > 0) { 
+      resetPrevision({
+        idExercice: data.idExercice,
+        idProjet: data.idProjet,
+        idCategorie: data.idCategorie,
+        idClasse: data.idClasse,  
+        details: data.map((p:any) => (
+          {
+            id: p.id,
+            idActivite:p.idActivite,
+            idSource:p.idSource,
+            idPlanComptable: p.idPlanComptable,
+            idBeneficiaire: p.idBeneficiaire,
+            idUnite:p.idUnite,
+            quantite:p.quantite,
+            prixUnitaire:p.prixUnitaire,
+            montant: p.montant
+          }
+        )),
+      });
+     }else{
+         resetPrevision({
+        idExercice: exerciceId,
+        idProjet: projetId,
+        idCategorie: null,
+        idClasse: null,  
+        details: data.map((p:any) => (
+          {
+            id: null,
+            idActivite:null,
+            idSource:null,
+            idPlanComptable:null,
+            idBeneficiaire: null,
+            idUnite:null,
+            quantite:null,
+            prixUnitaire:null,
+            montant:null
+          }
+        )),
+      });
+      }
+    }else{
+         resetPrevision({
+        idExercice: exerciceId,
+        idProjet: projetId,
+        idCategorie: null,
+        idClasse: null,  
+        details: data.map((p:any) => (
+          {
+            id: null,
+            idActivite:null,
+            idSource:null,
+            idPlanComptable:null,
+            idBeneficiaire: null,
+            idUnite:null,
+            quantite:null,
+            prixUnitaire:null,
+            montant:null
+          }
+        )),
+      });
+    } 
+  } 
+
+const getClasseInPlafondNatureByCaterie = (e: any) => { 
+
+  const id = Number(e); 
+
+  const data = planfontNatures.find(v => Number(v.idCategorie) === id); 
+
+  if (data !== undefined) { 
+    setClasseplafond(data?.classe); 
+    setMontantplafond(data.montant); 
+    getActiviteByCategorie(data?.idCategorie)
+    getPlancomptables();
+    getBailleurs();
+    getBeneficiaires();
+  } else {
+    setClasseplafond(null);
+    setMontantplafond(0.0);
+  }
+};
+
+
+
   const  getActiviteByCategorie=async (e:any)=>{ 
     const data=await getAllActivite(null,e); 
-    dataActivite(data) 
+    setActivites(data) 
   } 
 
  const dataActivite =async ()=>{
@@ -561,11 +656,12 @@ const totalProjetcategorie = (classes:any) =>
       formState: { errors: errorsPrevision },
     } = useForm({
         defaultValues: {
-          exercice: null,
+          idExercice: null,
           idProjet: null,
           idCategorie: null,
+          idClasse: null,
           details: [
-            {id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null }
+            {id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,idUnite:null,quantite:null,prixUnitaire:null, montant: null}
           ]
         }
 });
@@ -779,24 +875,25 @@ const totalProjetcategorie = (classes:any) =>
  
   const onSubmitPrevision = async (data:any) => { 
      try { 
-      const exercices=data.exercice;
+      const exercices=data.idExercice;
       const idProjet=data.idProjet;
       const idCategorie=data.idCategorie;
+      const idClasse=data.idClasse;
             data.details.map(async element=>{
-              element.id=parseInt(element.id);
-              element.montant=element.montant; 
-              element.categorie=parseInt(element.categorie); 
+              element.id=parseInt(element.id); 
+              element.idExercice=parseInt(exercices); 
               element.idCategorie=parseInt(idCategorie); 
               element.idProjet=parseInt(idProjet);
+              element.idClasse=parseInt(idClasse);
               element.idSource=parseInt(element.idSource);
-              element.idSource=parseInt(element.idActivite);
-              element.idSource=parseInt(element.idPlanComptable);
-              element.idSource=parseInt(element.idBeneficiaire);
-              element.idSource=parseInt(element.ligneBudgetaire);
-              element.idSource=parseInt(element.uniteMesure);
-              element.idSource=parseInt(element.quantite);
-              element.idSource=parseInt(element.prixUnitaire);
-              element.idExercice=parseInt(exercices);  
+              element.idActivite=parseInt(element.idActivite);
+              element.idPlanComptable=parseInt(element.idPlanComptable);
+              element.idBeneficiaire=parseInt(element.idBeneficiaire); 
+              element.idUnite=parseInt(element.idUnite);
+              element.quantite=parseFloat(element.quantite);
+              element.prixUnitaire=parseFloat(element.prixUnitaire);
+              const montants=element.prixUnitaire*element.quantite;
+              element.montant=montants; 
              if (!element.id) { 
               await createPrevision(element);
             } else { 
@@ -804,8 +901,7 @@ const totalProjetcategorie = (classes:any) =>
             }
             })
             
-            toast.success("Operation effectuée avec succès !");
-            resetPrevision();  
+            toast.success("Operation effectuée avec succès !"); 
           } catch (error:any) {
             toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
           }
@@ -2526,29 +2622,36 @@ const renderparActivitePage = (title:any) => (
           {/* Exercice */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
-            <select
-              {...registerPrevision("exercice", { required: true })}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Sélectionner l'exercice</option>
-              <option value="2024">2024</option>
-              <option value="2025">2025</option>
-              <option value="2026">2026</option>
-            </select>
+              <select
+                {...registerPrevision("exercice", { required: true })}
+                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+                  // onClick={getExerciceencours}
+                   onChange={getPlanfondByExercice}
+                >
+                <option value="">Sélectionner l'exercice</option>
+                {
+                  exercices.map((element)=>(
+                  <option value={element.id}>{element.libelle}</option>
+                  ))
+                }
+              </select> 
           </div>
 
           {/* Projet */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">Projet</label>
-            <select
-              {...registerPrevision("projet", { required: true })}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Sélectionner un projet</option>
-              <option value="Initial">611 - Projet 1</option>
-              <option value="projet">612 - Projet 2</option>
-              <option value="projet1">613 - Projet 3</option>
-            </select>
+                <select
+                  {...registerPrevision("projet", { required: true })}
+                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
+              onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
+               >
+                  <option value="">Sélectionner le projet</option>
+                  {
+                    projets.map((element)=>(
+                    <option value={element.id}>{element.code} - {element.libelle}</option>
+                    ))
+                  }
+                </select>
           </div>
 
           {/* Catégorie */}
@@ -2557,28 +2660,31 @@ const renderparActivitePage = (title:any) => (
             <select
               {...registerPrevision("categorie", { required: true })}
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            >
-              <option value="">Sélectionner une categorie</option>
-              <option value="Initial">611 - Categorie 1</option>
-              <option value="projet">612 - Categorie 2</option>
-              <option value="projet1">613 - Categorie 3</option>
+              onChange={(e)=>getClasseInPlafondNatureByCaterie(e.target.value)}
+           >
+            <option value="">Sélectionner le categorie</option>
+              {
+                planfontNatures?.map((element)=>(
+               <option value={element?.categorie.id}>{element?.categorie.code} - {element?.categorie.libelle}</option>
+                    ))
+                  }
             </select>
           </div>
 
           {/* Classe */}
           <div>
-            <label className="block text-gray-700 font-medium mb-2">Classe</label>
-            <input
-              type="text"
-              {...registerPrevision("classeId")}
+            <label className="block text-gray-700 font-medium mb-2">Nature de dépense</label>
+            <select
+              {...registerPrevision("classeId", { required: true })}
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              readOnly
-            />
+              >
+               <option value={classeplafond?.id}>{classeplafond?.libelle}</option>
+            </select> 
           </div>
 
           <div>
             <span className="px-4 py-2 bg-green-600 text-white rounded-full font-semibold text-sm shadow">
-              Montant restant par catégorie: <strong>5 000 000 000</strong>
+              Montant total par catégorie est de <strong>{montantplafond}</strong>
             </span>
           </div>
         </div>
@@ -2604,8 +2710,8 @@ const renderparActivitePage = (title:any) => (
                 <th className="border border-gray-300 px-4 py-2 text-left">Compte</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Beneficiaire</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Ligne Budgetaire</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
                 <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
               </tr>
             </thead>
@@ -2620,12 +2726,12 @@ const renderparActivitePage = (title:any) => (
                       {...registerPrevision(`details.${index}.compte`, { required: true })}
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                     >
-                      <option value="">Sélectionner un compte</option>
-                      <option value="611">611 - Salaires et Traitements</option>
-                      <option value="612">612 - Charges Sociales</option>
-                      <option value="621">621 - Fournitures de Bureau</option>
-                      <option value="622">622 - Services Extérieurs</option>
-                      <option value="623">623 - Déplacements</option>
+                     <option value="">compte comptables</option>
+                      {
+                        plancomptables.map((element)=>(
+                        <option value={element.id}>{element.numero} - {element.libelle}</option>
+                        ))
+                      }
                     </select>
                   </td>
 
@@ -2636,8 +2742,11 @@ const renderparActivitePage = (title:any) => (
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                     >
                       <option value="">Source de financement</option>
-                      <option value="611">611 - CSS</option>
-                      <option value="612">612 - Banque Sociales</option>
+                           {
+                        bailleurs.map((element)=>(
+                        <option value={element.id}>{element.code} - {element.libelle}</option>
+                        ))
+                      }
                     </select>
                   </td>
 
@@ -2646,10 +2755,27 @@ const renderparActivitePage = (title:any) => (
                     <select
                       {...registerPrevision(`details.${index}.beneficiere`, { required: true })}
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                      >
+                      <option value="">Beneficiaire</option> 
+                           {
+                        beneficieres.map((element)=>(
+                        <option value={element.id}>{element.libelle}</option>
+                        ))
+                      }
+                    </select>
+                  </td>
+
+                   <td className="border border-gray-300 px-2 py-2">
+                    <select
+                      {...registerPrevision(`details.${index}.beneficiere`, { required: true })}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                     >
-                      <option value="">Beneficiaire</option>
-                      <option value="611">611 - Fap</option>
-                      <option value="612">612 - Employé</option>
+                      <option value="">Activiés</option> 
+                           {
+                        activites.map((element)=>(
+                        <option value={element.id}>{element.code} - {element.libelle}</option>
+                        ))
+                      }
                     </select>
                   </td>
 
@@ -2661,17 +2787,6 @@ const renderparActivitePage = (title:any) => (
                       {...registerPrevision(`details.${index}.montant`, { required: true })}
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                       placeholder="0.00"
-                    />
-                  </td>
-
-                  {/* Ligne Budgetaire */}
-                  <td className="border border-gray-300 px-2 py-2">
-                    <input
-                      type="text"
-                      {...registerPrevision(`details.${index}.ligneBudgetaire`)}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                      placeholder="ligne budgetaire"
-                      readOnly
                     />
                   </td>
 

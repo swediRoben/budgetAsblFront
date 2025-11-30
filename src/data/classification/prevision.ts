@@ -3,9 +3,13 @@ import axios from "axios";
 // const API_URL = "http://localhost:8080/api/planActivites";
 const API_URL = "http://localhost:8080/budget/v1/api/planActivites";
 
-export const getAllPrevision = async () => {
+export const getAllPrevision = async (exercice:number,projet:number,categorie:number) => {
   try {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(API_URL,{
+      params:{
+        exercice,projet,categorie
+      }
+    });
     return response.data;
   } catch (error) {
     throw error;
