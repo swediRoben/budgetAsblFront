@@ -37,176 +37,13 @@ const BudgetApp = () => {
   const [previsions, setPrevisions] = useState([]);
   const [classeplafond, setClasseplafond] = useState();
   const [montantplafond, setMontantplafond] = useState(0.0);
-    const [dataCategorieTest,setDataCategorieTest]=useState([
-
-    {
-      id: 1,
-     idCategorie: 10043,
-      "categorie":{
-            "id":1,
-            "libelle":"consolidation categorie" 
-        },
-     idClasse: 10004,
-    "classe":{
-            "id":10004,
-            "libelle":"charger personnel" 
-        },
-     montant: "5000",
-     exercice: null,
-     idProjet: 10038,
-     "projet":{
-            "id":1,
-            "libelle":"consolidation"
-        }
-     },
-     {
-      id: 2,
-     idCategorie: 10043,
-      "categorie":{
-            "id":2,
-            "libelle":"consolidation categorie 2" 
-        },
-     idClasse: 10004,
-    "classe":{
-            "id":10004,
-            "libelle":"charger personnel" 
-        },
-     montant: "5000",
-     exercice: null,
-     idProjet: 10038,
-     "projet":{
-            "id":1,
-            "libelle":"consolidation"
-        }
-     } 
-]
-)
-  const [dataTest,setDataTest]=useState([
-    {
-        "id": 10161,
-        "idProjet": 10038,
-        "projet":{
-            "id":1,
-            "libelle":"consolidation"
-        },
-        "idExercice": 10065,
-        "idSource": 10060,
-        "bailleur":{
-            "id":1,
-            "libelle":"FAP"
-        },
-        "idCategorie": 1,
-        "categorie":{
-            "id":1,
-            "libelle":"consolidation categorie" 
-        },
-        "activite": {
-            "id":1,
-            "libelle":"activite 1"
-        },
-        "datebebut":"12/01/2025",
-        "datefin":"12/11/2025",
-        "ligne":"0030440444",
-        "pu": "28",
-        "quantite": "28",
-        "montant": "212443.98"
-    },
-     {
-        "id": 10161,
-        "idProjet": 10038,
-        "projet":{
-            "id":1,
-            "libelle":"consolidation"
-        },
-        "idExercice": 10065,
-        "idSource": 10060,
-        "bailleur":{
-            "id":2,
-            "libelle":"FPAD"
-        },
-        "idCategorie": 1,
-        "categorie":{
-            "id":1,
-            "libelle":"consolidation categorie" 
-        },
-        "activite": {
-            "id":2,
-            "libelle":"activite 2"
-        },
-        "datebebut":"12/01/2025",
-        "datefin":"12/11/2025",
-        "ligne":"0030440444",
-        "pu": "28",
-        "quantite": "28",
-        "montant": "212443.98"
-    },
-     {
-        "id": 10161,
-        "idProjet": 10038,
-        "projet":{
-            "id":1,
-            "libelle":"consolidation"
-        },
-        "idExercice": 10065,
-        "idSource": 10060,
-        "bailleur":{
-            "id":1,
-            "libelle":"FAP"
-        },
-        "idCategorie": 2,
-        "categorie":{
-            "id":2,
-            "libelle":"consolidation categorie 2" 
-        },
-        "activite": {
-            "id":3,
-            "libelle":"activite 3"
-        },
-        "datebebut":"12/01/2025",
-        "datefin":"12/11/2025",
-        "ligne":"0030440444",
-        "pu": "28",
-        "quantite": "28",
-        "montant": "212443.98"
-    },,
-     {
-        "id": 10161,
-        "idProjet": 10038,
-        "projet":{
-            "id":1,
-            "libelle":"consolidation"
-        },
-        "idExercice": 10065,
-        "idSource": 10060,
-        "bailleur":{
-            "id":1,
-            "libelle":"FAP"
-        },
-        "idCategorie": 2,
-        "categorie":{
-            "id":2,
-            "libelle":"consolidation categorie 2" 
-        },
-        "activite": {
-            "id":4,
-            "libelle":"activite 4"
-        },
-        "datebebut":"12/01/2025",
-        "datefin":"12/11/2025",
-        "ligne":"0030440444",
-        "pu": "28",
-        "quantite": "28",
-        "montant": "212443.98"
-    }
-])
+ 
 
 
 //ETAT DE SORTIE CATEGORIE
   const groupeCategorieid = useMemo(() => {
   const res = {};
-  
-console.log("eeee",planfontNatures)
-  // dataCategorieTest.forEach(item => {
+   
   planfontNatures.forEach(item => {
     const pid = item.projet?.id ?? item.idProjet;
     const cid = item.categorie?.id ?? item.idCategorie;
@@ -247,7 +84,7 @@ const totalProjetcategorie = (classes:any) =>
  const grouped = useMemo(() => {
   const res = {};
 
-  dataTest.forEach((item:any) => {
+  previsions.forEach((item:any) => {
     const pid = item.projet?.id ?? item.idProjet;
     const cid = item.categorie?.id ?? item.idCategorie;
 
@@ -264,7 +101,7 @@ const totalProjetcategorie = (classes:any) =>
       };
 
     // Convertir pu, quantite, montant
-    const pu = Number(String(item.pu).replace(/,/g, "")) || 0;
+    const pu = Number(String(item.prixUnitaire).replace(/,/g, "")) || 0;
     const quantite = Number(String(item.quantite).replace(/,/g, "")) || 0;
     const montant = Number(String(item.montant).replace(/,/g, "")) || 0;
 
@@ -273,12 +110,12 @@ const totalProjetcategorie = (classes:any) =>
       pu,
       quantite,
       montant,
-      bailleur: item.bailleur,
+      bailleur: item.source,
     });
   });
 
   return res;
-}, [dataTest]);
+}, [previsions]);
 
  const totalCategorie = (acts:any) =>
     acts.reduce((sum, a:any) => sum + a.montant, 0);
@@ -361,7 +198,7 @@ const totalProjetcategorie = (classes:any) =>
     } 
   } 
 
-  const  getPrevisionByCategorie=async (e:any)=>{ 
+  const getPrevisionByCategorie=async (e:any)=>{ 
     
     const value=e; 
      if (value!=="") { 
@@ -370,18 +207,17 @@ const totalProjetcategorie = (classes:any) =>
 
       if (data.length > 0) { 
       resetPrevision({
-        idExercice: data.idExercice,
-        idProjet: data.idProjet,
-        idCategorie: data.idCategorie,
-        idClasse: data.idClasse,  
-        details: data.map((p:any) => (
+        idExercice: data[0].idExercice,
+        idProjet: data[0].idProjet,
+        idCategorie: data[0].idCategorie,
+        idClasse: data[0].idClasse,  
+        details: data.map((p:any) => ( 
           {
             id: p.id,
             idActivite:p.idActivite,
             idSource:p.idSource,
             idPlanComptable: p.idPlanComptable,
-            idBeneficiaire: p.idBeneficiaire,
-            idUnite:p.idUnite,
+            idBeneficiaire: p.idBeneficiaire, 
             quantite:p.quantite,
             prixUnitaire:p.prixUnitaire,
             montant: p.montant
@@ -392,7 +228,7 @@ const totalProjetcategorie = (classes:any) =>
          resetPrevision({
         idExercice: exerciceId,
         idProjet: projetId,
-        idCategorie: null,
+        idCategorie: value,
         idClasse: null,  
         details: data.map((p:any) => (
           {
@@ -400,8 +236,7 @@ const totalProjetcategorie = (classes:any) =>
             idActivite:null,
             idSource:null,
             idPlanComptable:null,
-            idBeneficiaire: null,
-            idUnite:null,
+            idBeneficiaire: null, 
             quantite:null,
             prixUnitaire:null,
             montant:null
@@ -421,8 +256,7 @@ const totalProjetcategorie = (classes:any) =>
             idActivite:null,
             idSource:null,
             idPlanComptable:null,
-            idBeneficiaire: null,
-            idUnite:null,
+            idBeneficiaire: null, 
             quantite:null,
             prixUnitaire:null,
             montant:null
@@ -430,6 +264,15 @@ const totalProjetcategorie = (classes:any) =>
         )),
       });
     } 
+  } 
+
+  
+ const getPrevisionParProjet=async (e:any)=>{
+    const value=e; 
+     if (value!=="") { 
+      const data=await getAllPrevision(exerciceId,e,null); 
+      setPrevisions(data) 
+     }
   } 
 
 const getClasseInPlafondNatureByCaterie = (e: any) => { 
@@ -501,7 +344,7 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
   }
 
   const getAllDataInTable=(type:string)=>{
-    console.log(type) 
+    console.log("far !!!! "+type) 
     if(type==='classe'){
       dataClasse();
     }else if(type==='planComptable'){
@@ -661,7 +504,7 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
           idCategorie: null,
           idClasse: null,
           details: [
-            {id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,idUnite:null,quantite:null,prixUnitaire:null, montant: null}
+            {id: null,idPlanComptable: null,idSource:null,idBeneficiaire: null,idActivite:null,prixUnitaire:null, quantite:null,montant: "",exercice:null }
           ]
         }
 });
@@ -888,12 +731,11 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
               element.idSource=parseInt(element.idSource);
               element.idActivite=parseInt(element.idActivite);
               element.idPlanComptable=parseInt(element.idPlanComptable);
-              element.idBeneficiaire=parseInt(element.idBeneficiaire); 
-              element.idUnite=parseInt(element.idUnite);
+              element.idBeneficiaire=parseInt(element.idBeneficiaire);  
               element.quantite=parseFloat(element.quantite);
               element.prixUnitaire=parseFloat(element.prixUnitaire);
               const montants=element.prixUnitaire*element.quantite;
-              element.montant=montants; 
+              element.montant=montants===0?element.montant:montants; 
              if (!element.id) { 
               await createPrevision(element);
             } else { 
@@ -944,7 +786,7 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
  
     } catch (error) {
     toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
-      dataClasse();
+ 
     }
   }
 
@@ -999,7 +841,7 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
   const [activeSubMenu, setActiveSubMenu] = useState('');
   const [activePage, setActivePage] = useState('');
   const [expandedMenus, setExpandedMenus] = useState({
-    classification: true,  
+    classification: false,  
     prevision: false, 
     execution: false,
     tresorerie:false,
@@ -1007,7 +849,7 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
   });
 
  const [expandedSubMenus, setExpandedSubMenus] = useState({ 
-    economique: false,
+    economique: false, 
     programmatique: false,
     srcFinancement: false, 
     etatSortie: false, 
@@ -1021,6 +863,19 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
   const [showEngagementList, setShowEngagementList] = useState(false);
   const [showLiquidationList, setShowLiquidationList] = useState(false);
   const [engagements, setEngagements] = useState([
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
+    { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
     { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
     { id: 2, numero: 'ENG-2025-002', date: '2025-01-20', beneficiaire: 'Fournisseur B', montant: 3500000, statut: 'Validé' }
   ]);
@@ -1048,10 +903,13 @@ const getClasseInPlafondNatureByCaterie = (e: any) => {
     }));
   };
  ///////////
-  const handleSubMenuClick = (subMenu:any) => { 
-    
-    console.log(subMenu)
+  const handleSubMenuClick = (subMenu:any) => {  
+ 
+    if (subMenu!=='etatSortie') { 
+    setActivePage('') 
     setActiveSubMenu(subMenu);
+    }
+     
   };
 
   const openModal = (type:any) => {
@@ -1167,7 +1025,7 @@ const addDetailLinePlanfontnature = () => {
 };
 
 const addDetailLinePlanfontPrevision= () => {
-  appendPrevision({id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null });
+  appendPrevision({id: null,idPlanComptable: null,idSource:null,idBeneficiaire: null,idActivite:null,prixUnitaire:null, quantite:null,montant: "",exercice:null });
 };
 
 const { fields: fieldsProjet,append: appendProjet,remove: removeProjet} = useFieldArray({
@@ -1323,6 +1181,22 @@ const removeDetailLinePlanfontPrevision = (index: number) => {
           id: 'liquidation', 
           name: 'Liquidation',
           icon: <DollarSign className="w-4 h-4" />
+        }
+        ,
+        { 
+          id: 'movementCredit', 
+          name: 'Mouvement credit',
+          icon: <DollarSign className="w-4 h-4" />
+        },
+        { 
+          id: 'traitementEngagement', 
+          name: 'Traitement engagement',
+          icon: <DollarSign className="w-4 h-4" />
+        },
+        { 
+          id: 'traitementLiquidation', 
+          name: 'Traitement liquidation',
+          icon: <DollarSign className="w-4 h-4" />
         },
         { 
           id: 'rapportEngagement', 
@@ -1332,6 +1206,11 @@ const removeDetailLinePlanfontPrevision = (index: number) => {
         { 
           id: 'rapportLiquidation', 
           name: 'Rapport Liquidation',
+          icon: <TrendingUp className="w-4 h-4" />
+        },
+        { 
+          id: 'rapportMouvmentcerdit', 
+          name: 'Rapport Mouvement credit',
           icon: <TrendingUp className="w-4 h-4" />
         }
       ]
@@ -1993,7 +1872,7 @@ const removeDetailLinePlanfontPrevision = (index: number) => {
                         ? 'bg-red-100 text-red-800'
                         : 'bg-yellow-100 text-yellow-800'
                   }`}>
-                    {exercice.cloture || 'N/A'}
+                    {exercice.cloture && 'closed' || exercice.execution && 'executed' || exercice.preparation && 'preparation'}
                   </span>
                 </td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
@@ -2206,10 +2085,10 @@ const renderDevisePage = () => (
               {/* ACTIVITÉS */}
               {catData.acts.map((act, aIndex:any) => (
                 <tr key={aIndex}>
-                  <td className="p-3 border border-gray-300">{act.ligne}</td>
+                  <td className="p-3 border border-gray-300">{act.activite?.code}</td> 
                   <td className="p-3 border border-gray-300">{act.activite?.libelle}</td>
-                  <td className="p-3 border border-gray-300">{act.datebebut}</td>
-                  <td className="p-3 border border-gray-300">{act.datefin}</td>
+                  <td className="p-3 border border-gray-300">{act.debut}</td>
+                  <td className="p-3 border border-gray-300">{act.fin}</td>
 
                   <td className="p-3 border border-gray-300">{act.quantite}</td>
                   <td className="p-3 border border-gray-300">{act.pu.toLocaleString()}</td>
@@ -2235,66 +2114,6 @@ const renderDevisePage = () => (
   })}
 </tbody>
     </table>
-
-    {/* <div className="bg-gray-100 p-6 min-h-screen">
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-2xl font-bold text-blue-600 mb-4">Projet → Catégorie → Activité avec Montants</h2>
-
-        <table className="min-w-full border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2 w-40">Type</th>
-              <th className="border border-gray-300 px-4 py-2">Nom</th>
-              <th className="border border-gray-300 px-4 py-2">Montant</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.values(grouped).map((projGroup:any) => {
-              const projet = projGroup.projet;
-              const categories = projGroup.categories;
-              const projetTotal = Object.values(categories)
-                .flatMap((c:any) => c.acts)
-                .reduce((sum, a:any) => sum + a.montant, 0);
-
-              return (
-                <React.Fragment key={`projet-${projet.id}`}>
-                  <tr className="bg-blue-50 font-semibold">
-                    <td className="border border-gray-300 px-4 py-2">Projet</td>
-                    <td className="border border-gray-300 px-4 py-2">{projet.libelle}</td>
-                    <td className="border border-gray-300 px-4 py-2">{`${projetTotal.toLocaleString()} FC`}</td>
-                  </tr>
-
-                  {Object.values(categories).map((cat:any) => {
-                    const categorie = cat.categorie;
-                    const acts = cat.acts;
-                    const categorieTotal = acts.reduce((s, a:any) => s + a.montant, 0);
-
-                    return (
-                      <React.Fragment key={`cat-${projet.id}-${categorie.id}`}>
-                        <tr className="bg-gray-50 font-medium">
-                          <td className="border border-gray-300 px-4 py-2">Catégorie</td>
-                          <td className="border border-gray-300 px-4 py-2">{categorie.libelle}</td>
-                          <td className="border border-gray-300 px-4 py-2">{`${categorieTotal.toLocaleString()} FC`}</td>
-                        </tr>
-
-                        {acts.map((a:any) => (
-                          <tr key={`act-${projet.id}-${categorie.id}-${a.activite?.id ?? a.id}`}>
-                            <td className="border border-gray-300 px-4 py-2">Activité</td>
-                            <td className="border border-gray-300 px-4 py-2">{a.activite?.libelle}</td>
-                            <td className="border border-gray-300 px-4 py-2">{`${a.montant.toLocaleString()} FC`}</td>
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    );
-                  })}
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    </div> */}
-
 </div> 
   );
   // ETAT DE SORTIE
@@ -2485,7 +2304,8 @@ const renderparActivitePage = (title:any) => (
               <select
                 {...registerPlanfontNature("exercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                    onChange={getPlanfondByExercice} 
+                onClick={dataExercice} 
+                onChange={getPlanfondByExercice} 
                 >
                 <option value="">Sélectionner l'exercice</option>
                 {
@@ -2502,11 +2322,12 @@ const renderparActivitePage = (title:any) => (
              <select
                   {...registerPlanfontNature(`idProjet`, { required: true })}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-               >
+                 onChange={(e)=>{getPrevisionParProjet(e.target.value)}}
+             >
                   <option value="">Sélectionner un projet</option>
                   {
-                    projets.map((element:any)=>(
-                    <option value={element.id}>{element.libelle}</option>
+                    planfondprojets.map((element:any)=>(
+                    <option value={element.projet.id}>{element.projet.libelle}</option>
                     ))
                   }
                 </select>
@@ -2617,13 +2438,12 @@ const renderparActivitePage = (title:any) => (
       {/* En-tête */}
       <div className="bg-gray-50 p-6 rounded-lg mb-6">
         <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> 
           {/* Exercice */}
           <div>
             <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
               <select
-                {...registerPrevision("exercice", { required: true })}
+                {...registerPrevision("idExercice", { required: true })}
                 className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
                   // onClick={getExerciceencours}
                    onChange={getPlanfondByExercice}
@@ -2641,7 +2461,7 @@ const renderparActivitePage = (title:any) => (
           <div>
             <label className="block text-gray-700 font-medium mb-2">Projet</label>
                 <select
-                  {...registerPrevision("projet", { required: true })}
+                  {...registerPrevision("idProjet", { required: true })}
                   className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
               onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
                >
@@ -2658,9 +2478,9 @@ const renderparActivitePage = (title:any) => (
           <div>
             <label className="block text-gray-700 font-medium mb-2">Categorie</label>
             <select
-              {...registerPrevision("categorie", { required: true })}
+              {...registerPrevision("idCategorie", { required: true })}
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              onChange={(e)=>getClasseInPlafondNatureByCaterie(e.target.value)}
+              onChange={(e)=>{getClasseInPlafondNatureByCaterie(e.target.value);getPrevisionByCategorie(e.target.value)}}
            >
             <option value="">Sélectionner le categorie</option>
               {
@@ -2675,7 +2495,7 @@ const renderparActivitePage = (title:any) => (
           <div>
             <label className="block text-gray-700 font-medium mb-2">Nature de dépense</label>
             <select
-              {...registerPrevision("classeId", { required: true })}
+              {...registerPrevision("idClasse", { required: true })}
               className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
               >
                <option value={classeplafond?.id}>{classeplafond?.libelle}</option>
@@ -2696,7 +2516,7 @@ const renderparActivitePage = (title:any) => (
           <h3 className="text-lg font-semibold text-gray-700">Détails des Lignes Budgétaires</h3>
           <button
             type="button"
-            onClick={()=>addDetailLinePlanfontPrevision({id: null,idActivite:null,idSource:null, idPlanComptable: null, idBeneficiaire: null,ligneBudgetaire:null,uniteMesure:null,quantite:null,prixUnitaire:null, montant: "",exercice:null })}
+            onClick={()=>addDetailLinePlanfontPrevision({id: null,idPlanComptable: null,idSource:null,idBeneficiaire: null,idActivite:null,prixUnitaire:null, quantite:null,montant: "" })}
             className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
           >
             + Ajouter une ligne
@@ -2711,6 +2531,8 @@ const renderparActivitePage = (title:any) => (
                 <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Beneficiaire</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Ligne Budgetaire</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Prix unitaire</th>
+                <th className="border border-gray-300 px-4 py-2 text-left">Quantité</th>
                 <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
                 <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
               </tr>
@@ -2720,10 +2542,19 @@ const renderparActivitePage = (title:any) => (
               {fieldsPrevision.map((field, index:any) => (
                 <tr key={field.id} className="hover:bg-gray-100">
 
+                     <td className="border border-gray-300 px-2 py-2" hidden>
+                <input
+                  type="number"
+                  {...registerPlanfontprojet(`details.${index}.id`, { required: false })}
+                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                  placeholder="0.00" 
+                />
+              </td>
+
                   {/* Compte */}
                   <td className="border border-gray-300 px-2 py-2">
                     <select
-                      {...registerPrevision(`details.${index}.compte`, { required: true })}
+                      {...registerPrevision(`details.${index}.idPlanComptable`, { required: true })}
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                     >
                      <option value="">compte comptables</option>
@@ -2738,7 +2569,7 @@ const renderparActivitePage = (title:any) => (
                   {/* Bailleur */}
                   <td className="border border-gray-300 px-2 py-2">
                     <select
-                      {...registerPrevision(`details.${index}.bailleur`, { required: true })}
+                      {...registerPrevision(`details.${index}.idSource`, { required: true })}
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                     >
                       <option value="">Source de financement</option>
@@ -2750,10 +2581,10 @@ const renderparActivitePage = (title:any) => (
                     </select>
                   </td>
 
-                  {/* Beneficiaire */}
+                {/* Beneficiaire */}
                   <td className="border border-gray-300 px-2 py-2">
                     <select
-                      {...registerPrevision(`details.${index}.beneficiere`, { required: true })}
+                      {...registerPrevision(`details.${index}.idBeneficiaire`, { required: true })}
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                       >
                       <option value="">Beneficiaire</option> 
@@ -2767,7 +2598,7 @@ const renderparActivitePage = (title:any) => (
 
                    <td className="border border-gray-300 px-2 py-2">
                     <select
-                      {...registerPrevision(`details.${index}.beneficiere`, { required: true })}
+                      {...registerPrevision(`details.${index}.idActivite`, { required: true })}
                       className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
                     >
                       <option value="">Activiés</option> 
@@ -2777,6 +2608,26 @@ const renderparActivitePage = (title:any) => (
                         ))
                       }
                     </select>
+                  </td>
+
+                   <td className="border border-gray-300 px-2 py-2">
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...registerPrevision(`details.${index}.prixUnitaire`, { required: true })}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                      placeholder="0.00"
+                    />
+                  </td>
+                   
+                   <td className="border border-gray-300 px-2 py-2">
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...registerPrevision(`details.${index}.quantite`, { required: true })}
+                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
+                      placeholder="0.00"
+                    />
                   </td>
 
                   {/* Montant */}
@@ -2807,7 +2658,7 @@ const renderparActivitePage = (title:any) => (
               {/* Total */}
               <tr className="bg-blue-50 font-semibold">
                 <td className="border border-gray-300 px-4 py-2 text-right" colSpan={3}>Total</td>
-                <td className="border border-gray-300 px-4 py-2" colSpan={3}>
+                <td className="border border-gray-300 px-4 py-2" colSpan={5}>
                   {calculateTotal().toLocaleString('fr-FR', { minimumFractionDigits: 2 })} FBU
                 </td>
               </tr>
@@ -3149,387 +3000,643 @@ const renderparActivitePage = (title:any) => (
   
 
   const renderEngagementPage = () => (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Engagement de Dépense</h2>
+   <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+  {/* Header */}
+  <div className="mb-8 border-b pb-4">
+    <h2 className="text-2xl font-semibold text-gray-800">
+      Engagement de Dépense
+    </h2>
+    <p className="text-sm text-gray-500 mt-1">
+      Saisie et consultation des engagements budgétaires
+    </p>
+   <p className="mt-3 text-sm font-medium flex flex-wrap gap-3">
+  <span
+    onClick={() => handleFilterStatus('VALIDE')}
+    className="cursor-pointer select-none rounded-full
+               bg-green-50 px-4 py-1.5 text-green-700
+               border border-green-200
+               hover:bg-green-100 hover:shadow-sm transition"
+  >
+    Validé <strong>3</strong>
+  </span>
+
+  <span
+    onClick={() => handleFilterStatus('RETOURNE')}
+    className="cursor-pointer select-none rounded-full
+               bg-yellow-50 px-4 py-1.5 text-yellow-700
+               border border-yellow-200
+               hover:bg-yellow-100 hover:shadow-sm transition"
+  >
+    Retourné <strong>4</strong>
+  </span>
+
+  <span
+    onClick={() => handleFilterStatus('REJETE')}
+    className="cursor-pointer select-none rounded-full
+               bg-red-50 px-4 py-1.5 text-red-700
+               border border-red-200
+               hover:bg-red-100 hover:shadow-sm transition"
+  >
+    Rejeté <strong>5</strong>
+  </span>
+
+  <span
+    onClick={() => handleFilterStatus('RECEPTIONNE')}
+    className="cursor-pointer select-none rounded-full
+               bg-blue-50 px-4 py-1.5 text-blue-700
+               border border-blue-200
+               hover:bg-blue-100 hover:shadow-sm transition"
+  >
+    Réceptionné <strong>6</strong>
+  </span>
+</p>
+
+  </div>
+
+  {/* Formulaire */}
+  <form onSubmit={handleAfficherEngagementList} className="space-y-8">
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       
-      <form onSubmit={handleAfficherEngagementList}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-             <div>
-              <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
-              <select
-                name="exercice"
-                value={formData.exercice || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-                disabled
-              >
-                <option value="">Sélectionner l'exercice</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-              </select>
-            </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Date d'Engagement</label>
-            <input
-              type="date"
-              name="dateEngagement"
-              value={formData.dateEngagement || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              required
-            />
-          </div>
-         <div>
-            <label className="block text-gray-700 font-medium mb-2">Projet</label>
-              <select
-                name="projet"
-                value={formData.projet || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-                      >
-                        <option value="">Sélectionner un projet</option>
-                        <option value="611">611 - Projet 1</option>
-                        <option value="612">612 - Projet 2</option>
-                        <option value="613">613 - Projet 3</option>
-               </select>
-            </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Ligne Budgétaire</label>
-            <select
-              name="ligneBudgetaire"
-              value={formData.ligneBudgetaire || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              required
-            >
-              <option value="">Sélectionner une ligne</option>
-              <option value="611">611 - Salaires et Traitements</option>
-              <option value="621">621 - Fournitures de Bureau</option>
-              <option value="622">622 - Services Extérieurs</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">ligne budgetaire</label>
-            <input
-              type="text"
-              name="beneficiaire"
-              value={formData.ligneBudgetaire || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Nom du bénéficiaire"
-              readOnly
-            />
-          </div>
-          
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Bénéficiaire</label>
-            <input
-              type="text"
-              name="beneficiaire"
-              value={formData.beneficiaire || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Nom du bénéficiaire"
-              readOnly
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Objet</label>
-            <input
-              type="text"
-              name="objetEngagement"
-              value={formData.objetEngagement || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Objet de l'engagement"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Montant</label>
-            <input
-              type="number"
-              name="montantEngagement"
-              value={formData.montantEngagement || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="0.00"
-              step="0.01"
-              required
-            />
-          </div>          
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Résponsable</label>
-            <select
-              name="responsable"
-              value={formData.responsable || ''}
-                onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              
-            >
-              <option value="">Sélectionner une responsable</option>
-              <option value="611">611 - FARAJA</option>
-              <option value="621">621 - MALU</option>
-              <option value="622">622 - ESPOIRE</option>
-            </select>
-          </div>
-        </div>
+      {/* Exercice */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Exercice budgétaire
+        </label>
+        <select
+          name="exercice"
+          value={formData.exercice || ''}
+          onChange={handleInputChange}
+          disabled
+          required
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm
+                     focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sélectionner</option>
+          <option value="2024">2024</option>
+          <option value="2025">2025</option>
+          <option value="2026">2026</option>
+        </select>
+      </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 font-medium mb-2">Observations</label>
-          <textarea
-            name="observationsEngagement"
-            value={formData.motif || ''}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            rows="3"
-            placeholder="Observations..."
-          ></textarea>
-        </div>
+      {/* Date */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Date d’engagement
+        </label>
+        <input
+          type="date"
+          name="dateEngagement"
+          value={formData.dateEngagement || ''}
+          onChange={handleInputChange}
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                     focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Afficher la Liste
-          </button>
-        </div>
-      </form>
+      {/* Projet */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Projet
+        </label>
+        <select
+          name="projet"
+          value={formData.projet || ''}
+          onChange={handleInputChange}
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                     focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sélectionner un projet</option>
+          <option value="611">611 - Projet 1</option>
+          <option value="612">612 - Projet 2</option>
+          <option value="613">613 - Projet 3</option>
+        </select>
+      </div>
 
-      {showEngagementList && (
-        <div className="mt-8">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Liste des Engagements</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-4 py-2 text-left">N° Engagement</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Bénéficiaire</th>
-                  <th className="border border-gray-300 px-4 py-2 text-right">Montant</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center">Statut</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {engagements.map((eng:any) => (
-                  <tr key={eng.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-4 py-2">{eng.numero}</td>
-                    <td className="border border-gray-300 px-4 py-2">{eng.date}</td>
-                    <td className="border border-gray-300 px-4 py-2">{eng.beneficiaire}</td>
-                    <td className="border border-gray-300 px-4 py-2 text-right">
-                      {eng.montant.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
-                      <span className={`px-2 py-1 rounded text-sm ${
-                        eng.statut === 'Validé' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {eng.statut}
-                      </span>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
-                      <button className="text-blue-600 hover:text-blue-800 mr-2">Voir</button>
-                      <button className="text-green-600 hover:text-green-800">Modifier</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      {/* Ligne budgétaire */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Ligne budgétaire
+        </label>
+        <select
+          name="ligneBudgetaire"
+          value={formData.ligneBudgetaire || ''}
+          onChange={handleInputChange}
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                     focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sélectionner une ligne</option>
+          <option value="611">611 - Salaires et traitements</option>
+          <option value="621">621 - Fournitures de bureau</option>
+          <option value="622">622 - Services extérieurs</option>
+        </select>
+      </div>
+
+      {/* Bénéficiaire */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Bénéficiaire
+        </label>
+        <input
+          type="text"
+          name="beneficiaire"
+          value={formData.beneficiaire || ''}
+          readOnly
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        />
+      </div>
+
+      {/* Responsable */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Responsable
+        </label>
+        <select
+          name="responsable"
+          value={formData.responsable || ''}
+          onChange={handleInputChange}
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                     focus:ring-2 focus:ring-blue-500"
+        >
+          <option value="">Sélectionner</option>
+          <option value="FARAJA">FARAJA</option>
+          <option value="MALU">MALU</option>
+          <option value="ESPOIRE">ESPOIRE</option>
+        </select>
+      </div>
+
+      {/* Objet */}
+      <div className="md:col-span-2">
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Objet de l’engagement
+        </label>
+        <input
+          type="text"
+          name="objetEngagement"
+          value={formData.objetEngagement || ''}
+          onChange={handleInputChange}
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                     focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+
+      {/* Montant */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Montant
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          name="montantEngagement"
+          value={formData.montantEngagement || ''}
+          onChange={handleInputChange}
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                     focus:ring-2 focus:ring-blue-500"
+        />
+      </div>
+        {/* Bloc récapitulatif visuel */}
     </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
+      <div>
+        <p className="text-xs text-gray-500">Montant engagé</p>
+        <p className="text-lg font-semibold text-gray-800">—</p>
+      </div>
+      <div>
+        <p className="text-xs text-gray-500">montant alloué</p>
+        <p className="text-lg font-semibold text-blue-700">—</p>
+      </div>
+      <div>
+        <p className="text-xs text-gray-500">Montant restant</p>
+        <p className="text-lg font-semibold text-green-700">—</p>
+      </div>
+    </div>
+    {/* Observations */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Observations
+      </label>
+      <textarea
+       readOnly
+       disabled
+        name="observationsEngagement"
+        rows={3}
+        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                   focus:ring-2 focus:ring-blue-500"
+      />
+    </div>
+
+    {/* Actions */}
+    <div className="flex justify-end gap-3">
+      <button
+        type="button"
+        onClick={()=>setShowEngagementList(true)}
+        className="inline-flex items-center rounded-md bg-blue-600 px-6 py-2 text-sm
+                   font-medium text-white hover:bg-blue-700 transition"
+      >
+        Afficher la liste
+      </button>
+    </div>
+  </form>
+
+  {/* Liste */}
+{showEngagementList && (
+  <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+    <div className="bg-white w-[90%] max-w-6xl rounded-xl shadow-xl">
+
+      {/* Header */}
+      <div className="flex justify-between items-center px-6 py-4 border-b">
+        <h3 className="text-lg font-semibold text-gray-800">
+          📄 Liste des engagements
+        </h3>
+        <button
+          onClick={() => setShowEngagementList(false)}
+          className="text-gray-500 hover:text-red-600 text-xl font-bold"
+        >
+          ×
+        </button>
+      </div>
+
+      {/* Body */}
+      <div className="p-6 max-h-[70vh] overflow-y-auto">
+        <div className="overflow-x-auto rounded-lg border">
+          <table className="w-full text-sm">
+            <thead className="bg-gray-100 text-gray-600 sticky top-0">
+              <tr>
+                <th className="px-4 py-3 text-left">N°</th>
+                <th className="px-4 py-3 text-left">Date</th>
+                <th className="px-4 py-3 text-left">Bénéficiaire</th>
+                <th className="px-4 py-3 text-right">Montant</th>
+                <th className="px-4 py-3 text-center">Statut</th>
+                <th className="px-4 py-3 text-center">Actions</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              {engagements.map((eng) => (
+                <tr
+                  key={eng.id}
+                  className="border-t hover:bg-gray-50 transition"
+                >
+                  <td className="px-4 py-2">{eng.numero}</td>
+                  <td className="px-4 py-2">{eng.date}</td>
+                  <td className="px-4 py-2">{eng.beneficiaire}</td>
+
+                  <td className="px-4 py-2 text-right font-medium">
+                    {eng.montant.toLocaleString('fr-FR', {
+                      minimumFractionDigits: 2,
+                    })}
+                  </td>
+
+                  <td className="px-4 py-2 text-center">
+                    <span
+                      className={`px-3 py-1 rounded-full text-xs font-semibold
+                        ${
+                          eng.statut === 'Validé'
+                            ? 'bg-green-100 text-green-700'
+                            : 'bg-yellow-100 text-yellow-700'
+                        }`}
+                    >
+                      {eng.statut}
+                    </span>
+                  </td>
+
+                  <td className="px-4 py-2 text-center space-x-2">
+                    <button className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100">
+                      Voir
+                    </button>
+                    <button className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100">
+                      Modifier
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="flex justify-end px-6 py-4 border-t bg-gray-50 rounded-b-xl">
+        <button
+          onClick={() => setShowEngagementList(false)}
+          className="px-4 py-2 text-sm rounded-md bg-gray-600 text-white hover:bg-gray-700"
+        >
+          Fermer
+        </button>
+      </div>
+
+    </div>
+  </div>
+)}
+
+</div>
+
   );
 
   const renderLiquidationPage = () => (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Liquidation de Dépense</h2>
+   <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
+  {/* Header */}
+  <div className="mb-8 border-b pb-4">
+    <h2 className="text-2xl font-semibold text-gray-800">
+      Liquidation de Dépense
+    </h2>
+    <p className="text-sm text-gray-500 mt-1">
+      Saisie des informations de liquidation
+    </p>
+  </div>
+
+  <form onSubmit={handleAfficherLiquidationList} className="space-y-8">
+
+    {/* Bloc informations générales */}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       
-      <form onSubmit={handleAfficherLiquidationList}>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-           <div>
-              <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
-              <select
-                name="exercice"
-                value={formData.exercice || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-                disabled
-              >
-                <option value="">Sélectionner l'exercice</option>
-                <option value="2024">2024</option>
-                <option value="2025">2025</option>
-                <option value="2026">2026</option>
-              </select>
-            </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Projet</label>
-              <select
-                name="projet"
-                value={formData.projet || ''}
-                onChange={handleInputChange}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                required
-                      >
-                        <option value="">Sélectionner un projet</option>
-                        <option value="611">611 - Projet 1</option>
-                        <option value="612">612 - Projet 2</option>
-                        <option value="613">613 - Projet 3</option>
-               </select>
-            </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Référence Engagement</label>
-            <select
-              name="engagementRef"
-              value={formData.engagementRef || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              required
-            >
-              <option value="">Sélectionner un engagement</option>
-              {engagements.map((eng:any) => (
-                <option key={eng.id} value={eng.numero}>
-                  {eng.numero} - {eng.beneficiaire}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Date de Liquidation</label>
-            <input
-              type="date"
-              name="dateLiquidation"
-              value={formData.dateLiquidation || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Montant Liquidé (FBU)</label>
-            <input
-              type="number"
-              name="montantLiquidation"
-              value={formData.montantLiquidation || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="0.00"
-              step="0.01"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Mode de Paiement</label>
-            <select
-              name="modePaiement"
-              value={formData.modePaiement || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              required
-            >
-              <option value="">Sélectionner un mode</option>
-              <option value="Virement">Virement Bancaire</option>
-              <option value="Cheque">Chèque</option>
-              <option value="Especes">Espèces</option>
-            </select>
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">N° de pièce</label>
-            <input
-              type="text"
-              name="numeroFacture"
-              value={formData.piece || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="N° de facture"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Validé par</label>
-            <input
-              type="text"
-              name="validePar"
-              value={formData.validePar || ''}
-              onChange={handleInputChange}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              placeholder="Nom du validateur"
-              required
-            />
-          </div>
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Exercice budgétaire
+        </label>
+        <select
+          disabled
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        >
+          <option>2025</option>
+        </select>
+      </div>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 font-medium mb-2">Observations</label>
-          <textarea
-            name="observationsLiquidation"
-            value={formData.observationsLiquidation || ''}
-            onChange={handleInputChange}
-            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-            rows="3"
-            placeholder="Observations..."
-          ></textarea>
-        </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Projet
+        </label>
+        <select className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm">
+          <option>Sélectionner un projet</option>
+        </select>
+      </div>
 
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="bg-blue-600 text-white px-6 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Afficher la Liste
-          </button>
-        </div>
-      </form>
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Référence engagement
+        </label>
+        <select className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm">
+          <option>Sélectionner un engagement</option>
+        </select>
+      </div>
 
-      {showLiquidationList && (
-        <div className="mt-8">
-          <h3 className="text-xl font-bold mb-4 text-gray-800">Liste des Liquidations</h3>
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="border border-gray-300 px-4 py-2 text-left">N° Liquidation</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Engagement</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Date</th>
-                  <th className="border border-gray-300 px-4 py-2 text-right">Montant</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center">Statut</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {liquidations.map((liq:any) => (
-                  <tr key={liq.id} className="hover:bg-gray-50">
-                    <td className="border border-gray-300 px-4 py-2">{liq.numero}</td>
-                    <td className="border border-gray-300 px-4 py-2">{liq.engagement}</td>
-                    <td className="border border-gray-300 px-4 py-2">{liq.date}</td>
-                    <td className="border border-gray-300 px-4 py-2 text-right">
-                      {liq.montant.toLocaleString('fr-FR', { minimumFractionDigits: 2 })}
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
-                      <span className={`px-2 py-1 rounded text-sm ${
-                        liq.statut === 'Payé' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'
-                      }`}>
-                        {liq.statut}
-                      </span>
-                    </td>
-                    <td className="border border-gray-300 px-4 py-2 text-center">
-                      <button className="text-blue-600 hover:text-blue-800 mr-2">Voir</button>
-                      <button className="text-green-600 hover:text-green-800">Imprimer</button>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      )}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Date de liquidation
+        </label>
+        <input
+          type="date"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        />
+      </div>
+
+      {/* Devise */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Devise
+        </label>
+        <select className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm">
+          <option>FBU</option>
+          <option>USD</option>
+          <option>EUR</option>
+        </select>
+      </div>
+
+      {/* Taux */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Taux de change
+        </label>
+        <input
+          type="number"
+          placeholder="0.00"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        />
+      </div>
+
+      {/* Montant liquidé */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Montant liquidé
+        </label>
+        <input
+          type="number"
+          placeholder="0.00"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        />
+      </div>
+
+      {/* Montant total */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Montant total (FBU)
+        </label>
+        <input
+          type="text"
+          readOnly
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+          placeholder="—"
+        />
+      </div>
     </div>
+
+    {/* Bloc récapitulatif visuel */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
+      <div>
+        <p className="text-xs text-gray-500">Montant engagé</p>
+        <p className="text-lg font-semibold text-gray-800">—</p>
+      </div>
+      <div>
+        <p className="text-xs text-gray-500">Montant liquidé</p>
+        <p className="text-lg font-semibold text-blue-700">—</p>
+      </div>
+      <div>
+        <p className="text-xs text-gray-500">Montant restant</p>
+        <p className="text-lg font-semibold text-green-700">—</p>
+      </div>
+    </div>
+
+    {/* Paiement */}
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Mode de paiement
+        </label>
+        <select className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm">
+          <option>Sélectionner</option>
+          <option>Virement bancaire</option>
+          <option>Chèque</option>
+          <option>Espèces</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          N° de pièce
+        </label>
+        <input
+          type="text"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Validé par
+        </label>
+        <input
+          type="text"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        />
+      </div>
+    </div>
+
+    {/* Observations */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Observations
+      </label>
+      <textarea
+        rows={3}
+        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        placeholder="Observations..."
+      />
+    </div>
+
+    {/* Actions */}
+    <div className="flex justify-end">
+      <button
+        type="submit"
+        className="rounded-md bg-blue-600 px-6 py-2 text-sm font-medium text-white
+                   hover:bg-blue-700 transition"
+      >
+        Afficher la liste
+      </button>
+    </div>
+  </form>
+</div>
+
+
   );
+
+const renderRapportEngagementPage = () => (
+  <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-semibold uppercase">Rapport d’Engagement Budgétaire</h2>
+      <button
+        onClick={() => window.print()}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+      >
+        Imprimer
+      </button>
+    </div>
+
+    <div className="flex justify-between mb-6">
+      <div className="space-y-1">
+        <p className="text-gray-700"><span className="font-medium">ONG / ASBL :</span> ____________________</p>
+        <p className="text-gray-700"><span className="font-medium">Exercice :</span> 2025</p>
+      </div>
+      <div className="space-y-1">
+        <p className="text-gray-700"><span className="font-medium">N° Engagement :</span> ENG-001</p>
+        <p className="text-gray-700"><span className="font-medium">Date :</span> ____ / ____ / 2025</p>
+      </div>
+    </div>
+
+    <table className="w-full border-collapse border border-gray-300 mb-6">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border border-gray-300 px-4 py-2 text-left">Programme</th>
+          <th className="border border-gray-300 px-4 py-2 text-left">Activité</th>
+          <th className="border border-gray-300 px-4 py-2 text-left">Ligne budgétaire</th>
+          <th className="border border-gray-300 px-4 py-2 text-left">Montant engagé</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr className="hover:bg-gray-50">
+          <td className="border border-gray-300 px-4 py-2">Santé</td>
+          <td className="border border-gray-300 px-4 py-2">Achat médicaments</td>
+          <td className="border border-gray-300 px-4 py-2">60101</td>
+          <td className="border border-gray-300 px-4 py-2">________</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div className="flex justify-between mt-12">
+      <div className="text-center">
+        <p className="text-gray-700 font-medium">Ordonnateur</p>
+        <div className="border-t border-gray-700 mt-8 w-40 mx-auto"></div>
+      </div>
+      <div className="text-center">
+        <p className="text-gray-700 font-medium">Responsable financier</p>
+        <div className="border-t border-gray-700 mt-8 w-40 mx-auto"></div>
+      </div>
+    </div>
+  </div>
+);
+
+
+const renderRapportLiquidationPage = () => (
+  <div className="max-w-4xl mx-auto bg-white p-8 rounded-xl shadow-lg border border-gray-200">
+    <div className="flex justify-between items-center mb-6">
+      <h2 className="text-2xl font-semibold uppercase">Rapport de Liquidation</h2>
+      <button
+        onClick={() => window.print()}
+        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+      >
+        Imprimer
+      </button>
+    </div>
+
+    <div className="flex justify-between mb-6">
+      <div className="space-y-1">
+        <p className="text-gray-700"><span className="font-medium">ONG / ASBL :</span> ____________________</p>
+        <p className="text-gray-700"><span className="font-medium">N° Engagement :</span> ENG-001</p>
+      </div>
+      <div className="space-y-1">
+        <p className="text-gray-700"><span className="font-medium">N° Liquidation :</span> LIQ-001</p>
+        <p className="text-gray-700"><span className="font-medium">Date :</span> ____ / ____ / 2025</p>
+      </div>
+    </div>
+
+    <table className="w-full border-collapse border border-gray-300 mb-6">
+      <thead>
+        <tr className="bg-gray-100">
+          <th className="border border-gray-300 px-4 py-2 text-left">Fournisseur</th>
+          <th className="border border-gray-300 px-4 py-2 text-left">Objet</th>
+          <th className="border border-gray-300 px-4 py-2 text-left">Référence pièce</th>
+          <th className="border border-gray-300 px-4 py-2 text-left">Montant liquidé</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr className="hover:bg-gray-50">
+          <td className="border border-gray-300 px-4 py-2">Pharmacie ABC</td>
+          <td className="border border-gray-300 px-4 py-2">Achat médicaments</td>
+          <td className="border border-gray-300 px-4 py-2">FACT-001</td>
+          <td className="border border-gray-300 px-4 py-2">________</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div className="flex justify-between mt-12">
+      <div className="text-center">
+        <p className="text-gray-700 font-medium">Comptable</p>
+        <div className="border-t border-gray-700 mt-8 w-40 mx-auto"></div>
+      </div>
+      <div className="text-center">
+        <p className="text-gray-700 font-medium">Ordonnateur</p>
+        <div className="border-t border-gray-700 mt-8 w-40 mx-auto"></div>
+      </div>
+    </div>
+  </div>
+);
+
+
 
   const renderModalForm = () => {  
     if (modalType === "classe") {
@@ -3938,6 +4045,7 @@ const renderparActivitePage = (title:any) => (
               errorsExercice.dateDebut ? "border-red-500" : "border-gray-300"
           }`}/>
         </div>
+
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Date de fin</label>
           <input type="date" {...registerExercice("dateFin",{ required: "date obligatoire" })} 
@@ -3945,10 +4053,26 @@ const renderparActivitePage = (title:any) => (
               errorsExercice.dateFin ? "border-red-500" : "border-gray-300"
           }`}/>
         </div>
+ 
+        <div className="mb-4" style={{display:'flex'}}>
+          <label className="block text-gray-700 font-semibold mb-2">preparation</label>
+          <input type="checkbox" {...registerExercice("preparation",{value:false})} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsExercice.cloture ? "border-red-500" : "border-gray-300"
+          }`}/>
+        </div>
 
-         <div className="mb-4">
+        <div className="mb-4" style={{display:'flex'}}>
+          <label className="block text-gray-700 font-semibold mb-2">Execution</label>
+          <input type="checkbox" {...registerExercice("execution",{value:false})} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsExercice.cloture ? "border-red-500" : "border-gray-300"
+          }`}/>
+        </div>
+
+         <div className="mb-4" style={{display:'flex'}}>
           <label className="block text-gray-700 font-semibold mb-2">Cloture</label>
-          <input type="checkbox" {...registerExercice("cloture",{value:true})} 
+          <input type="checkbox" {...registerExercice("cloture",{value:false})} 
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
               errorsExercice.cloture ? "border-red-500" : "border-gray-300"
           }`}/>
@@ -4045,7 +4169,6 @@ const renderparActivitePage = (title:any) => (
     if (activeSubMenu === 'elaboration') return renderElaborationPage();
     
     if (activeSubMenu === 'plafond') return renderPlafondPage();
-    
     if (activeSubMenu === 'plafondNature') return renderPlafondNaturePage();
       
 
@@ -4055,10 +4178,14 @@ const renderparActivitePage = (title:any) => (
    
       if (activeSubMenu === 'engagement') return renderEngagementPage();
       if (activeSubMenu === 'liquidation') return renderLiquidationPage();
-      if (activeSubMenu === 'rapportEngagement') return renderDefaultPage('Rapport Engagement');
-      if (activeSubMenu === 'rapportLiquidation') return renderDefaultPage('Rapport Liquidation');
-  
-    
+      // if (activeSubMenu === 'traitementLiquidation') return renderLiquidationPage();
+      // if (activeSubMenu === 'traitementEngagement') return renderLiquidationPage();
+      // if (activeSubMenu === 'movementCredit') return renderLiquidationPage();
+      // if (activeSubMenu === 'traitementEngagement') return renderLiquidationPage();
+      if (activeSubMenu === 'rapportEngagement') return renderRapportEngagementPage();
+      if (activeSubMenu === 'rapportLiquidation') return renderRapportLiquidationPage();
+      // if (activeSubMenu === 'rapportMouvementCredit') return renderDefaultPage('Rapport Mouvement credit');
+   
     return null;
   };
 
