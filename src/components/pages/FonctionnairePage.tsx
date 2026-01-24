@@ -1,44 +1,44 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
 
-import {createTypebailleur,deleteTypebailleur,getAllTypebailleur,updateTypebailleur} from "../../data/classification/typebailleur";
+import {createFonctionnaire,deleteFonctionnaire,getAllFonctionnaire,updateFonctionnaire} from "../../data/utilisateur/fonctionnaire";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
 
-export default function renderTypeBailleurPage (){ 
+export default function renderFonctionnairePage (){ 
 
-const [typebailleurs, setTypebailleurs] = useState([]);
+const [fonctionnaires, setFonctionnaires] = useState([]);
 
     const [formData, setFormData] = useState({});
-    const [modalType, setModalType] = useState("typeBailleur");
+    const [modalType, setModalType] = useState("fonctionnaire");
     const [showModal, setShowModal] = useState(false);
 
 
    // GET 
-       const dataTypebailleur =async ()=>{
-        const data=await getAllTypebailleur(); 
-        setTypebailleurs(data)   
+       const dataFonctionnaire =async ()=>{
+        const data=await getAllFonctionnaire(); 
+        setFonctionnaires(data)   
       }  
 
         // CREATED  
           const {
-            register: registerTypebailleur,
-            handleSubmit: handleSubmitTypebailleur,
-            reset: resetTypebailleur,
-            formState: { errors: errorsTypebailleur },
+            register: registerFonctionnaire,
+            handleSubmit: handleSubmitFonctionnaire,
+            reset: resetFonctionnaire,
+            formState: { errors: errorsFonctionnaire },
           } = useForm();
        
-    const onSubmitTypebailleur = async (data:any) => { 
+    const onSubmitFonctionnaire = async (data:any) => { 
                 try { 
                   if (!data.id) { 
-                    await createTypebailleur(data);
+                    await createFonctionnaire(data);
                   } else { 
-                    await updateTypebailleur(data.id,data); 
+                    await updateFonctionnaire(data.id,data); 
                   }
                   toast.success("Operation effectuée avec succès !");
-                  resetTypebailleur();
-                  dataTypebailleur();
+                  resetFonctionnaire();
+                  dataFonctionnaire();
                   closeModal();
                 } catch (error:any) {
                   toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
@@ -48,18 +48,18 @@ const [typebailleurs, setTypebailleurs] = useState([]);
   
         const hendleDelete=(id:number,type:string)=>{
           try {
-            deleteTypebailleur(id);  
-            dataTypebailleur();
+            deleteFonctionnaire(id);  
+            dataFonctionnaire();
           toast.success("Supression effectuée avec succès !");
        
           } catch (error) {
           toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
-            dataTypebailleur();
+            dataFonctionnaire();
           }
         } 
       
        const hendleUpdata=(data:any,type:string)=>{ 
-           resetTypebailleur(data); 
+           resetFonctionnaire(data); 
             openModal('typeBailleur') 
         }
 
@@ -71,11 +71,11 @@ const [typebailleurs, setTypebailleurs] = useState([]);
       };
 
   const closeModal = () => {
-      resetTypebailleur({ id:null, libelle: null })
+      resetFonctionnaire({ id:null, libelle: null })
     setShowModal(false); 
   };
      useEffect(()=>{
-         dataTypebailleur();
+         dataFonctionnaire();
        },[])
 
   
@@ -83,16 +83,42 @@ const [typebailleurs, setTypebailleurs] = useState([]);
    const renderModalForm = () => {  
  
   return (
-      <form onSubmit={handleSubmitTypebailleur(onSubmitTypebailleur)} className='p-6'>
+      <form onSubmit={handleSubmitFonctionnaire(onSubmitFonctionnaire)} className='p-6'>
         <div className="mb-4">
-          <label>Libellé</label>
-           <input {...registerTypebailleur("id", { required: false})} readOnly hidden/>
-          <input {...registerTypebailleur("libelle", { required: "Libellé obligatoire" })} 
+           <input {...registerFonctionnaire("id", { required: false})} readOnly hidden/>
+           
+              <input {...registerFonctionnaire("nom", { required: "nom obligatoire" })} 
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsTypebailleur.libelle ? "border-red-500" : "border-gray-300"
+              errorsFonctionnaire.nom ? "border-red-500" : "border-gray-300"
           }`}
-          placeholder="Ex: interne" />
-          {errorsTypebailleur.libelle && <span>{"Libellé obligatoire"}</span>}
+          placeholder="Ex: nom" />
+          {errorsFonctionnaire.nom && <span>{"nom obligatoire"}</span>}
+        </div>
+        <div className="mb-4">
+              <input {...registerFonctionnaire("prenom", { required: "prenom obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsFonctionnaire.prenom ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: prenom" />
+          {errorsFonctionnaire.prenom && <span>{"prenom obligatoire"}</span>}
+            </div>
+            <div className="mb-4">
+              <input {...registerFonctionnaire("fonction", { required: "fonction obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsFonctionnaire.fonction ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: fonction" />
+          {errorsFonctionnaire.fonction && <span>{"fonction obligatoire"}</span>}
+            </div>
+            <div className="mb-4"> 
+          <select  {...registerFonctionnaire("roleSysteme", { required: true })}  className=" w-full border border-gray-300 rounded px-4 py-2">
+            <option value="">Roles</option> 
+              <option value="AUCUN">AUCUN</option> 
+              <option value="GESTIONNAIRE">GESTIONNAIRE</option> 
+              <option value="RESPONSABLE">RESPONSABLE</option> 
+              <option value="ORDONATEUR">ORDONATEUR</option> 
+              <option value="COMPTABLE">COMPTABLE</option> 
+          </select> 
         </div> 
        
          <div className="flex gap-4 mt-6">
@@ -135,14 +161,14 @@ const [typebailleurs, setTypebailleurs] = useState([]);
                                                                       </div>
                                                                     </div>
                                                                   )}
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Types de Bailleurs</h2>
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion de Fonctionnaires</h2>
       
       <div className="mb-6">
         <button 
           onClick={() => openModal('typeBailleur')}
           className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
         >
-          + Ajouter un Type de Bailleur
+          + Nouvel
         </button>
       </div>
       <hr className="my-4" />
@@ -152,25 +178,31 @@ const [typebailleurs, setTypebailleurs] = useState([]);
           <thead>
             <tr className="bg-gray-100">
               <th className="border border-gray-300 px-4 py-2 text-left">N°</th> 
-              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Nom</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Prenom</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Fonction</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Role</th>
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {typebailleurs?.map((type, index:any) => (
+          <tbody>           
+            {fonctionnaires?.map((type, index:any) => (
               <tr key={type.id} className="hover:bg-gray-50">
                 <td className="border border-gray-300 px-4 py-2">{index + 1}</td> 
-                <td className="border border-gray-300 px-4 py-2">{type.libelle}</td>
+                <td className="border border-gray-300 px-4 py-2">{type.nom}</td>
+                <td className="border border-gray-300 px-4 py-2">{type.prenom}</td>
+                <td className="border border-gray-300 px-4 py-2">{type.fonction}</td>
+                <td className="border border-gray-300 px-4 py-2">{type.roleSysteme}</td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
                   <button 
                     className="text-blue-600 hover:text-blue-800 mr-2"
-                    onClick={() => hendleUpdata(type, 'typeBailleur')}
+                    onClick={() => hendleUpdata(type, 'fonctionnaire')}
                   >
                     Modifier
                   </button>
                   <button 
                     className="text-red-600 hover:text-red-800"
-                    onClick={() => hendleDelete(type.id, 'typeBailleur')}
+                    onClick={() => hendleDelete(type.id, 'fonctionnaire')}
                   >
                     Supprimer
                   </button>

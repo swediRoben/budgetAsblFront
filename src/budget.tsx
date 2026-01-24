@@ -21,6 +21,8 @@ import RenderLiquidationPage from "./components/pages/LiquidationPage";
 import RenderRapportLiquidationPage from "./components/pages/RapportLiquidationPage"; 
 import RenderRapportEngagementPage from "./components/pages/RapportEngagementPage"; 
 import RenderEngagementPage from "./components/pages/EngagementPage";   
+import RenderFonctionnairePage from "./components/pages/FonctionnairePage";   
+import RenderUserPage from "./components/pages/UserPage";    
 
 const BudgetApp = () => { 
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -32,7 +34,8 @@ const BudgetApp = () => {
     prevision: false, 
     execution: false,
     tresorerie:false,
-    parametre:false
+    parametre:false,
+    utilisateur:false,
   });
 
  const [expandedSubMenus, setExpandedSubMenus] = useState({ 
@@ -261,6 +264,23 @@ const BudgetApp = () => {
           icon: <BadgeDollarSign className="w-4 h-4" />
         }
       ]
+    },
+     {
+      id: 'utilisateur',
+      name: 'Utilisateur',
+      icon: <Settings2 className="w-5 h-5" />,
+      subMenus: [
+        { 
+          id: 'fonctionnaire', 
+          name: 'Fonctionnaire',
+          icon: <FileText className="w-4 h-4" />
+        },
+        { 
+          id: 'user', 
+          name: 'User',
+          icon: <BadgeDollarSign className="w-4 h-4" />
+        }
+      ]
     }
   ];
  
@@ -349,6 +369,12 @@ const renderContent = () => {
 
     // case activeSubMenu === 'rapportMouvementCredit':
     //   return renderDefaultPage('Rapport Mouvement credit');
+
+    case activeSubMenu === 'fonctionnaire':
+      return <RenderFonctionnairePage />;
+
+    case activeSubMenu === 'user':
+      return <RenderUserPage />;
 
     default:
       return null;
