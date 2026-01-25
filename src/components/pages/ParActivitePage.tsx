@@ -214,120 +214,195 @@ export default function renderParActivitePage (){
             // ETAT DE SORTIE
            
         return (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Rapport plan previsionnel</h2>
-                 <div className="bg-gray-50 p-6 rounded-lg mb-6"> 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-                      {/* Exercice */}
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-2">
-                          Exercice Budgétaire
-                        </label> 
-          
-                        <select 
-                          className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                          onClick={dataExercice} 
-                          onChange={getPlanfondByExercice} 
-                          >
-                          <option value="">Sélectionner l'exercice</option>
-                          {
-                            exercices.map((element:any)=>(
-                            <option value={element.id}>{element.libelle}</option>
-                            ))
-                          }
-                        </select>
-                      </div>
-          
-                      {/* Projet */}
-                      <div>
-                        <label className="block text-gray-700 font-medium mb-2">Projet</label>
-                       <select 
-                            className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                           onChange={(e)=>{getPrevisionParProjet(e.target.value)}}
-                       >
-                            <option value="">Sélectionner un projet</option>
-                            {
-                              planfondprojets.map((element:any)=>(
-                              <option value={element.projet.id}>{element.projet.libelle}</option>
-                              ))
-                            }
-                          </select>
-                      </div>
-                    </div>
-                  </div> 
-          
-              <table className="w-full border-collapse mt-4">
-                  <thead>
-                      <tr>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">CODE</th>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">DESCRIPTION</th>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">DEBUT</th>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">FIN</th>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">QUANTITE</th>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">C. UNITAIRE</th>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">TOTAL</th>
-                          <th className="bg-[#1f4e78] text-white p-3 font-bold text-left border border-gray-300 text-sm">SOURCE FINANCEMENT</th>
-                      </tr>
-                  </thead>
-          
-                    <tbody>
-            {Object.entries(grouped).map(([pid, projetData], pIndex:any) => {
+          <div className="rounded-2xl border border-gray-200 bg-gradient-to-b from-gray-50 to-white shadow-lg">
+  {/* HEADER */}
+  <div className="flex flex-col gap-1 border-b border-gray-200 px-6 py-5">
+    <h2 className="text-2xl font-extrabold tracking-tight text-gray-900">
+      Rapport plan prévisionnel
+    </h2>
+    <p className="text-sm text-gray-500">
+      Sélectionnez un exercice et un projet pour afficher les prévisions.
+    </p>
+  </div>
+
+  {/* FILTRES */}
+  <div className="px-6 py-6">
+    <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex items-center justify-between">
+        <h3 className="text-base font-bold text-gray-800">Filtres</h3>
+        <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-semibold text-blue-700">
+          Paramètres du rapport
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+        {/* Exercice */}
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-gray-700">
+            Exercice Budgétaire
+          </label>
+
+          <select
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition
+                       focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            onClick={dataExercice}
+            onChange={getPlanfondByExercice}
+          >
+            <option value="">Sélectionner l'exercice</option>
+            {exercices.map((element: any) => (
+              <option key={element.id} value={element.id}>
+                {element.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Projet */}
+        <div>
+          <label className="mb-2 block text-sm font-semibold text-gray-700">
+            Projet
+          </label>
+
+          <select
+            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition
+                       focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+            onChange={(e) => getPrevisionParProjet(e.target.value)}
+          >
+            <option value="">Sélectionner un projet</option>
+            {planfondprojets.map((element: any, index: number) => (
+              <option key={index} value={element.projet.id}>
+                {element.projet.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {/* TABLE */}
+  <div className="px-6 pb-6">
+    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+      <div className="overflow-x-auto">
+        <table className="min-w-full text-sm">
+          <thead>
+            <tr className="bg-[#1f4e78] text-white">
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Code
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Description
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Début
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Fin
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Quantité
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                C. Unitaire
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Total
+              </th>
+              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+                Source financement
+              </th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-gray-100">
+            {Object.entries(grouped).map(([pid, projetData], pIndex: any) => {
               const categories = projetData.categories;
               const totProj = totalProjet(categories);
-          
+
               return (
                 <React.Fragment key={pid}>
                   {/* PROJET */}
-                  <tr className="bg-[#d9e1f2] font-semibold">
-                    <td className="p-3 border border-gray-300">{String(pIndex + 1).padStart(2, "0")}</td>
-                    <td className="p-3 border border-gray-300" colSpan={5}>
-                      {projetData.projet?.libelle}
+                  <tr className="bg-blue-50/60 font-semibold text-gray-900">
+                    <td className="border-r border-gray-100 px-4 py-3">
+                      {String(pIndex + 1).padStart(2, "0")}
                     </td>
-                    <td className="p-3 border border-gray-300">{totProj.toLocaleString()}</td>
-                    <td className="p-3 border border-gray-300">—</td>
+                    <td className="px-4 py-3" colSpan={5}>
+                      <span className="inline-flex items-center gap-2">
+                        <span className="h-2 w-2 rounded-full bg-blue-600" />
+                        {projetData.projet?.libelle}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 font-extrabold text-gray-900">
+                      {totProj.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-3 text-gray-500">—</td>
                   </tr>
-          
+
                   {/* CATEGORIES */}
-                  {Object.entries(categories).map(([cid, catData], cIndex:any) => {
+                  {Object.entries(categories).map(([cid, catData], cIndex: any) => {
                     const totCat = totalCategorie(catData.acts);
-          
+
                     return (
                       <React.Fragment key={cid}>
                         {/* CATEGORIE */}
-                        <tr className="bg-[#fce4d6] font-semibold">
-                          <td className="p-3 border border-gray-300">{String(cIndex + 1).padStart(3, "0")}</td>
-                          <td className="p-3 border border-gray-300" colSpan={5}>
-                            {catData.categorie?.libelle}
+                        <tr className="bg-orange-50/70 font-semibold text-gray-800">
+                          <td className="border-r border-gray-100 px-4 py-3">
+                            {String(cIndex + 1).padStart(3, "0")}
                           </td>
-                          <td className="p-3 border border-gray-300">{totCat.toLocaleString()}</td>
-                          <td className="p-3 border border-gray-300">—</td>
+                          <td className="px-4 py-3" colSpan={5}>
+                            <span className="inline-flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-orange-500" />
+                              {catData.categorie?.libelle}
+                            </span>
+                          </td>
+                          <td className="px-4 py-3 font-bold text-gray-900">
+                            {totCat.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-gray-500">—</td>
                         </tr>
-          
+
                         {/* ACTIVITÉS */}
-                        {catData.acts.map((act, aIndex:any) => (
-                          <tr key={aIndex}>
-                            <td className="p-3 border border-gray-300">{act.ligne}</td>
-                            <td className="p-3 border border-gray-300">{act.activite?.libelle}</td>
-                            <td className="p-3 border border-gray-300">{act.datebebut}</td>
-                            <td className="p-3 border border-gray-300">{act.datefin}</td>
-          
-                            <td className="p-3 border border-gray-300">{act.quantite}</td>
-                            <td className="p-3 border border-gray-300">{act.pu.toLocaleString()}</td>
-                            <td className="p-3 border border-gray-300">{act.montant.toLocaleString()}</td>
-                            <td className="p-3 border border-gray-300">{act.bailleur?.libelle}</td>
+                        {catData.acts.map((act, aIndex: any) => (
+                          <tr
+                            key={aIndex}
+                            className="transition hover:bg-gray-50"
+                          >
+                            <td className="border-r border-gray-100 px-4 py-3 text-gray-700">
+                              {act.ligne}
+                            </td>
+                            <td className="px-4 py-3 text-gray-800">
+                              {act.activite?.libelle}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600">
+                              {act.datebebut}
+                            </td>
+                            <td className="px-4 py-3 text-gray-600">
+                              {act.datefin}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700">
+                              {act.quantite}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700">
+                              {act.pu.toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 font-semibold text-gray-900">
+                              {act.montant.toLocaleString()}
+                            </td>
+                            <td className="px-4 py-3 text-gray-700">
+                              {act.bailleur?.libelle}
+                            </td>
                           </tr>
                         ))}
                       </React.Fragment>
                     );
                   })}
-          
+
                   {/* TOTAL FINAL PROJET */}
-                  <tr className="bg-[#c6efce] font-bold text-base">
-                    <td className="p-3 border border-gray-300" colSpan={6}>
+                  <tr className="bg-green-50 font-extrabold text-gray-900">
+                    <td className="px-4 py-3" colSpan={6}>
                       TOTAL {projetData.projet?.libelle}
                     </td>
-                    <td className="p-3 border border-gray-300" colSpan={2}>
+                    <td className="px-4 py-3" colSpan={2}>
                       {totProj.toLocaleString()}
                     </td>
                   </tr>
@@ -335,10 +410,12 @@ export default function renderParActivitePage (){
               );
             })}
           </tbody>
-              </table> 
-              
-          
-          </div> 
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
             );
 
        

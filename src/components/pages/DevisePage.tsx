@@ -89,53 +89,147 @@ export default function renderDevisePage (){
        // SHOW MODALL 
 const renderModalForm = () => {  
    return (
-      <form onSubmit={handleSubmitDevise(onSubmitDevise)} className='p-6'>
-        <div className="mb-4">
-          <input {...registerDevise("id", { required: false})} readOnly hidden/>
-          <label className="block text-gray-700 font-semibold mb-2">Code</label>
-          <input {...registerDevise("code", { required: "Code obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsDevise.code ? "border-red-500" : "border-gray-300"
-          }`}/>
-          {errorsDevise.code && <span>{errorsDevise.code.message}</span>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input {...registerDevise("libelle", { required: "Intitulé obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsClasse.libelle ? "border-red-500" : "border-gray-300"
-          }`}/>
-          {errorsDevise.libelle && <span>{errorsDevise.libelle.message}</span>}
-        </div>
-         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Symbole</label>
-          <input {...registerDevise("symbole", { required: "Intitulé obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsClasse.symbole ? "border-red-500" : "border-gray-300"
-          }`}/>
-          {errorsDevise.symbole && <span>{errorsDevise.symbole.message}</span>}
+  <form onSubmit={handleSubmitDevise(onSubmitDevise)} className="w-full">
+  <input {...registerDevise("id", { required: false })} readOnly hidden />
+
+  <div className="rounded-2xl bg-white shadow-lg ring-1 ring-gray-200 overflow-hidden">
+ 
+
+    {/* BODY */}
+    <div className="p-6 space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Code */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Code <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            {...registerDevise("code", { required: "Code obligatoire" })}
+            placeholder="Ex: BIF, USD, EUR"
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500
+              ${
+                errorsDevise.code
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                  : "border-gray-200"
+              }
+            `}
+          />
+
+          {errorsDevise.code && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              {errorsDevise.code.message}
+            </p>
+          )}
         </div>
 
-         <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Actif</label>
-          <input type="checkbox" {...registerDevise("cloture",{value:true})} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsDevise.actif ? "border-red-500" : "border-gray-300"
-          }`}/>
+        {/* Intitulé */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Intitulé <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            {...registerDevise("libelle", { required: "Intitulé obligatoire" })}
+            placeholder="Ex: Franc Burundais"
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500
+              ${
+                errorsDevise.libelle
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                  : "border-gray-200"
+              }
+            `}
+          />
+
+          {errorsDevise.libelle && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              {errorsDevise.libelle.message}
+            </p>
+          )}
         </div>
-       
-         <div className="flex gap-4 mt-6">
-           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                >
-                  Enregistrer 
-         </button>
-       </div>
-      </form>
+
+        {/* Symbole */}
+        <div className="md:col-span-2">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Symbole <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            {...registerDevise("symbole", { required: "Symbole obligatoire" })}
+            placeholder="Ex: FBu, $, €"
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-indigo-100 focus:border-indigo-500
+              ${
+                errorsDevise.symbole
+                  ? "border-red-500 focus:border-red-500 focus:ring-red-100"
+                  : "border-gray-200"
+              }
+            `}
+          />
+
+          {errorsDevise.symbole && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              {errorsDevise.symbole.message}
+            </p>
+          )}
+        </div>
+      </div>
+
+      {/* ACTIF SWITCH */}
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+        <h3 className="text-sm font-bold text-gray-800 mb-4">
+          Paramètres de la devise
+        </h3>
+
+        <label className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 cursor-pointer hover:shadow-sm transition">
+          <div>
+            <p className="text-sm font-semibold text-gray-800">Actif</p>
+            <p className="text-xs text-gray-500">
+              Active ou désactive cette devise dans le système
+            </p>
+          </div>
+
+          <div className="relative">
+            <input
+              type="checkbox"
+              {...registerDevise("actif")}
+              className="peer sr-only"
+            />
+            <div className="h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-indigo-600 transition"></div>
+            <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div>
+          </div>
+        </label>
+
+        {errorsDevise.actif && (
+          <p className="mt-2 text-xs text-red-600 font-medium">
+            {errorsDevise.actif.message}
+          </p>
+        )}
+      </div>
+    </div>
+
+    {/* FOOTER BUTTONS */}
+    <div className="px-6 py-4 border-t border-gray-100 bg-white flex flex-col sm:flex-row gap-3">
+      <button
+        type="button"
+        onClick={closeModal}
+        className="w-full sm:w-auto px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-semibold hover:bg-gray-50 transition"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="submit"
+        className="w-full sm:w-auto px-5 py-3 rounded-xl bg-indigo-600 text-white font-semibold shadow-sm hover:bg-indigo-700 transition"
+      >
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</form>
+
     );
   
 };
@@ -148,11 +242,13 @@ const renderModalForm = () => {
                                             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                               <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
                                                 <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                                                  <h3 className="text-xl font-bold text-gray-800">
-                                                    {modalType === 'classe' ? 'Ajouter une Classe' : 
-                                                     modalType === 'planComptable' ? 'Ajouter un Compte' : 
-                                                     'Ajouter un Élément'}
-                                                  </h3>
+                                                    {/* HEADER */}
+                                                  <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-white">
+                                                    <h2 className="text-lg font-bold text-gray-900">Créer / Modifier Devise</h2>
+                                                    <p className="text-sm text-gray-500 mt-1">
+                                                      Définissez les informations de la devise utilisée dans le système.
+                                                    </p>
+                                                  </div>
                                                   <button
                                                     onClick={closeModal}
                                                     className="text-gray-500 hover:text-gray-700"

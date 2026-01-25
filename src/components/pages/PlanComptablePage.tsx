@@ -81,6 +81,7 @@ export default function renderPlanComptablePage (){
     setShowModal(false); 
   };
      useEffect(()=>{
+       dataClasse();
          dataPlancompte();
     },[])
 

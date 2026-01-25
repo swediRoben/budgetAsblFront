@@ -227,175 +227,222 @@ export default function renderPlafonNaturePage (){
 
 
           return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Planfond par nature</h2>
-
-      <form onSubmit={handleSubmitPlanfontNature(onSubmitPlanfontnature)}>
-        {/* En-tête */}
-        <div className="bg-gray-50 p-6 rounded-lg mb-6">
-          <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-            {/* Exercice */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">
-                Exercice Budgétaire
-              </label> 
-
-              <select
-                {...registerPlanfontNature("exercice", { required: true })}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                  // onClick={getExerciceencours}
-                   onChange={getPlanfondByExercice}
-                >
-                <option value="">Sélectionner l'exercice</option>
-                {
-                  exercices.map((element)=>(
-                  <option value={element.id}>{element.libelle}</option>
-                  ))
-                }
-              </select>
-            </div>
-
-            {/* Projet */}
-            <div>
-              <label className="block text-gray-700 font-medium mb-2">Projet</label>
-             <select
-                  {...registerPlanfontNature(`idProjet`, { required: true })}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
-               >
-                  <option value="">Sélectionner un projet</option>
-                  {
-                    projets.map((element)=>(
-                    <option value={element.id}>{element.libelle}</option>
-                    ))
-                  }
-                </select>
-            </div>
-          </div>
-        </div>
-
-        {/* Détails */}
-        <div className="bg-gray-50 p-6 rounded-lg mb-6">
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-700">Détails des projets</h3>
-            <button
-              type="button"
-              onClick={() =>
-                addDetailLinePlanfontnature({id: null, idCategorie: null, idClasse: null, montant: "",exercice:null })
-              }
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
-            >
-              + Ajouter une ligne
-            </button>
-          </div>
-
-          {/* Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr className="bg-gray-200">
-                  <th className="border border-gray-300 px-4 py-2 text-left">Categorie</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Nature</th>
-                  <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
-                  <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {fieldsNature.map((field, index:any) => (
-                  <tr key={field.id} className="hover:bg-gray-100">
-                
-
-                    {/* Catégorie */}
-                    <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        {...registerPlanfontNature(`details.${index}.idCategorie`, { required: true })}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                     >
-                        <option value="">Sélectionner une catégorie</option>
-                        {
-                          categories.map((element)=>(
-                          <option value={element.id}>{element.libelle}</option>
-                          ))
-                        }
-                      </select>
-                    </td>
-                        
-                    {/* Classe */}
-                    <td className="border border-gray-300 px-2 py-2">
-                      <select
-                        {...registerPlanfontNature(`details.${index}.idClasse`, { required: false })}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        >
-                        <option value="">Sélectionner la nature de depense</option>
-                       {
-                          classes.map((element) => {
-                            return element.type === "Dépense" ? (
-                              <option key={element.id} value={element.id}>
-                                {element.libelle}
-                              </option>
-                            ) : null;
-                          })
-                        }
-                      </select>
-                    </td>
-
-                    {/* Montant */}
-                    <td className="border border-gray-300 px-2 py-2">
-                      <input
-                        type="number"
-                        step="0.01"
-                        {...registerPlanfontNature(`details.${index}.montant`, { required: true })}
-                        className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                        placeholder="0.00"
-                      />
-                    </td>
-
-                    {/* Supprimer */}
-                    <td className="border border-gray-300 px-2 py-2 text-center">
-                      <button
-                        type="button"
-                        onClick={() => removeNature(index)} 
-                        className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-
-                {/* Total */}
-                <tr className="bg-blue-50 font-semibold">
-                  <td className="border border-gray-300 px-4 py-2 text-center" colSpan={2}>
-                    Total
-                  </td>
-                  <td className="border border-gray-300 px-4 py-2 text-center" colSpan={2}>
-                    {calculateTotal().toLocaleString("fr-FR", {
-                      minimumFractionDigits: 2,
-                    })}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end">
-          <div className="flex gap-4 justify-end">
-            <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
-              Enregistrer
-            </button>
-
-            <button type="button" className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition">
-              Imprimer
-            </button>
-          </div>
-        </div>
-      </form>
+   <div className="bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-xl border border-gray-100 p-6">
+  {/* Header */}
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div>
+      <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+        Plafond par nature
+      </h2>
+      <p className="text-sm text-gray-500 mt-1">
+        Configurez les plafonds budgétaires par catégorie et nature de dépense
+      </p>
     </div>
+  </div>
+
+  <form
+    onSubmit={handleSubmitPlanfontNature(onSubmitPlanfontnature)}
+    className="space-y-6"
+  >
+    {/* En-tête */}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <h3 className="text-lg font-bold text-gray-800 mb-4">En-tête</h3>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Exercice */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Exercice Budgétaire <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            {...registerPlanfontNature("exercice", { required: true })}
+            onChange={getPlanfondByExercice}
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+          >
+            <option value="">Sélectionner l'exercice</option>
+            {exercices.map((element) => (
+              <option key={element.id} value={element.id}>
+                {element.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Projet */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Projet <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            {...registerPlanfontNature("idProjet", { required: true })}
+            onChange={(e) => getPlanfondNatureByprogramme(e.target.value)}
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+          >
+            <option value="">Sélectionner un projet</option>
+            {projets.map((element) => (
+              <option key={element.id} value={element.id}>
+                {element.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
+    </div>
+
+    {/* Détails */}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-lg font-bold text-gray-800">
+            Détails des projets
+          </h3>
+          <p className="text-sm text-gray-500">
+            Ajoutez les catégories, natures et montants plafonds
+          </p>
+        </div>
+
+        <button
+          type="button"
+          onClick={() =>
+            addDetailLinePlanfontnature({
+              id: null,
+              idCategorie: null,
+              idClasse: null,
+              montant: "",
+              exercice: null,
+            })
+          }
+          className="inline-flex items-center justify-center rounded-xl bg-green-600 text-white px-5 py-2.5
+            font-semibold shadow hover:bg-green-700 transition"
+        >
+          + Ajouter une ligne
+        </button>
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl border border-gray-100">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 text-gray-700">
+              <th className="px-4 py-3 text-left font-bold">Catégorie</th>
+              <th className="px-4 py-3 text-left font-bold">Nature</th>
+              <th className="px-4 py-3 text-left font-bold">Montant</th>
+              <th className="px-4 py-3 text-center font-bold w-24">Action</th>
+            </tr>
+          </thead>
+
+          <tbody className="divide-y divide-gray-100">
+            {fieldsNature.map((field, index) => (
+              <tr key={field.id} className="hover:bg-gray-50 transition">
+                {/* Catégorie */}
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPlanfontNature(`details.${index}.idCategorie`, {
+                      required: true,
+                    })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                  >
+                    <option value="">Sélectionner une catégorie</option>
+                    {categories.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.libelle}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+
+                {/* Nature */}
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPlanfontNature(`details.${index}.idClasse`, {
+                      required: false,
+                    })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                  >
+                    <option value="">Sélectionner la nature de dépense</option>
+                    {classes.map((element) =>
+                      element.type === "Dépense" ? (
+                        <option key={element.id} value={element.id}>
+                          {element.libelle}
+                        </option>
+                      ) : null
+                    )}
+                  </select>
+                </td>
+
+                {/* Montant */}
+                <td className="px-3 py-3">
+                  <div className="relative">
+                    <input
+                      type="number"
+                      step="0.01"
+                      {...registerPlanfontNature(`details.${index}.montant`, {
+                        required: true,
+                      })}
+                      className="w-full rounded-lg border border-gray-200 px-3 py-2 shadow-sm
+                        focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                      placeholder="0.00"
+                    />
+                  </div>
+                </td>
+
+                {/* Supprimer */}
+                <td className="px-3 py-3 text-center">
+                  <button
+                    type="button"
+                    onClick={() => removeNature(index)}
+                    className="inline-flex items-center justify-center rounded-lg px-3 py-2
+                      text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+
+            {/* Total */}
+            <tr className="bg-blue-50">
+              <td className="px-4 py-3 font-bold text-center text-gray-700" colSpan={2}>
+                Total
+              </td>
+              <td className="px-4 py-3 font-extrabold text-blue-900" colSpan={2}>
+                {calculateTotal().toLocaleString("fr-FR", {
+                  minimumFractionDigits: 2,
+                })}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col md:flex-row justify-end gap-3 mt-6">
+        <button
+          type="submit"
+          className="rounded-xl bg-green-600 text-white px-7 py-3 font-semibold shadow-md
+            hover:bg-green-700 transition"
+        >
+          Enregistrer
+        </button>
+
+        <button
+          type="button"
+          className="rounded-xl bg-gray-900 text-white px-7 py-3 font-semibold shadow-md
+            hover:bg-gray-800 transition"
+        >
+          Imprimer
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
   );
 
 

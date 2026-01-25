@@ -26,7 +26,12 @@ export default function renderActivitePage (){
     const data=await getAllActivite(p,c); 
     setActivites(data) 
   }
-   
+ 
+
+    useEffect(() => {
+    dataProjet()
+    }, []);
+    
 
       const {
       register: registerActivite,

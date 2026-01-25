@@ -85,76 +85,190 @@ export default function renderExercicePage (){
        // SHOW MODALL 
  const renderModalForm = () => {  
     return (
-      <form onSubmit={handleSubmitExercice(onSubmitExercice)} className='p-6'>
-        <div className="mb-4">
-          <input {...registerExercice("id", { required: false})} readOnly hidden/>
-          <label className="block text-gray-700 font-semibold mb-2">Code</label>
-          <input {...registerExercice("code", { required: "Code obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsExercice.code ? "border-red-500" : "border-gray-300"
-          }`}/>
-          {errorsExercice.code && <span>{errorsExercice.code.message}</span>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input {...registerExercice("libelle", { required: "Intitulé obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsClasse.libelle ? "border-red-500" : "border-gray-300"
-          }`}/>
-          {errorsExercice.libelle && <span>{errorsExercice.libelle.message}</span>}
-        </div>
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Date de début</label>
-          <input type="date" {...registerExercice("dateDebut",{ required: "date obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsExercice.dateDebut ? "border-red-500" : "border-gray-300"
-          }`}/>
+      <form
+  onSubmit={handleSubmitExercice(onSubmitExercice)}
+  className="w-full"
+>
+  <input {...registerExercice("id", { required: false })} readOnly hidden />
+
+  <div className="rounded-2xl bg-white shadow-lg ring-1 ring-gray-200 overflow-hidden">
+   {/* BODY */}
+    <div className="p-6 space-y-6">
+      {/* INPUTS GRID */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Code */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Code <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            {...registerExercice("code", { required: "Code obligatoire" })}
+            placeholder="Ex: EX-2026"
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+              ${errorsExercice.code ? "border-red-500 focus:border-red-500 focus:ring-red-100" : "border-gray-200"}
+            `}
+          />
+
+          {errorsExercice.code && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              {errorsExercice.code.message}
+            </p>
+          )}
         </div>
 
-        <div className="mb-4">
-          <label className="block text-gray-700 font-semibold mb-2">Date de fin</label>
-          <input type="date" {...registerExercice("dateFin",{ required: "date obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsExercice.dateFin ? "border-red-500" : "border-gray-300"
-          }`}/>
-        </div>
- 
-        <div className="mb-4" style={{display:'flex'}}>
-          <label className="block text-gray-700 font-semibold mb-2">preparation</label>
-          <input type="checkbox" {...registerExercice("preparation",{value:false})} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsExercice.cloture ? "border-red-500" : "border-gray-300"
-          }`}/>
+        {/* Intitulé */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Intitulé <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            {...registerExercice("libelle", { required: "Intitulé obligatoire" })}
+            placeholder="Ex: Exercice budgétaire 2026"
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+              ${errorsExercice.libelle ? "border-red-500 focus:border-red-500 focus:ring-red-100" : "border-gray-200"}
+            `}
+          />
+
+          {errorsExercice.libelle && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              {errorsExercice.libelle.message}
+            </p>
+          )}
         </div>
 
-        <div className="mb-4" style={{display:'flex'}}>
-          <label className="block text-gray-700 font-semibold mb-2">Execution</label>
-          <input type="checkbox" {...registerExercice("execution",{value:false})} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsExercice.cloture ? "border-red-500" : "border-gray-300"
-          }`}/>
+        {/* Date début */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Date de début <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="date"
+            {...registerExercice("dateDebut", { required: "Date obligatoire" })}
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+              ${errorsExercice.dateDebut ? "border-red-500 focus:border-red-500 focus:ring-red-100" : "border-gray-200"}
+            `}
+          />
+
+          {errorsExercice.dateDebut && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              {errorsExercice.dateDebut.message}
+            </p>
+          )}
         </div>
 
-         <div className="mb-4" style={{display:'flex'}}>
-          <label className="block text-gray-700 font-semibold mb-2">Cloture</label>
-          <input type="checkbox" {...registerExercice("cloture",{value:false})} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsExercice.cloture ? "border-red-500" : "border-gray-300"
-          }`}/>
+        {/* Date fin */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Date de fin <span className="text-red-500">*</span>
+          </label>
+
+          <input
+            type="date"
+            {...registerExercice("dateFin", { required: "Date obligatoire" })}
+            className={`w-full rounded-xl border bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+              ${errorsExercice.dateFin ? "border-red-500 focus:border-red-500 focus:ring-red-100" : "border-gray-200"}
+            `}
+          />
+
+          {errorsExercice.dateFin && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              {errorsExercice.dateFin.message}
+            </p>
+          )}
         </div>
-       
-         <div className="flex gap-4 mt-6">
-           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-                >
-                  Enregistrer 
-         </button>
-       </div>
-      </form>
+      </div>
+
+      {/* STATUS SWITCHES */}
+      <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+        <h3 className="text-sm font-bold text-gray-800 mb-4">
+          Statut de l’exercice
+        </h3>
+
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* Preparation */}
+          <label className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 cursor-pointer hover:shadow-sm transition">
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Préparation</p>
+              <p className="text-xs text-gray-500">Phase de préparation</p>
+            </div>
+
+            <div className="relative">
+              <input
+                type="checkbox"
+                {...registerExercice("preparation")}
+                className="peer sr-only"
+              />
+              <div className="h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-blue-600 transition"></div>
+              <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div>
+            </div>
+          </label>
+
+          {/* Execution */}
+          <label className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 cursor-pointer hover:shadow-sm transition">
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Exécution</p>
+              <p className="text-xs text-gray-500">Phase d’exécution</p>
+            </div>
+
+            <div className="relative">
+              <input
+                type="checkbox"
+                {...registerExercice("execution")}
+                className="peer sr-only"
+              />
+              <div className="h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-green-600 transition"></div>
+              <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div>
+            </div>
+          </label>
+
+          {/* Cloture */}
+          <label className="flex items-center justify-between gap-3 rounded-xl border border-gray-200 bg-white px-4 py-3 cursor-pointer hover:shadow-sm transition">
+            <div>
+              <p className="text-sm font-semibold text-gray-800">Clôture</p>
+              <p className="text-xs text-gray-500">Exercice clôturé</p>
+            </div>
+
+            <div className="relative">
+              <input
+                type="checkbox"
+                {...registerExercice("cloture")}
+                className="peer sr-only"
+              />
+              <div className="h-6 w-11 rounded-full bg-gray-200 peer-checked:bg-red-600 transition"></div>
+              <div className="absolute left-1 top-1 h-4 w-4 rounded-full bg-white transition peer-checked:translate-x-5"></div>
+            </div>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    {/* FOOTER BUTTONS */}
+    <div className="px-6 py-4 border-t border-gray-100 bg-white flex flex-col sm:flex-row gap-3">
+      <button
+        type="button"
+        onClick={closeModal}
+        className="w-full sm:w-auto px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-semibold hover:bg-gray-50 transition"
+      >
+        Annuler
+      </button>
+
+      <button
+        type="submit"
+        className="w-full sm:w-auto px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold shadow-sm hover:bg-blue-700 transition"
+      >
+        Enregistrer
+      </button>
+    </div>
+  </div>
+</form>
+
     );
   
 };
@@ -165,11 +279,13 @@ return (
                                                   <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
                                                     <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
                                                       <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                                                        <h3 className="text-xl font-bold text-gray-800">
-                                                          {modalType === 'classe' ? 'Ajouter une Classe' : 
-                                                           modalType === 'planComptable' ? 'Ajouter un Compte' : 
-                                                           'Ajouter un Élément'}
-                                                        </h3>
+                                                         {/* HEADER */}
+    <div className="px-6 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
+      <h2 className="text-lg font-bold text-gray-900">Créer / Modifier Exercice</h2>
+      <p className="text-sm text-gray-500 mt-1">
+        Remplissez les informations de l’exercice budgétaire.
+      </p>
+    </div>
                                                         <button
                                                           onClick={closeModal}
                                                           className="text-gray-500 hover:text-gray-700"

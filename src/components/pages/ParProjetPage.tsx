@@ -36,59 +36,85 @@ export default function renderParProjetPage (){
         
        
         return (
-              <div className="bg-white rounded-lg shadow-md p-6">
-                <h2 className="text-2xl font-bold mb-6 text-gray-800">Rapport de budget annuelle par projet</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-gray-700 font-medium mb-2">
-                    Exercice Budgétaire
-                  </label>
-                  <select 
-                    className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                    onChange={getPlanfondByExercice} 
-                 >
-                    <option value="">Sélectionner l'exercice</option>
-                    {
-                      exercices.map((element)=>(
-                       <option value={element.id}>{element.libelle}</option>
-                      ))
-                    }
-                  </select>
-           
-                </div>
-              </div>
-              <br />
-          
-          <div className="bg-white p-6 rounded-lg border border-gray-300 shadow-md max-w-5xl mx-auto"> 
-          
-            <table className="w-full border-collapse mt-2">
-              <thead>
-                <tr className="bg-blue-900 text-white text-left text-sm">
-                  <th className="p-2 border border-gray-300">PROJET</th>
-                  <th className="p-2 border border-gray-300">SOURCE FINANCEMENT</th>
-                  <th className="p-2 border border-gray-300">MONTANT</th>
-                </tr>
-              </thead>
-          
-              <tbody>
-                {planfondprojets.map((p:any) => (
-                
-                    <tr className="bg-orange-100 font-bold">
-                          <td className="p-2 border border-gray-300 text-sm">{p.projet?.libelle} </td>
-                          <td className="p-2 border border-gray-300 text-sm">{p.sourceFinacement?.libelle}</td>
-                          <td className="p-2 border border-gray-300 text-sm">
-                            {p.montant.toLocaleString()}
-                          </td>
-                        </tr>
-                        
-                    ))}
-          
-                   
-              </tbody>
-            </table>
-          </div>
-          
-          </div> 
+         <div className="rounded-2xl border border-gray-200 bg-gradient-to-b from-gray-50 to-white shadow-lg p-6">
+  {/* HEADER */}
+  <div className="flex flex-col gap-1 border-b border-gray-200 pb-4 mb-6">
+    <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+      Rapport de budget annuel par projet
+    </h2>
+    <p className="text-sm text-gray-500">
+      Vue consolidée par projet et source de financement
+    </p>
+  </div>
+
+  {/* FILTRE EXERCICE */}
+  <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+    <label className="mb-2 block text-sm font-semibold text-gray-700">
+      Exercice Budgétaire
+    </label>
+    <select
+      className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition
+                 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100"
+      onChange={getPlanfondByExercice}
+    >
+      <option value="">Sélectionner l'exercice</option>
+      {exercices.map((element) => (
+        <option key={element.id} value={element.id}>
+          {element.libelle}
+        </option>
+      ))}
+    </select>
+  </div>
+
+  {/* TABLEAU */}
+  <div className="overflow-x-auto rounded-2xl border border-gray-200 bg-white shadow-sm">
+    <table className="min-w-full text-sm">
+      <thead>
+        <tr className="bg-blue-900 text-white">
+          <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+            Projet
+          </th>
+          <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
+            Source de financement
+          </th>
+          <th className="whitespace-nowrap px-4 py-3 text-right text-xs font-bold uppercase tracking-wider">
+            Montant
+          </th>
+        </tr>
+      </thead>
+
+      <tbody className="divide-y divide-gray-100">
+        {planfondprojets.map((p, index) => (
+          <tr
+            key={index}
+            className="transition hover:bg-gray-50"
+          >
+            <td className="px-4 py-3 text-gray-800">{p.projet?.libelle}</td>
+            <td className="px-4 py-3 text-gray-700">{p.sourceFinacement?.libelle}</td>
+            <td className="px-4 py-3 text-right font-semibold text-gray-900">
+              {p.montant.toLocaleString()}
+            </td>
+          </tr>
+        ))}
+
+        {/* TOTAL GENERAL */}
+        <tr className="bg-emerald-50 font-bold text-gray-900">
+          <td className="px-4 py-3 text-base" colSpan={2}>
+            TOTAL GENERAL
+          </td>
+          <td className="px-4 py-3 text-right text-base font-extrabold">
+          {planfondprojets
+            .reduce((sum, p) => sum + Number(p.montant || 0), 0)
+            .toLocaleString('fr-FR', { minimumFractionDigits: 2 })}
+        </td>
+
+
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
             );    
 
    

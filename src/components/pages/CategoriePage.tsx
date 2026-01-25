@@ -94,6 +94,7 @@ export default function renderCategoriePage (){
     setShowModal(false); 
   };
      useEffect(()=>{
+          dataProjet()
          dataCategorie(projetId);
        },[])
 

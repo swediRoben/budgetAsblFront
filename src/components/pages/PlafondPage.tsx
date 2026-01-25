@@ -147,150 +147,195 @@ export default function renderPlafondPage (){
    
 
  return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">Planfond de dépense</h2>
-      
-      <form onSubmit={handleSubmitPlanfontprojet(onSubmitPlanfontprojet)}>
-  <div className="bg-gray-50 p-6 rounded-lg mb-6">
-    <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
+ <div className="bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-xl border border-gray-100 p-6">
+  {/* Header */}
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div>
+      <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+        Plafond de dépense
+      </h2>
+      <p className="text-sm text-gray-500 mt-1">
+        Définissez les plafonds budgétaires par projet et source de financement
+      </p>
+    </div>
+  </div>
 
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <label className="block text-gray-700 font-medium mb-2">
-          Exercice Budgétaire
-        </label>
-        <select
-          {...registerPlanfontprojet("exercice", { required: true })}
-          className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-          onChange={getPlanfondByExercice} 
-       >
-          <option value="">Sélectionner l'exercice</option>
-          {
-            exercices.map((element)=>(
-             <option value={element.id}>{element.libelle}</option>
-            ))
-          }
-        </select>
+  <form
+    onSubmit={handleSubmitPlanfontprojet(onSubmitPlanfontprojet)}
+    className="space-y-6"
+  >
+    {/* En-tête */}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <h3 className="text-lg font-bold text-gray-800 mb-4">En-tête</h3>
 
-        {errorsPlanfontprojet.exercice && (
-          <p className="text-red-500 text-sm">Champ obligatoire</p>
-        )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Exercice */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Exercice Budgétaire <span className="text-red-500">*</span>
+          </label>
+
+          <select
+            {...registerPlanfontprojet("exercice", { required: true })}
+            onChange={getPlanfondByExercice}
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm
+              focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+          >
+            <option value="">Sélectionner l'exercice</option>
+            {exercices.map((element) => (
+              <option key={element.id} value={element.id}>
+                {element.libelle}
+              </option>
+            ))}
+          </select>
+
+          {errorsPlanfontprojet.exercice && (
+            <p className="mt-2 text-xs text-red-600 font-medium">
+              Champ obligatoire
+            </p>
+          )}
+        </div>
       </div>
     </div>
-  </div>
 
-  <div className="bg-gray-50 p-6 rounded-lg mb-6">
-    <div className="flex items-center justify-between mb-4">
-      <h3 className="text-lg font-semibold text-gray-700">Détails des projets</h3>
+    {/* Détails */}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <div>
+          <h3 className="text-lg font-bold text-gray-800">
+            Détails des projets
+          </h3>
+          <p className="text-sm text-gray-500">
+            Ajoutez les projets, bailleurs et montants plafonds
+          </p>
+        </div>
 
-      <button
-        type="button"
-        onClick={() => addDetailLinePlanfontprojet({ id: null,idProjet: null, idSource: null, montant: '' })}
-        className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
-      >
-        + Ajouter une ligne
-      </button>
-    </div>
+        <button
+          type="button"
+          onClick={() =>
+            addDetailLinePlanfontprojet({
+              id: null,
+              idProjet: null,
+              idSource: null,
+              montant: "",
+            })
+          }
+          className="inline-flex items-center justify-center rounded-xl bg-green-600 text-white px-5 py-2.5
+            font-semibold shadow hover:bg-green-700 transition"
+        >
+          + Ajouter une ligne
+        </button>
+      </div>
 
-    <div className="overflow-x-auto">
-      <table className="w-full border-collapse">
-        <thead>
-          <tr className="bg-gray-200"> 
-            <th className="border border-gray-300 px-4 py-2 text-left">Projet</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
-            <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
-            <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
-          </tr>
-        </thead>
-
-        <tbody>
-          {fieldsProjet.map((field, index:any) => (
-            <tr key={field.id} className="hover:bg-gray-100">
-       
-           <td className="border border-gray-300 px-2 py-2" hidden>
-                <input
-                  type="number"
-                  {...registerPlanfontprojet(`details.${index}.id`, { required: false })}
-                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                  placeholder="0.00" 
-                />
-              </td>
-              {/* Projet */}
-              <td className="border border-gray-300 px-2 py-2">
-                <select
-                  {...registerPlanfontprojet(`details.${index}.idProjet`, { required: true })}
-                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                >
-                  <option value="">Sélectionner un projet</option>
-                  {
-                    projets.map((element)=>(
-                    <option value={element.id}>{element.libelle}</option>
-                    ))
-                  }
-                </select>
-              </td> 
-
-              {/* Bailleur */}
-              <td className="border border-gray-300 px-2 py-2">
-                <select
-                  {...registerPlanfontprojet(`details.${index}.idSource`)}
-                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                 >
-                  <option value="">Sélectionner un bailleur</option>
-                  {
-                    bailleurs.map((element)=>(
-                    <option value={element.id}>{element.libelle}</option>
-                    ))
-                  }
-                </select>
-              </td>
-
-              {/* Montant */}
-              <td className="border border-gray-300 px-2 py-2">
-                <input
-                  type="number"
-                  step="0.01"
-                  {...registerPlanfontprojet(`details.${index}.montant`, { required: true })}
-                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                  placeholder="0.00"
-                />
-              </td>
-
-              {/* Delete button */}
-              <td className="border border-gray-300 px-2 py-2 text-center">
-                <button
-                  type="button"
-                  onClick={ () =>{
-                    const id = getValues(`details.${index}.id`);
-                    const exercice = getValues("exercice");
-                    hendleDeletePlanfondProjet(id, exercice);
-                    removeDetailLinePlanfontprojet(index); 
-                  }}
-                  className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-                  // disabled={fields.length === 1}
-                >
-                  <X className="w-5 h-5" />
-                </button>
-              </td>
-
+      {/* Table */}
+      <div className="overflow-x-auto rounded-xl border border-gray-100">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 text-gray-700">
+              <th className="px-4 py-3 text-left font-bold">Projet</th>
+              <th className="px-4 py-3 text-left font-bold">Bailleur</th>
+              <th className="px-4 py-3 text-left font-bold">Montant</th>
+              <th className="px-4 py-3 text-center font-bold w-24">Action</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  </div>
+          </thead>
 
-  <div className="flex justify-end gap-4 mt-4">
-    <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
-      Enregistrer
-    </button>
-    <button className="bg-gray-600 text-white px-6 py-2 rounded hover:bg-gray-700 transition">
-      Imprimer
-    </button>
-  </div>
-</form>
+          <tbody className="divide-y divide-gray-100">
+            {fieldsProjet.map((field, index) => (
+              <tr key={field.id} className="hover:bg-gray-50 transition">
+                {/* Hidden ID */}
+                <td hidden>
+                  <input
+                    type="number"
+                    {...registerPlanfontprojet(`details.${index}.id`, {
+                      required: false,
+                    })}
+                  />
+                </td>
 
+                {/* Projet */}
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPlanfontprojet(`details.${index}.idProjet`, {
+                      required: true,
+                    })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                  >
+                    <option value="">Sélectionner un projet</option>
+                    {projets.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.libelle}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+
+                {/* Bailleur */}
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPlanfontprojet(`details.${index}.idSource`)}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                  >
+                    <option value="">Sélectionner un bailleur</option>
+                    {bailleurs.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.libelle}
+                      </option>
+                    ))}
+                  </select>
+                </td>
+
+                {/* Montant */}
+                <td className="px-3 py-3">
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...registerPlanfontprojet(`details.${index}.montant`, {
+                      required: true,
+                    })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 shadow-sm
+                      focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+                    placeholder="0.00"
+                  />
+                </td>
+
+                {/* Action */}
+                <td className="px-3 py-3 text-center">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const id = getValues(`details.${index}.id`);
+                      const exercice = getValues("exercice");
+                      hendleDeletePlanfondProjet(id, exercice);
+                      removeDetailLinePlanfontprojet(index);
+                    }}
+                    className="inline-flex items-center justify-center rounded-lg px-3 py-2
+                      text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Actions */}
+      <div className="flex flex-col md:flex-row justify-end gap-3 mt-6">
+        <button
+          type="submit"
+          className="rounded-xl bg-green-600 text-white px-7 py-3 font-semibold shadow-md
+            hover:bg-green-700 transition"
+        >
+          Enregistrer
+        </button>
+      </div>
     </div>
+  </form>
+</div>
+
   );
  
 

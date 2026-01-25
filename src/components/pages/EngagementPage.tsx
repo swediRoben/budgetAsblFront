@@ -1,63 +1,121 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
-
+import React, { useEffect, useState } from 'react';
+ 
  import {getAllFonctionnaire} from "../../data/utilisateur/fonctionnaire";
-import {createEngagement,deleteEngagement,getAllEngagement,updateEngagement,getEngagementvaliderByIdExercice,getEngagementretournerByIdExercice,getEngagementrejeterByIdExercice,getEngagementreceptionerByIdExercice} from "../../data/execution/engagement"; 
-import {getAllProjet} from "../../data/classification/projet";
-import {getAllCategorie,getAllCategorieByProgramme} from "../../data/classification/categorie"; 
+import {createEngagement,deleteEngagement,getAllEngagement,updateEngagement,getAllEngagementTraitement,getSommeMontantEngage,getEngagementvaliderByIdExercice,getEngagementretournerByIdExercice,getEngagementrejeterByIdExercice,getEngagementreceptionerByIdExercice} from "../../data/execution/engagement"; 
+// import {getAllCategorie,getAllCategorieByProgramme} from "../../data/classification/categorie"; 
+import {getAllPlanfontprojet} from "../../data/classification/planfontprojet";
 import {getAllExercice} from "../../data/classification/exercice"; 
 import {getAllPrevision} from "../../data/classification/prevision"; 
+import {getAllDevise} from "../../data/classification/devise";
 
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
 
 export default function renderEngagementPage (){  
   const [engagements, setEngagements] = useState([]);   
-    const [projets, setProjets] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [projetId, setProjetId] = useState();
-    const [exerciceId, setExerciceId] = useState();
-    const [categorieId, setCategorieId] = useState();
-    const [typebailleurs, setTypebailleurs] = useState([]);
-    const [planfondprojets, setPlanfontprojets] = useState([]); 
-    const [exercices, setExercices] = useState([]);
+    const [beneficiaire, setBeneficiaire] = useState([]);
+    const [categorie, setCategorie] = useState([]);
+    const [planfondprojets, setPlanfontprojets] = useState([]);
+    const [exerciceId, setExerciceId] = useState(); 
+    const [projetId, setProjetId] = useState(); 
+    const [bailleurs, setBailleurs] = useState([]); 
+    const [exercices, setExercices] = useState([]); 
+    const [fonctionnaires, setFonctionnaires] = useState([]);
     const [devises, setDevises] = useState([]);  
     const [previsions, setPrevisions] = useState([]); 
-    const [montantVote, setMontantVote] = useState(12000.0);  
+    const [montantVote, setMontantVote] = useState(0.0);  
+    const [montantEngage, setMontantEngage] = useState(0);     
+    const [debut, setDebut] = useState("");
+    const [fin, setFin] = useState("");
+    const [page, setPage] = useState(0);
+    const [size] = useState(10); // taille de page
+    const [totalPages, setTotalPages] = useState(1);
+    const [status, setStatus] = useState(""); 
     
+ 
+    const [showEngagementList, setShowEngagementList] = useState(false); 
+    const dataExercice =async ()=>{
+            const data=await getAllExercice(); 
+            setExercices(data)
+     }  
 
-    const [formData, setFormData] = useState({}); 
-    const [showEngagementList, setShowEngagementList] = useState(false);
-    const [showLiquidationList, setShowLiquidationList] = useState(false);
-    // const [engagements, setEngagements] = useState([
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 1, numero: 'ENG-2025-001', date: '2025-01-15', beneficiaire: 'Fournisseur A', montant: 5000000, statut: 'En cours' },
-    //   { id: 2, numero: 'ENG-2025-002', date: '2025-01-20', beneficiaire: 'Fournisseur B', montant: 3500000, statut: 'Validé' }
-    // ]);
-      const handleInputChange = (e:any) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+      const dataDevise =async ()=>{
+         const data=await getAllDevise(); 
+         setDevises(data) 
+       }
 
+  const dataFonctionnaires =async ()=>{
+            const data=await getAllFonctionnaire(); 
+            setFonctionnaires(data)
+     }  
+
+   const getSommeMontantEngages = async (exercice: any, ligne: any) => {
+      const montant = await getSommeMontantEngage(exercice, ligne);
+      console.log(montant)
+      setMontantEngage(montant); 
+    };
+
+useEffect(() => {
+  dataExercice(); 
+  dataDevise();
+  dataFonctionnaires();
+}, []);
+
+    const handleChangeExercice=async (e:any)=>{ 
+        const value=e.target.value;
+       setExerciceId(value)
+    } 
+ 
+
+    
+       const getPlanfondByExercice=async (e:any)=>{ 
+           const value=e.target.value;
+          if (value!=="") { 
+                           setExerciceId(value)
+                           const data=await getAllPlanfontprojet(e.target.value);
+                           setPlanfontprojets(data)  
+                           
+                      }else{ 
+                        setPlanfontprojets([])  
+                      }  
+                      setPrevisions([])
+    }
+
+    const getPrevisionByCategorie=async (e:any)=>{ 
+        
+        const value=e; 
+         if (value!=="") { 
+          const data=await getAllPrevision(exerciceId,projetId,e); 
+          setPrevisions(data)
+           }else{
+              setPrevisions([])
+           }
+      } 
+    
+      
+   const getPrevisionParProjet=async (e:any)=>{
+        const value=e; 
+        if (value!=="") { 
+           setProjetId(e)
+          const data=await getAllPrevision(exerciceId,e,null); 
+          setPrevisions(data) 
+         }
+   } 
+
+  const handleAffichePrevisionData=(data:any)=>{ 
+        setMontantVote(data.montant)
+        setCategorie(data.categorie);
+        setBeneficiaire(data.beneficiaire)
+        setBailleurs(data.source)
+        getSommeMontantEngages(data.idExercice,data.id)
+   }
+    
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    reset,
     watch,
   } = useForm({
     defaultValues: {
@@ -76,26 +134,38 @@ export default function renderEngagementPage (){
     },
   });
 
-const montantRestantFonction=(montantEngage:any)=>{ 
-   return montantEngage;
+const montantRestantFonction=(montantEngages:any)=>{ 
+   return montantEngages;
 }
  
+const toOffsetDateTimeStart = (dateStr: string) => {
+  return dateStr ? `${dateStr}T00:00:00Z` : null;
+};
+
+const toDateNormal=(dates:string)=>{
+  const dateString = dates;
+const date = new Date(dateString);
+const formatted = date.toLocaleString()
+return formatted;
+}
 
 const onSubmit = async (data) => {
   try {
-    const montantRestant= montantVote-(Number(data.montant || 0)*Number(data.tauxDevise || 1));  
-    if (montantRestant<0) {
+    const montantRestants= montantVote-((Number(data.montant || 0)*Number(data.tauxDevise || 1))+montantEngage);  
+    if (montantRestants<0) {
       toast.error("Impossibe de montant restant est negatif ")
     }else{
-      console.log("DATA SEND:", data);
-
-    const payload = {
-      ...data,
-      enAttente: true,
-    };
- 
-    console.log("SAVE OK:",  data);
-    alert("Bon d'engagement enregistré !");
+      if (!data.id) { 
+        data.dataEnAttente=toOffsetDateTimeStart(data.dataEnAttente)
+       createEngagement(data)
+       toast.success("Engagement enregistré avec succes!");
+       reset()
+     }else{
+        data.dataEnAttente=toOffsetDateTimeStart(data.dataEnAttente)
+       updateEngagement(data,data.id)
+       toast.success("Engagement modifié avec succes!");
+       reset()
+     }
     }
 
   } catch (error) {
@@ -105,21 +175,17 @@ const onSubmit = async (data) => {
 };
 
 
-      const handleAfficherEngagementList = (e:any) => {
-        e.preventDefault();
-        const newEngagement = {
-          id: engagements.length + 1,
-          numero: `ENG-2025-${String(engagements.length + 1).padStart(3, '0')}`,
-          date: formData.dateEngagement,
-          beneficiaire: formData.beneficiaire,
-          montant: parseFloat(formData.montantEngagement || 0),
-          statut: 'En cours'
-        };
-        setEngagements([...engagements, newEngagement]);
+  const getListEngagment =async (exericie:any,projet:any) => {
+       const data=await getAllEngagementTraitement(exericie,projet);   
+        setEngagements(data);
         setShowEngagementList(true);
       };
     
-       
+ const openList=(status:string)=>{
+      //  'RECEPTIONNE','REJETE','RETOURNE','VALIDE'
+  setStatus(status); 
+  setShowEngagementList(true);
+ }
         
       
        return (
@@ -134,7 +200,7 @@ const onSubmit = async (data) => {
           </p>
          <p className="mt-3 text-sm font-medium flex flex-wrap gap-3">
         <span
-          onClick={() => handleFilterStatus('VALIDE')}
+          onClick={() => openList('VALIDE')}
           className="cursor-pointer select-none rounded-full
                      bg-green-50 px-4 py-1.5 text-green-700
                      border border-green-200
@@ -143,8 +209,17 @@ const onSubmit = async (data) => {
           Validé <strong>3</strong>
         </span>
       
+  <span
+          onClick={() => openList('En_ATTENTE')}
+          className="cursor-pointer select-none rounded-full
+                     bg-green-50 px-4 py-1.5 text-green-700
+                     border border-green-200
+                     hover:bg-green-100 hover:shadow-sm transition"
+        >
+          en attente <strong>3</strong>
+        </span>
         <span
-          onClick={() => handleFilterStatus('RETOURNE')}
+          onClick={() => openList('RETOURNE')}
           className="cursor-pointer select-none rounded-full
                      bg-yellow-50 px-4 py-1.5 text-yellow-700
                      border border-yellow-200
@@ -154,7 +229,7 @@ const onSubmit = async (data) => {
         </span>
       
         <span
-          onClick={() => handleFilterStatus('REJETE')}
+          onClick={() => openList('REJETE')}
           className="cursor-pointer select-none rounded-full
                      bg-red-50 px-4 py-1.5 text-red-700
                      border border-red-200
@@ -162,9 +237,8 @@ const onSubmit = async (data) => {
         >
           Rejeté <strong>5</strong>
         </span>
-      
         <span
-          onClick={() => handleFilterStatus('RECEPTIONNE')}
+          onClick={() => openList('RECEPTIONNE')}
           className="cursor-pointer select-none rounded-full
                      bg-blue-50 px-4 py-1.5 text-blue-700
                      border border-blue-200
@@ -179,7 +253,14 @@ const onSubmit = async (data) => {
        {/* Formulaire */}
 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
+ <input
+        type="text" 
+        hidden
+        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                   focus:ring-2 focus:ring-blue-500"
+        {...register("id", {disabled:true})}
+      />
+ 
     {/* Exercice */}
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -189,11 +270,17 @@ const onSubmit = async (data) => {
         className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm
                    focus:outline-none focus:ring-2 focus:ring-blue-500"
         {...register("idExercice", { required: "Exercice obligatoire" })}
+         onChange={(e) => {
+            getPlanfondByExercice(e);
+            handleChangeExercice(e);
+          }}
       >
         <option value="">Sélectionner</option>
-        <option value="2024">2024</option>
-        <option value="2025">2025</option>
-        <option value="2026">2026</option>
+       {
+        exercices.map((element:any)=>(
+        <option value={element.id}>{element.libelle}</option>
+       ))
+      }
       </select>
 
       {errors.idExercice && (
@@ -229,11 +316,14 @@ const onSubmit = async (data) => {
         className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                    focus:ring-2 focus:ring-blue-500"
         {...register("idProjet", { required: "Projet obligatoire" })}
+         onChange={(e)=>{getPrevisionParProjet(e.target.value)}}
       >
         <option value="">Sélectionner un projet</option>
-        <option value="611">611 - Projet 1</option>
-        <option value="612">612 - Projet 2</option>
-        <option value="613">613 - Projet 3</option>
+        {
+          planfondprojets.map((element:any)=>(
+            <option value={element.projet.id}>{element.projet.libelle}</option>
+          ))
+      }
       </select>
 
       {errors.idProjet && (
@@ -246,21 +336,56 @@ const onSubmit = async (data) => {
       <label className="block text-sm font-medium text-gray-700 mb-1">
         Ligne budgétaire
       </label>
-      <select
-        required
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("idPlanFondActivite", { required: "Ligne budgétaire obligatoire" })}
-      >
-        <option value="">Sélectionner une ligne</option>
-        <option value="611">611 - Salaires et traitements</option>
-        <option value="621">621 - Fournitures de bureau</option>
-        <option value="622">622 - Services extérieurs</option>
-      </select>
+       <select
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                    focus:ring-2 focus:ring-blue-500"
+          {...register("idPlanFondActivite", { required: "Ligne budgétaire obligatoire" })}
+          onChange={(e) => {
+            const selected = previsions.find((p: any) => p.id.toString() === e.target.value);
+            if (selected) handleAffichePrevisionData(selected);
+          }}
+        >
+          <option value="">Sélectionner une ligne</option>
+          {previsions?.map((element: any) => (
+            <option key={element.id} value={element.id}>
+              {element.activite.libelle}
+            </option>
+          ))}
+        </select>
+
 
       {errors.idPlanFondActivite && (
         <p className="text-red-600 text-xs mt-1">{errors.idPlanFondActivite.message}</p>
       )}
+    </div>
+
+    
+ {/* Categorie */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Categorie
+      </label>
+      <input
+        type="text"
+        readOnly
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        value={categorie.libelle}
+      />
+    </div>
+
+    
+ {/* bailleur */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Bailleur
+      </label>
+      <input
+        type="text"
+        readOnly
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        value={bailleurs.libelle}
+      />
     </div>
 
     {/* Bénéficiaire */}
@@ -272,9 +397,9 @@ const onSubmit = async (data) => {
         type="text"
         readOnly
         className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-        // Pas dans ton defaultValues donc on ne le met pas dans RHF
+        value={beneficiaire.libelle}
       />
-    </div>
+    </div> 
 
     {/* Responsable */}
     <div>
@@ -287,9 +412,11 @@ const onSubmit = async (data) => {
         {...register("idResponsable")}
       >
         <option value="">Sélectionner</option>
-        <option value="1">FARAJA</option>
-        <option value="2">MALU</option>
-        <option value="3">ESPOIRE</option>
+         {
+        fonctionnaires.map((element:any)=>(
+        <option value={element.id}>{element.nom} {element.prenom}</option>
+       ))
+      }
       </select>
     </div>
 
@@ -322,9 +449,11 @@ const onSubmit = async (data) => {
         {...register("idDevise")}
       >
         <option value="">Sélectionner</option>
-        <option value="1">FARAJA</option>
-        <option value="2">MALU</option>
-        <option value="3">ESPOIRE</option>
+        {devises?.map((element: any) => (
+            <option key={element.id} value={element.id}>
+              {element.libelle}
+            </option>
+          ))}
       </select>
     </div>
 
@@ -342,6 +471,10 @@ const onSubmit = async (data) => {
         {...register("montant", {
           required: "Montant obligatoire",
           valueAsNumber: true,
+            min: {
+              value: 0,
+              message: "Le taux ne peut pas être inférieur à 0",
+            },
         })}
       />
 
@@ -355,17 +488,19 @@ const onSubmit = async (data) => {
       <label className="block text-sm font-medium text-gray-700 mb-1">
         Taux devise
       </label>
-      <input
-        type="number"
-        step="0.01"
-        required
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("tauxDevise", {
-          required: "Taux devise obligatoire",
-          valueAsNumber: true,
-        })}
-      />
+     <input
+          type="number"
+          step="0.01"
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                    focus:ring-2 focus:ring-blue-500"
+          defaultValue={1} // valeur par défaut
+          {...register("tauxDevise", {
+            required: "Taux devise obligatoire",
+            valueAsNumber: true
+          })}
+        />
+
 
       {errors.montant && (
         <p className="text-red-600 text-xs mt-1">{errors.montant.message}</p>
@@ -379,7 +514,7 @@ const onSubmit = async (data) => {
     <div>
       <p className="text-xs text-gray-500">Montant engagé</p>
       <p className="text-lg font-semibold text-gray-800">
-        {Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1)}
+        {montantEngage}
       </p>
     </div>
     <div>
@@ -388,7 +523,7 @@ const onSubmit = async (data) => {
     </div>
     <div>
       <p className="text-xs text-gray-500">Montant restant</p>
-      <p className="text-lg font-semibold text-green-700">{montantRestantFonction(montantVote-(Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1)))}</p>
+      <p className="text-lg font-semibold text-green-700">{montantRestantFonction(montantVote-((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1))+montantEngage))}</p>
     </div>
   </div>
 
@@ -415,109 +550,167 @@ const onSubmit = async (data) => {
                  font-medium text-white hover:bg-green-700 transition"
     >
       Enregistrer
-    </button>
-
-    <button
-      type="button"
-      onClick={() => setShowEngagementList(true)}
-      className="inline-flex items-center rounded-md bg-blue-600 px-6 py-2 text-sm
-                 font-medium text-white hover:bg-blue-700 transition"
-    >
-      Afficher la liste
-    </button>
+    </button> 
   </div>
 </form>
 
       
         {/* Liste */}
       {showEngagementList && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
-          <div className="bg-white w-[90%] max-w-6xl rounded-xl shadow-xl">
-      
-            {/* Header */}
-            <div className="flex justify-between items-center px-6 py-4 border-b">
-              <h3 className="text-lg font-semibold text-gray-800">
-                📄 Liste des engagements
-              </h3>
-              <button
-                onClick={() => setShowEngagementList(false)}
-                className="text-gray-500 hover:text-red-600 text-xl font-bold"
-              >
-                ×
-              </button>
-            </div>
-      
-            {/* Body */}
-            <div className="p-6 max-h-[70vh] overflow-y-auto">
-              <div className="overflow-x-auto rounded-lg border">
-                <table className="w-full text-sm">
-                  <thead className="bg-gray-100 text-gray-600 sticky top-0">
-                    <tr>
-                      <th className="px-4 py-3 text-left">N°</th>
-                      <th className="px-4 py-3 text-left">Date</th>
-                      <th className="px-4 py-3 text-left">Bénéficiaire</th>
-                      <th className="px-4 py-3 text-right">Montant</th>
-                      <th className="px-4 py-3 text-center">Statut</th>
-                      <th className="px-4 py-3 text-center">Actions</th>
-                    </tr>
-                  </thead>
-      
-                  <tbody>
-                    {engagements?.map((eng) => (
-                      <tr
-                        key={eng.id}
-                        className="border-t hover:bg-gray-50 transition"
+           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+      <div className="bg-white w-[95%] max-w-7xl rounded-xl shadow-xl">
+        {/* Header */}
+        <div className="flex justify-between items-center px-6 py-4 border-b">
+          <h3 className="text-lg font-semibold text-gray-800">
+            📄 Liste des engagements
+          </h3>
+          <button
+            onClick={() => setShowEngagementList(false)}
+            className="text-gray-500 hover:text-red-600 text-xl font-bold"
+          >
+            ×
+          </button>
+        </div>
+
+        {/* Filtres */}
+        <div className="p-6 border-b grid grid-cols-1 md:grid-cols-5 gap-4">
+          <select
+            className="border border-gray-300 rounded px-3 py-2"  
+          >
+            <option value="">Exercice</option>
+             
+          </select>
+
+          <select
+            className="border border-gray-300 rounded px-3 py-2" 
+          >
+            <option value="">Projet</option>
+            {/* map tes projets */}
+          </select>
+
+          <select
+            className="border border-gray-300 rounded px-3 py-2" 
+          >
+            <option value="">Catégorie</option>
+            {/* map tes catégories */}
+          </select>
+
+          <input
+            type="date"
+            className="border border-gray-300 rounded px-3 py-2" 
+          />
+
+          <input
+            type="date"
+            className="border border-gray-300 rounded px-3 py-2" 
+          />
+        </div>
+
+        {/* Body */}
+        <div className="p-6 max-h-[60vh] overflow-y-auto">
+          <div className="overflow-x-auto rounded-lg border">
+            <table className="w-full text-sm">
+              <thead className="bg-gray-100 text-gray-600 sticky top-0">
+                <tr>
+                  <th className="px-4 py-3 text-left">N° Bon</th>
+                  <th className="px-4 py-3 text-left">Date Engagé</th>
+                  <th className="px-4 py-3 text-left">Ligne budgetaire</th>
+                  <th className="px-4 py-3 text-right">Montant</th>
+                  <th className="px-4 py-3 text-left">Devise</th>
+                  <th className="px-4 py-3 text-center">Statut</th>
+                  <th className="px-4 py-3 text-center">Date status</th>
+                  <th className="px-4 py-3 text-center">Actions</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {engagements.map((eng) => (
+                  <tr key={eng.id} className="border-t hover:bg-gray-50 transition">
+                    <td className="px-4 py-2">{eng.bonEngagement}</td>
+                    <td className="px-4 py-2">{toDateNormal(eng.dataEnAttente)}</td>
+                    <td className="px-4 py-2">
+                      {eng.planActivite.activite.code}-
+                      {eng.planActivite.activite.libelle}
+                    </td>
+                    <td className="px-4 py-2 text-right font-medium">
+                      {eng.montant.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+                    </td>
+                    <td className="px-4 py-2">{eng.devise.symbole}</td>
+                    <td className="px-4 py-2 text-center">
+                      <span
+                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                          eng.rejet
+                            ? "bg-red-100 text-red-700"
+                            : eng.retourner
+                            ? "bg-violet-100 text-violet-700"
+                            : eng.reception
+                            ? "bg-blue-100 text-blue-700"
+                            : eng.validation
+                            ? "bg-green-100 text-green-700"
+                            : "bg-yellow-100 text-yellow-700"
+                        }`}
                       >
-                        <td className="px-4 py-2">{eng.numero}</td>
-                        <td className="px-4 py-2">{eng.date}</td>
-                        <td className="px-4 py-2">{eng.beneficiaire}</td>
-      
-                        <td className="px-4 py-2 text-right font-medium">
-                          {eng.montant.toLocaleString('fr-FR', {
-                            minimumFractionDigits: 2,
-                          })}
-                        </td>
-      
-                        <td className="px-4 py-2 text-center">
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold
-                              ${
-                                eng.statut === 'Validé'
-                                  ? 'bg-green-100 text-green-700'
-                                  : 'bg-yellow-100 text-yellow-700'
-                              }`}
-                          >
-                            {eng.statut}
-                          </span>
-                        </td>
-      
-                        <td className="px-4 py-2 text-center space-x-2">
-                          <button className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100">
-                            Voir
-                          </button>
-                          <button className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100">
-                            Modifier
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-      
-            {/* Footer */}
-            <div className="flex justify-end px-6 py-4 border-t bg-gray-50 rounded-b-xl">
-              <button
-                onClick={() => setShowEngagementList(false)}
-                className="px-4 py-2 text-sm rounded-md bg-gray-600 text-white hover:bg-gray-700"
-              >
-                Fermer
-              </button>
-            </div>
-      
+                        {eng.rejet
+                          ? "Rejeté"
+                          : eng.retourner
+                          ? "Retourné"
+                          : eng.reception
+                          ? "Réceptionné"
+                          : eng.validation
+                          ? "Validé"
+                          : "En attente"}
+                      </span>
+                    </td>
+                    <td className="px-4 py-2">
+                      {toDateNormal(
+                        eng.rejet
+                          ? eng.dataRejet
+                          : eng.retourner
+                          ? eng.dataRetourner
+                          : eng.reception
+                          ? eng.dataReception
+                          : eng.validation
+                          ? eng.dataValidation
+                          : eng.dataEnAttente
+                      )}
+                    </td>
+                    <td className="px-4 py-2 text-center space-x-2">
+                      <button className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100">
+                        Voir
+                      </button>
+                      <button className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100">
+                        Modifier
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
+
+        {/* Pagination */}
+        <div className="flex justify-between items-center px-6 py-4 border-t bg-gray-50 rounded-b-xl">
+          <button
+            className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300"
+            disabled={page === 0}
+            onClick={() => setPage(page - 1)}
+          >
+            Prev
+          </button>
+          <span>
+            Page {page + 1} / {totalPages}
+          </span>
+          <button
+            className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300"
+            disabled={page + 1 >= totalPages}
+            onClick={() => setPage(page + 1)}
+          >
+            Next
+          </button>
+        </div>
+      </div>
+    </div>
       )}
       
       </div>

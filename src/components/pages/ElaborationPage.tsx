@@ -153,38 +153,8 @@ export default function renderElaborationPage (){
          if (value!=="") { 
           const data=await getAllPlanfontnature(exerciceId,e); 
           setPlanfontNature(data)
-    
-          if (data.length > 0) { 
-          resetPlanfontNature({
-            exercice:exerciceId,
-            idProjet:value,
-            details: data.map((p:any) => ({
-              id: p.id,
-              idCategorie:p.idCategorie,
-              idClasse:p.idClasse,
-              montant: p.montant, 
-              exercice:null 
-            })),
-          });
-         }else{
-          resetPlanfontNature({
-            exercice:exerciceId,
-            idProjet:value,
-              details: [
-                {id: null,idCategorie:null, idClasse:null,montant: "",exercice:null }
-              ]
-            });
-          }
-        }else{
-          resetPlanfontNature({
-            exercice:exerciceId,
-            idProjet:value,
-              details: [
-                {id: null,idCategorie:null, idClasse:null,montant: "",exercice:null }
-              ]
-          });
-        } 
-      } 
+      }
+    } 
     
       const getPrevisionByCategorie=async (e:any)=>{ 
         
@@ -409,266 +379,303 @@ export default function renderElaborationPage (){
         
     
          
-          const calculateTotal = () => {
+          const calculateTotal = () => { 
             return detailLines.reduce((sum, line:any) => sum + (parseFloat(line.montant) || 0), 0);
-          };
-
+          }; 
  
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-2xl font-bold text-gray-800">
-          Élaboration du Budget
-        </h2>
-        <button
-          type="submit"
-          className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition duration-200 font-medium shadow-sm"
-        >
-          Afficher l’Aperçu
-        </button>
-      </div> 
+    <div className="bg-gradient-to-b from-gray-50 to-white rounded-2xl shadow-xl border border-gray-100 p-6">
+  {/* Header */}
+  <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <div>
+      <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
+        Élaboration du Budget
+      </h2>
+      <p className="text-sm text-gray-500 mt-1">
+        Remplissez l’en-tête et ajoutez les lignes budgétaires en détail
+      </p>
+    </div> 
+  </div>
 
-    <form onSubmit={handleSubmitPrevision(onSubmitPrevision)}>
-      {/* En-tête */}
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <h3 className="text-lg font-semibold mb-4 text-gray-700">En-tête</h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4"> 
-          {/* Exercice */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Exercice Budgétaire</label>
-              <select
-                {...registerPrevision("idExercice", { required: true })}
-                className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-                  // onClick={getExerciceencours}
-                   onChange={getPlanfondByExercice}
-                >
-                <option value="">Sélectionner l'exercice</option>
-                {
-                  exercices.map((element)=>(
-                  <option value={element.id}>{element.libelle}</option>
-                  ))
-                }
-              </select> 
-          </div>
+  <form onSubmit={handleSubmitPrevision(onSubmitPrevision)} className="space-y-6">
+    {/* En-tête */}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <h3 className="text-lg font-bold text-gray-800 mb-4">En-tête</h3>
 
-          {/* Projet */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Projet</label>
-                <select
-                  {...registerPrevision("idProjet", { required: true })}
-                  className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              onChange={(e)=>getPlanfondNatureByprogramme(e.target.value)}
-               >
-                  <option value="">Sélectionner le projet</option>
-                  {
-                    projets.map((element)=>(
-                    <option value={element.id}>{element.code} - {element.libelle}</option>
-                    ))
-                  }
-                </select>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {/* Exercice */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Exercice Budgétaire <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...registerPrevision("idExercice", { required: true })}
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+            onChange={getPlanfondByExercice}
+          >
+            <option value="">Sélectionner l'exercice</option>
+            {exercices.map((element) => (
+              <option key={element.id} value={element.id}>
+                {element.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {/* Catégorie */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Categorie</label>
-            <select
-              {...registerPrevision("idCategorie", { required: true })}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              onChange={(e)=>{getClasseInPlafondNatureByCaterie(e.target.value);getPrevisionByCategorie(e.target.value)}}
-           >
-            <option value="">Sélectionner le categorie</option>
-              {
-                planfontNatures?.map((element)=>(
-               <option value={element?.categorie.id}>{element?.categorie.code} - {element?.categorie.libelle}</option>
-                    ))
-                  }
-            </select>
-          </div>
+        {/* Projet */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Projet <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...registerPrevision("idProjet", { required: true })}
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+            onChange={(e) => getPlanfondNatureByprogramme(e.target.value)}
+          >
+            <option value="">Sélectionner le projet</option>
+            {projets.map((element) => (
+              <option key={element.id} value={element.id}>
+                {element.code} - {element.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          {/* Classe */}
-          <div>
-            <label className="block text-gray-700 font-medium mb-2">Nature de dépense</label>
-            <select
-              {...registerPrevision("idClasse", { required: true })}
-              className="w-full border border-gray-300 rounded px-4 py-2 focus:outline-none focus:border-blue-500"
-              >
-               <option value={classeplafond?.id}>{classeplafond?.libelle}</option>
-            </select> 
-          </div>
+        {/* Catégorie */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Catégorie <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...registerPrevision("idCategorie", { required: true })}
+            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 text-sm shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
+            onChange={(e) => {
+              getClasseInPlafondNatureByCaterie(e.target.value);
+              getPrevisionByCategorie(e.target.value);
+            }}
+          >
+            <option value="">Sélectionner la catégorie</option>
+            {planfontNatures?.map((element) => (
+              <option key={element?.categorie.id} value={element?.categorie.id}>
+                {element?.categorie.code} - {element?.categorie.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
 
-          <div>
-            <span className="px-4 py-2 bg-green-600 text-white rounded-full font-semibold text-sm shadow">
-              Montant total par catégorie est de <strong>{montantplafond}</strong>
+        {/* Classe */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
+            Nature de dépense <span className="text-red-500">*</span>
+          </label>
+          <select
+            {...registerPrevision("idClasse", { required: true })}
+            className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-3 text-sm shadow-sm focus:outline-none"
+          >
+            <option value={classeplafond?.id}>{classeplafond?.libelle}</option>
+          </select>
+        </div>
+
+        {/* Montant plafond */}
+        <div className="md:col-span-2">
+          <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-green-50 border border-green-200">
+            <span className="text-sm font-semibold text-green-700">
+              Montant total par catégorie :
+            </span>
+            <span className="text-sm font-bold text-green-900">
+              {montantplafond}
             </span>
           </div>
         </div>
       </div>
+    </div>
 
-      {/* Détails des lignes budgétaires */}
-      <div className="bg-gray-50 p-6 rounded-lg mb-6">
-        <div className="flex items-center justify-between mb-4">
-          <h3 className="text-lg font-semibold text-gray-700">Détails des Lignes Budgétaires</h3>
-          <button
-            type="button"
-            onClick={()=>addDetailLinePlanfontPrevision({id: null,idPlanComptable: null,idSource:null,idBeneficiaire: null,idActivite:null,prixUnitaire:null, quantite:null,montant: "" })}
-            className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition text-sm"
-          >
-            + Ajouter une ligne
-          </button>
-        </div>
+    {/* Détails */}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-4">
+        <h3 className="text-lg font-bold text-gray-800">Détails des Lignes Budgétaires</h3>
 
-        <div className="overflow-x-auto">
-          <table className="w-full border-collapse">
-            <thead>
-              <tr className="bg-gray-200">
-                <th className="border border-gray-300 px-4 py-2 text-left">Compte</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Bailleur</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Beneficiaire</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Ligne Budgetaire</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Prix unitaire</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Quantité</th>
-                <th className="border border-gray-300 px-4 py-2 text-left">Montant</th>
-                <th className="border border-gray-300 px-4 py-2 text-center w-24">Action</th>
-              </tr>
-            </thead>
+        <button
+          type="button"
+          onClick={() =>
+            addDetailLinePlanfontPrevision({
+              id: null,
+              idPlanComptable: null,
+              idSource: null,
+              idBeneficiaire: null,
+              idActivite: null,
+              prixUnitaire: null,
+              quantite: null,
+              montant: "",
+            })
+          }
+          className="inline-flex items-center justify-center rounded-xl bg-green-600 text-white px-5 py-2.5 font-semibold shadow hover:bg-green-700 transition"
+        >
+          + Ajouter une ligne
+        </button>
+      </div>
 
-            <tbody>
-              {fieldsPrevision.map((field, index:any) => (
-                <tr key={field.id} className="hover:bg-gray-100">
+      <div className="overflow-x-auto rounded-xl border border-gray-100">
+        <table className="w-full text-sm">
+          <thead>
+            <tr className="bg-gray-50 text-gray-700">
+              <th className="px-4 py-3 text-left font-bold">Compte</th>
+              <th className="px-4 py-3 text-left font-bold">Bailleur</th>
+              <th className="px-4 py-3 text-left font-bold">Bénéficiaire</th>
+              <th className="px-4 py-3 text-left font-bold">Ligne Budgétaire</th>
+              <th className="px-4 py-3 text-left font-bold">Prix Unitaire</th>
+              <th className="px-4 py-3 text-left font-bold">Quantité</th>
+              <th className="px-4 py-3 text-left font-bold">Montant</th>
+              <th className="px-4 py-3 text-center font-bold w-24">Action</th>
+            </tr>
+          </thead>
 
-                     <td className="border border-gray-300 px-2 py-2" hidden>
-                <input
-                  type="number"
-                  {...registerPrevision(`details.${index}.id`, { required: false })}
-                  className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                  placeholder="0.00" 
-                />
-              </td>
+          <tbody className="divide-y divide-gray-100">
+            {fieldsPrevision.map((field, index) => (
+              <tr key={field.id} className="hover:bg-gray-50 transition">
+                {/* Hidden ID */}
+                <td hidden>
+                  <input
+                    type="number"
+                    {...registerPrevision(`details.${index}.id`, { required: false })}
+                  />
+                </td>
 
-                  {/* Compte */}
-                  <td className="border border-gray-300 px-2 py-2">
-                    <select
-                      {...registerPrevision(`details.${index}.idPlanComptable`, { required: true })}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                    >
-                     <option value="">compte comptables</option>
-                      {
-                        plancomptables.map((element)=>(
-                        <option value={element.id}>{element.numero} - {element.libelle}</option>
-                        ))
-                      }
-                    </select>
-                  </td>
+                {/* Compte */}
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPrevision(`details.${index}.idPlanComptable`, { required: true })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                  >
+                    <option value="">Compte comptable</option>
+                    {plancomptables.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.numero} - {element.libelle}
+                      </option>
+                    ))}
+                  </select>
+                </td>
 
-                  {/* Bailleur */}
-                  <td className="border border-gray-300 px-2 py-2">
-                    <select
-                      {...registerPrevision(`details.${index}.idSource`, { required: true })}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                    >
-                      <option value="">Source de financement</option>
-                           {
-                        bailleurs.map((element)=>(
-                        <option value={element.id}>{element.code} - {element.libelle}</option>
-                        ))
-                      }
-                    </select>
-                  </td>
+                {/* Bailleur */}
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPrevision(`details.${index}.idSource`, { required: true })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                  >
+                    <option value="">Source de financement</option>
+                    {bailleurs.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.code} - {element.libelle}
+                      </option>
+                    ))}
+                  </select>
+                </td>
 
                 {/* Beneficiaire */}
-                  <td className="border border-gray-300 px-2 py-2">
-                    <select
-                      {...registerPrevision(`details.${index}.idBeneficiaire`, { required: true })}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                      >
-                      <option value="">Beneficiaire</option> 
-                           {
-                        beneficieres.map((element)=>(
-                        <option value={element.id}>{element.libelle}</option>
-                        ))
-                      }
-                    </select>
-                  </td>
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPrevision(`details.${index}.idBeneficiaire`, { required: true })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                  >
+                    <option value="">Bénéficiaire</option>
+                    {beneficieres.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.libelle}
+                      </option>
+                    ))}
+                  </select>
+                </td>
 
-                   <td className="border border-gray-300 px-2 py-2">
-                    <select
-                      {...registerPrevision(`details.${index}.idActivite`, { required: true })}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                    >
-                      <option value="">Activiés</option> 
-                           {
-                        activites.map((element)=>(
-                        <option value={element.id}>{element.code} - {element.libelle}</option>
-                        ))
-                      }
-                    </select>
-                  </td>
+                {/* Activité */}
+                <td className="px-3 py-3">
+                  <select
+                    {...registerPrevision(`details.${index}.idActivite`, { required: true })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                  >
+                    <option value="">Activités</option>
+                    {activites.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.code} - {element.libelle}
+                      </option>
+                    ))}
+                  </select>
+                </td>
 
-                   <td className="border border-gray-300 px-2 py-2">
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...registerPrevision(`details.${index}.prixUnitaire`, { required: true })}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                      placeholder="0.00"
-                    />
-                  </td>
-                   
-                   <td className="border border-gray-300 px-2 py-2">
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...registerPrevision(`details.${index}.quantite`, { required: true })}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                      placeholder="0.00"
-                    />
-                  </td>
+                {/* Prix unitaire */}
+                <td className="px-3 py-3">
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...registerPrevision(`details.${index}.prixUnitaire`, { required: true })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    placeholder="0.00"
+                  />
+                </td>
 
-                  {/* Montant */}
-                  <td className="border border-gray-300 px-2 py-2">
-                    <input
-                      type="number"
-                      step="0.01"
-                      {...registerPrevision(`details.${index}.montant`, { required: true })}
-                      className="w-full border-gray-300 rounded px-3 py-1.5 focus:outline-none focus:border-blue-500"
-                      placeholder="0.00"
-                    />
-                  </td>
+                {/* Quantité */}
+                <td className="px-3 py-3">
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...registerPrevision(`details.${index}.quantite`, { required: true })}
+                    className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
+                    placeholder="0.00"
+                  />
+                </td>
 
-                  {/* Action */}
-                  <td className="border border-gray-300 px-2 py-2 text-center">
-                    <button
-                      type="button"
-                      onClick={() => removePrevision(index)} 
-                      className="text-red-600 hover:text-red-800 disabled:text-gray-400"
-                    >
-                      <X className="w-5 h-5" />
-                    </button>
-                  </td>
+                {/* Montant */}
+                <td className="px-3 py-3">
+                  <input
+                    type="number"
+                    step="0.01"
+                    {...registerPrevision(`details.${index}.montant`, {
+                      required: true,
+                      disabled: true,
+                    })}
+                    className="w-full rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-gray-700"
+                    placeholder="0.00"
+                  />
+                </td>
 
-                </tr>
-              ))}
-
-              {/* Total */}
-              <tr className="bg-blue-50 font-semibold">
-                <td className="border border-gray-300 px-4 py-2 text-right" colSpan={3}>Total</td>
-                <td className="border border-gray-300 px-4 py-2" colSpan={5}>
-                  {calculateTotal().toLocaleString('fr-FR', { minimumFractionDigits: 2 })} FBU
+                {/* Action */}
+                <td className="px-3 py-3 text-center">
+                  <button
+                    type="button"
+                    onClick={() => removePrevision(index)}
+                    className="inline-flex items-center justify-center rounded-lg px-3 py-2 text-red-600 hover:bg-red-50 hover:text-red-700 transition"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
                 </td>
               </tr>
+            ))}
 
-            </tbody>
-          </table>
-        </div>
-      </div> 
-      <div className="flex justify-end gap-4 mt-4">
-        <button className="bg-green-600 text-white px-6 py-2 rounded hover:bg-green-700 transition">
+            {/* Total */}
+            <tr className="bg-blue-50">
+              <td className="px-4 py-3 font-bold text-right text-gray-700" colSpan={6}>
+                Total
+              </td>
+              <td className="px-4 py-3 font-extrabold text-blue-900" colSpan={2}>
+                {calculateTotal().toLocaleString("fr-FR", { minimumFractionDigits: 2 })} FBU
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      {/* Submit */}
+      <div className="flex justify-end mt-6">
+        <button
+          type="submit"
+          className="rounded-xl bg-green-600 text-white px-8 py-3 font-semibold shadow-md hover:bg-green-700 transition"
+        >
           Enregistrer
         </button>
       </div>
-    </form>
-    
     </div>
+  </form>
+</div>
+
   );
 
 

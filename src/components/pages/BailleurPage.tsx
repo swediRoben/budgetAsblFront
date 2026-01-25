@@ -85,6 +85,7 @@ export default function renderBailleurPage (){
     setShowModal(false); 
   };
      useEffect(()=>{
+       dataTypebailleur();
          dataBailleur();
     },[])
 
