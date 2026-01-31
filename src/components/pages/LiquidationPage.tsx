@@ -240,8 +240,7 @@ useEffect(() => {
         dataEngagement(exerciceId,data.idProjet,data.id);
    }
     
-    const handleAfficheEngagementData=(data:any)=>{ 
-        console.log(data)
+    const handleAfficheEngagementData=(data:any)=>{  
         dataMontant(data);
    }
 
@@ -263,6 +262,7 @@ useEffect(() => {
       idDevise: null,
       tauxDevise: 0,
       montant: 0,
+      piece: "",
       objet: "",
       enAttente: true,
       dataEnAttente:null,
@@ -584,24 +584,6 @@ const onSubmit = async (data) => {
       </select>
     </div>
 
-    {/* Objet */}
-    <div className="md:col-span-2">
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Objet de l’Liquidation
-      </label>
-      <input
-        type="text"
-        required
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("objet", { required: "Objet obligatoire" })}
-      />
-
-      {errors.objet && (
-        <p className="text-red-600 text-xs mt-1">{errors.objet.message}</p>
-      )}
-    </div>
-
      {/* Devise */}
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -637,7 +619,7 @@ const onSubmit = async (data) => {
           valueAsNumber: true,
             min: {
               value: 0,
-              message: "Le taux ne peut pas être inférieur à 0",
+              message: "Le montant ne peut pas être inférieur à 0",
             },
         })}
       />
@@ -666,13 +648,35 @@ const onSubmit = async (data) => {
         />
 
 
-      {errors.montant && (
-        <p className="text-red-600 text-xs mt-1">{errors.montant.message}</p>
+      {errors.tauxDevise && (
+        <p className="text-red-600 text-xs mt-1">{errors.tauxDevise.message}</p>
       )}
     </div>
 
-    {/* Bloc récapitulatif visuel */}
+       {/* piece */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        pièces justificative
+      </label>
+     <input
+          type="text" 
+          required
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                    focus:ring-2 focus:ring-blue-500"
+           {...register("piece", {
+            required: "Pièces justificative obligatoire",
+            valueAsNumber: true
+          })}
+        />
+
+
+      {errors.piece && (
+        <p className="text-red-600 text-xs mt-1">{errors.piece.message}</p>
+      )}
+    </div>
+
   </div>
+    {/* Bloc récapitulatif visuel */}
 
   <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
     <div>
@@ -690,6 +694,24 @@ const onSubmit = async (data) => {
       <p className="text-lg font-semibold text-green-700">{montantRestantFonction(montantEngage-((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1))+montantLiquide))}</p>
     </div>
   </div>
+
+    {/* Objet */}
+    <div className="md:col-span-2">
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Objet de l’Liquidation
+      </label>
+      <input
+        type="text"
+        required
+        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
+                   focus:ring-2 focus:ring-blue-500"
+        {...register("objet", { required: "Objet obligatoire" })}
+      />
+
+      {errors.objet && (
+        <p className="text-red-600 text-xs mt-1">{errors.objet.message}</p>
+      )}
+    </div>
 
   {/* Observations */}
   <div>
@@ -817,13 +839,13 @@ const onSubmit = async (data) => {
                     <td className="px-4 py-2">{eng.bonLiquidation}</td>
                     <td className="px-4 py-2">{toDateNormal(eng.dataEnAttente)}</td>
                     <td className="px-4 py-2">
-                      {eng.planActivite.activite.code}-
-                      {eng.planActivite.activite.libelle}
+                      {eng.planActivite?.activite.code}-
+                      {eng.planActivite?.activite.libelle}
                     </td>
                     <td className="px-4 py-2 text-right font-medium">
                       {eng.montant.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
                     </td>
-                    <td className="px-4 py-2">{eng.devise.symbole}</td>
+                    <td className="px-4 py-2">{eng.devise?.symbole}</td>
                     <td className="px-4 py-2 text-center">
                       <span
                         className={`px-3 py-1 rounded-full text-xs font-semibold ${
