@@ -1,11 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
+import {  X} from 'lucide-react';
 
 import {createActivite,deleteActivite,getAllActivite,updateActivite} from "../../data/classification/activite";
-import {createProjet,deleteProjet,getAllProjet,updateProjet} from "../../data/classification/projet";
-import {createCategorie,deleteCategorie,getAllCategorie,updateCategorie,getAllCategorieByProgramme} from "../../data/classification/categorie";
+import {getAllProjet} from "../../data/classification/projet";
+import {getAllCategorie} from "../../data/classification/categorie";
 
-import { useFieldArray, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
 
 export default function renderActivitePage (){

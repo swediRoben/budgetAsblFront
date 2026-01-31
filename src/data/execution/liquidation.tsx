@@ -1,8 +1,8 @@
 import axios from "axios"; 
 
-const API_URL = "http://localhost:8080/budget/v1/api/engagements";
+const API_URL = "http://localhost:8080/budget/v1/api/liquidations";
 
-export const getAllEngagement = async () => {
+export const getAllLiquidation = async () => {
   try {
     const response = await axios.get(API_URL);
     return response.data;
@@ -11,7 +11,7 @@ export const getAllEngagement = async () => {
   }
 };
 
-export const getAllEngagementTraitement = async (exercice:any,projet:any) => {
+export const getAllLiquidationTraitement = async (exercice:any,projet:any) => {
   try {
     const response = await axios.get(`${API_URL}/traitement`,{
       params:{
@@ -25,7 +25,7 @@ export const getAllEngagementTraitement = async (exercice:any,projet:any) => {
   }
 };
 
-export const getAllValider = async (exercice:any,projet:any,categorie:any,debut:any,fin:any,page:any,size) => {
+export const getAllValiderLiqidation = async (exercice:any,projet:any,categorie:any,debut:any,fin:any,page:any,size) => {
   try {
     const response = await axios.get(`${API_URL}/valider`,{
       params:{
@@ -44,22 +44,7 @@ export const getAllValider = async (exercice:any,projet:any,categorie:any,debut:
   }
 };
 
-export const getAllEngagementValiderLiquider = async (exercice:any,projet:any,ligne:any) => {
-  try {
-    const response = await axios.get(`${API_URL}/engagementvaliderliquidation`,{
-      params:{
-        exercice,
-        projet,
-        ligne
-      }
-    });
-    return response.data;
-  } catch (error) {
-    throw [];
-  }
-};
-
-export const getAllRejeter = async (exercice:any,projet:any,categorie:any,debut:any,fin:any,page:any,size:any) => {
+export const getAllRejeter = async (exercice:any,projet:any,categorie:any,debut:any,fin:any,page:any,size) => {
   try {
     const response = await axios.get(`${API_URL}/rejeter`,{
       params:{
@@ -135,7 +120,7 @@ export const getAllEnAttente = async (exercice:any,projet:any,categorie:any,debu
   }
 };
 
-export const getEngagementById = async (id: number) => {
+export const getLiquidationById = async (id: number) => {
   try {
     const response = await axios.get(`${API_URL}/${id}`);
     return response;
@@ -144,7 +129,7 @@ export const getEngagementById = async (id: number) => {
   }
 };
 
-export const createEngagement = async (data: any) => {
+export const createLiquidation = async (data: any) => {
   try {
     const response = await axios.post(API_URL, data);
     return response;
@@ -153,7 +138,7 @@ export const createEngagement = async (data: any) => {
   }
 };
 
-export const updateEngagement = async (id: number, data: any) => {
+export const updateLiquidation = async (id: number, data: any) => {
   try {
     const response = await axios.put(`${API_URL}/${id}`, data);
     return response.data;
@@ -162,7 +147,7 @@ export const updateEngagement = async (id: number, data: any) => {
   }
 };
 
-export const deleteEngagement = async (id: number) => {
+export const deleteLiquidation = async (id: number) => {
   try {
     const response = await axios.delete(`${API_URL}/${id}`);
     return response.data;
@@ -172,7 +157,7 @@ export const deleteEngagement = async (id: number) => {
 };
 
 
-export const getEngagementvaliderByIdExercice = async (idExercice: number) => {
+export const getLiquidationvaliderByIdExercice = async (idExercice: number) => {
   try {
     const response = await axios.get(`${API_URL}/valider`,{
         params:{
@@ -185,7 +170,7 @@ export const getEngagementvaliderByIdExercice = async (idExercice: number) => {
   }
 };
 
-export const getEngagementretournerByIdExercice = async (idExercice: number) => {
+export const getLiquidationretournerByIdExercice = async (idExercice: number) => {
   try {
     const response = await axios.get(`${API_URL}/retourner`,{
         params:{
@@ -198,7 +183,7 @@ export const getEngagementretournerByIdExercice = async (idExercice: number) => 
   }
 };
 
-export const getEngagementrejeterByIdExercice = async (idExercice: number) => {
+export const getLiquidationrejeterByIdExercice = async (idExercice: number) => {
   try {
     const response = await axios.get(`${API_URL}/rejeter`,{
         params:{
@@ -211,7 +196,7 @@ export const getEngagementrejeterByIdExercice = async (idExercice: number) => {
   }
 };
 
-export const getEngagementreceptionerByIdExercice = async (idExercice: number) => {
+export const getLiquidationreceptionerByIdExercice = async (idExercice: number) => {
   try {
     const response = await axios.get(`${API_URL}/receptioner`,{
         params:{
@@ -224,10 +209,10 @@ export const getEngagementreceptionerByIdExercice = async (idExercice: number) =
   }
 };
 
-export const getSommeMontantEngage = async (idExercice: any, ligne: any): Promise<number> => {
+export const getSommeMontantLiquide = async (idExercice: any, idEngement: any): Promise<number> => {
   try {
     const response = await axios.get(`${API_URL}/montant`, {
-      params: { exercice: idExercice, ligne: ligne }
+      params: { exercice: idExercice,  engagement: idEngement }
     });  
     return response.data;
   } catch (error) {

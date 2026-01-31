@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
  
  import {getAllFonctionnaire} from "../../data/utilisateur/fonctionnaire";
-import {createEngagement,deleteEngagement,getAllEngagement,updateEngagement,getAllEngagementTraitement,getSommeMontantEngage,getEngagementvaliderByIdExercice,getEngagementretournerByIdExercice,getEngagementrejeterByIdExercice,getEngagementreceptionerByIdExercice} from "../../data/execution/engagement"; 
-// import {getAllCategorie,getAllCategorieByProgramme} from "../../data/classification/categorie"; 
+import {createEngagement,deleteEngagement,getAllEngagement,updateEngagement,getAllValider,getAllReceptionner,getAllRejeter,getAllRetourne,getAllEnAttente,getSommeMontantEngage,getEngagementvaliderByIdExercice,getEngagementretournerByIdExercice,getEngagementrejeterByIdExercice,getEngagementreceptionerByIdExercice} from "../../data/execution/engagement"; 
+import {getAllCategorie,getAllCategorieByProgramme} from "../../data/classification/categorie"; 
 import {getAllPlanfontprojet} from "../../data/classification/planfontprojet";
 import {getAllExercice} from "../../data/classification/exercice"; 
 import {getAllPrevision} from "../../data/classification/prevision"; 
-import {getAllDevise} from "../../data/classification/devise";
+import {getAllDevise} from "../../data/classification/devise"; 
 
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
@@ -18,6 +18,7 @@ export default function renderEngagementPage (){
     const [planfondprojets, setPlanfontprojets] = useState([]);
     const [exerciceId, setExerciceId] = useState(); 
     const [projetId, setProjetId] = useState(); 
+    const [categorieId, setCategorieId] = useState(); 
     const [bailleurs, setBailleurs] = useState([]); 
     const [exercices, setExercices] = useState([]); 
     const [fonctionnaires, setFonctionnaires] = useState([]);
@@ -28,7 +29,7 @@ export default function renderEngagementPage (){
     const [debut, setDebut] = useState("");
     const [fin, setFin] = useState("");
     const [page, setPage] = useState(0);
-    const [size] = useState(10); // taille de page
+    const [size] = useState(10);  
     const [totalPages, setTotalPages] = useState(1);
     const [status, setStatus] = useState(""); 
     
@@ -71,16 +72,138 @@ useEffect(() => {
        const getPlanfondByExercice=async (e:any)=>{ 
            const value=e.target.value;
           if (value!=="") { 
-                           setExerciceId(value)
-                           const data=await getAllPlanfontprojet(e.target.value);
-                           setPlanfontprojets(data)  
-                           
-                      }else{ 
-                        setPlanfontprojets([])  
-                      }  
-                      setPrevisions([])
+                setExerciceId(value)
+               const data=await getAllPlanfontprojet(e.target.value);
+               setPlanfontprojets(data)  
+               }else{ 
+                 setPlanfontprojets([])  
+               }  
+             setPrevisions([])
     }
 
+   const getCategoriesByProjet=async (e:any)=>{ 
+          setCategorie([]) 
+          const data=await getAllCategorie(e); 
+          setProjetId(e)
+          setCategorie(data) 
+        }
+
+    const getCategorieByProjet=async (e)=>{ 
+         getCategoriesByProjet(e);
+         setProjetId(e)
+          setEngagements([]);  
+            setCategorieId(null); 
+            setDebut("");
+          setFin(""); 
+         if (status==='RECEPTIONNE') {
+        const data=await getAllReceptionner(exerciceId,e); 
+         setEngagements(data);
+         } else if (status==='REJETE') {
+        const data=await getAllRejeter(exerciceId,e); 
+         setEngagements(data); 
+         } else if (status==='RETOURNE') {
+        const data=await getAllRetourne(exerciceId,e); 
+         setEngagements(data); 
+         } else if (status==='VALIDE') {
+        const data=await getAllValider(exerciceId,e); 
+         setEngagements(data); 
+         } else if (status==='EN_ATTENTE') {
+        const data=await getAllEnAttente(exerciceId,e); 
+         setEngagements(data); 
+         }
+    }
+
+      const getEngagementByCategorie=async (e)=>{ 
+          setEngagements([]); 
+          setCategorieId(e)    
+          setDebut("");
+          setFin(""); 
+         if (status==='RECEPTIONNE') {
+        const data=await getAllReceptionner(exerciceId,projetId,e); 
+         setEngagements(data);
+         } else if (status==='REJETE') {
+        const data=await getAllRejeter(exerciceId,projetId,e); 
+         setEngagements(data); 
+         } else if (status==='RETOURNE') {
+        const data=await getAllRetourne(exerciceId,projetId,e); 
+         setEngagements(data); 
+         } else if (status==='VALIDE') {
+        const data=await getAllValider(exerciceId,projetId,e); 
+         setEngagements(data); 
+         } else if (status==='EN_ATTENTE') {
+        const data=await getAllEnAttente(exerciceId,projetId,e); 
+         setEngagements(data); 
+         }
+    }
+
+    const getByDate=async (e)=>{
+      setEngagements([]);  
+      if (debut==="") {
+        setFin("");
+      }else{
+        setFin(e)  
+         if (status==='RECEPTIONNE') {
+        const data=await getAllReceptionner(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(e)); 
+         setEngagements(data);
+         } else if (status==='REJETE') {
+        const data=await getAllRejeter(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(e)); 
+         setEngagements(data); 
+         } else if (status==='RETOURNE') {
+        const data=await getAllRetourne(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(e)); 
+         setEngagements(data); 
+         } else if (status==='VALIDE') {
+        const data=await getAllValider(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(e)); 
+         setEngagements(data); 
+         } else if (status==='EN_ATTENTE') {
+        const data=await getAllEnAttente(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(e)); 
+         setEngagements(data); 
+         }
+      }
+    }
+
+    const paginationPreview=async ()=>{
+      if (page>0) {
+        setPage(page-1);
+        setTotalPages(totalPages-1);
+            if (status==='RECEPTIONNE') {
+        const data=await getAllReceptionner(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data);
+         } else if (status==='REJETE') {
+        const data=await getAllRejeter(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         } else if (status==='RETOURNE') {
+        const data=await getAllRetourne(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         } else if (status==='VALIDE') {
+        const data=await getAllValider(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         } else if (status==='EN_ATTENTE') {
+        const data=await getAllEnAttente(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         }
+      } 
+    }
+
+      const paginationNext=async ()=>{ 
+        setPage(page+1);
+        setTotalPages(totalPages+1);
+          if (status==='RECEPTIONNE') {
+        const data=await getAllReceptionner(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data);
+         } else if (status==='REJETE') {
+        const data=await getAllRejeter(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         } else if (status==='RETOURNE') {
+        const data=await getAllRetourne(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         } else if (status==='VALIDE') {
+        const data=await getAllValider(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         } else if (status==='EN_ATTENTE') {
+        const data=await getAllEnAttente(exerciceId,projetId,categorieId,toOffsetDateTimeStart(debut),toOffsetDateTimeStart(fin),page,size); 
+         setEngagements(data); 
+         } 
+    }
     const getPrevisionByCategorie=async (e:any)=>{ 
         
         const value=e; 
@@ -134,6 +257,7 @@ useEffect(() => {
     },
   });
 
+   
 const montantRestantFonction=(montantEngages:any)=>{ 
    return montantEngages;
 }
@@ -174,15 +298,16 @@ const onSubmit = async (data) => {
   }
 };
 
-
-  const getListEngagment =async (exericie:any,projet:any) => {
-       const data=await getAllEngagementTraitement(exericie,projet);   
-        setEngagements(data);
-        setShowEngagementList(true);
-      };
+ 
     
  const openList=(status:string)=>{
-      //  'RECEPTIONNE','REJETE','RETOURNE','VALIDE'
+   setEngagements([]);
+   setPlanfontprojets([]);
+   setCategorie([]);
+   setCategorieId(null);
+   setProjetId(null);
+   setDebut("");
+   setFin("");
   setStatus(status); 
   setShowEngagementList(true);
  }
@@ -210,7 +335,7 @@ const onSubmit = async (data) => {
         </span>
       
   <span
-          onClick={() => openList('En_ATTENTE')}
+          onClick={() => openList('EN_ATTENTE')}
           className="cursor-pointer select-none rounded-full
                      bg-green-50 px-4 py-1.5 text-green-700
                      border border-green-200
@@ -575,34 +700,58 @@ const onSubmit = async (data) => {
         {/* Filtres */}
         <div className="p-6 border-b grid grid-cols-1 md:grid-cols-5 gap-4">
           <select
-            className="border border-gray-300 rounded px-3 py-2"  
+            className="border border-gray-300 rounded px-3 py-2" 
+             onChange={(e) => {
+            getPlanfondByExercice(e);
+            handleChangeExercice(e);
+          }} 
           >
             <option value="">Exercice</option>
-             
+            {
+                exercices.map((element:any)=>(
+                <option value={element.id}>{element.libelle}</option>
+              ))
+              } 
           </select>
+ 
 
           <select
             className="border border-gray-300 rounded px-3 py-2" 
+            onChange={(e)=>{getCategorieByProjet(e.target.value)}}
           >
             <option value="">Projet</option>
-            {/* map tes projets */}
+             {
+          planfondprojets.map((element:any)=>(
+            <option value={element.projet.id}>{element.projet.libelle}</option>
+              ))
+          }
           </select>
+          
 
           <select
-            className="border border-gray-300 rounded px-3 py-2" 
+            className="border border-gray-300 rounded px-3 py-2"
+            onChange={(e)=>{getEngagementByCategorie(e.target.value)}} 
           >
             <option value="">Catégorie</option>
-            {/* map tes catégories */}
+              {
+          categorie.map((element:any)=>(
+            <option value={element.id}>{element.libelle}</option>
+              ))
+          }
           </select>
 
           <input
             type="date"
             className="border border-gray-300 rounded px-3 py-2" 
+            value={debut} 
+            onChange={(e)=>{setDebut(e.target.value);setFin("")}}
           />
 
           <input
             type="date"
+            value={fin}
             className="border border-gray-300 rounded px-3 py-2" 
+             onChange={(e)=>{getByDate(e.target.value);}}
           />
         </div>
 
@@ -618,7 +767,7 @@ const onSubmit = async (data) => {
                   <th className="px-4 py-3 text-right">Montant</th>
                   <th className="px-4 py-3 text-left">Devise</th>
                   <th className="px-4 py-3 text-center">Statut</th>
-                  <th className="px-4 py-3 text-center">Date status</th>
+                  <th className="px-4 py-3 text-center">Date statut</th>
                   <th className="px-4 py-3 text-center">Actions</th>
                 </tr>
               </thead>
@@ -694,7 +843,7 @@ const onSubmit = async (data) => {
           <button
             className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300"
             disabled={page === 0}
-            onClick={() => setPage(page - 1)}
+            onClick={paginationPreview}
           >
             Prev
           </button>
@@ -702,9 +851,8 @@ const onSubmit = async (data) => {
             Page {page + 1} / {totalPages}
           </span>
           <button
-            className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300"
-            disabled={page + 1 >= totalPages}
-            onClick={() => setPage(page + 1)}
+            className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300" 
+            onClick={paginationNext}
           >
             Next
           </button>
