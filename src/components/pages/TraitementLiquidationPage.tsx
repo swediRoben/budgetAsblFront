@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
- 
+  import { X } from 'lucide-react';
  import {getAllFonctionnaire} from "../../data/utilisateur/fonctionnaire";
 import {createLiquidation,deleteLiquidation,getAllLiquidation,updateLiquidation,getAllValiderLiqidation,getAllReceptionner,getAllRejeter,getAllRetourne,getAllEnAttente,getSommeMontantLiquide,getLiquidationvaliderByIdExercice,getLiquidationretournerByIdExercice,getLiquidationrejeterByIdExercice,getLiquidationreceptionerByIdExercice} from "../../data/execution/liquidation"; 
 import {getAllEngagementValiderLiquider} from "../../data/execution/engagement"; 
@@ -12,7 +12,7 @@ import {getAllDevise} from "../../data/classification/devise";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
 
-export default function renderLiquidationPage (){
+export default function renderTraitementLiquidationPage (){
   const [Liquidations, setLiquidations] = useState([]);   
   const [engagements, setEngagements] = useState([]);   
     const [beneficiaire, setBeneficiaire] = useState([]);
@@ -55,7 +55,7 @@ export default function renderLiquidationPage (){
     
     const dataMontant =async (data:any)=>{
          const montantLiquide=await getSommeMontantLiquide(exerciceId,data.id);
-         setMontantEngage(data.montant)
+         setMontantEngage(data.montant*data.tauxDevise)
          setMontantLiquide(montantLiquide);  
        }
 
@@ -392,97 +392,75 @@ const onSubmit = async (data) => {
       
        {/* Formulaire */}
 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
- <input
-        type="text" 
-        hidden
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("id", {disabled:true})}
-      />
- 
-    {/* Exercice */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Exercice budgétaire
-      </label>
-      <select 
-        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm
-                   focus:outline-none focus:ring-2 focus:ring-blue-500"
-        {...register("idExercice", { required: "Exercice obligatoire" })}
-         onChange={(e) => {
+  <fieldset disabled className="space-y-8">
+
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+      {/* Exercice */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Exercice budgétaire
+        </label>
+        <select
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+          {...register("idExercice")}
+          onChange={(e) => {
             getPlanfondByExercice(e);
             handleChangeExercice(e);
           }}
-      >
-        <option value="">Sélectionner</option>
-       {
-        exercices.map((element:any)=>(
-        <option value={element.id}>{element.libelle}</option>
-       ))
-      }
-      </select>
+        >
+          <option value="">Sélectionner</option>
+          {exercices.map((element: any) => (
+            <option key={element.id} value={element.id}>
+              {element.libelle}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {errors.idExercice && (
-        <p className="text-red-600 text-xs mt-1">{errors.idExercice.message}</p>
-      )}
-    </div>
+      {/* Date */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Date d’Liquidation
+        </label>
+        <input
+          type="date"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("dataEnAttente")}
+        />
+      </div>
 
-    {/* Date */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Date d’Liquidation
-      </label>
-      <input
-        type="date"
-        required
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("dataEnAttente", { required: "Date obligatoire" })}
-      />
+      {/* Projet */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Projet
+        </label>
+        <select
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("idProjet")}
+          onChange={(e) => getPrevisionParProjet(e.target.value)}
+        >
+          <option value="">Sélectionner un projet</option>
+          {planfondprojets.map((element: any) => (
+            <option key={element.projet.id} value={element.projet.id}>
+              {element.projet.libelle}
+            </option>
+          ))}
+        </select>
+      </div>
 
-      {errors.dataEnAttente && (
-        <p className="text-red-600 text-xs mt-1">{errors.dataEnAttente.message}</p>
-      )}
-    </div>
-
-    {/* Projet */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Projet
-      </label>
-      <select
-        required
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("idProjet", { required: "Projet obligatoire" })}
-         onChange={(e)=>{getPrevisionParProjet(e.target.value)}}
-      >
-        <option value="">Sélectionner un projet</option>
-        {
-          planfondprojets.map((element:any)=>(
-            <option value={element.projet.id}>{element.projet.libelle}</option>
-          ))
-      }
-      </select>
-
-      {errors.idProjet && (
-        <p className="text-red-600 text-xs mt-1">{errors.idProjet.message}</p>
-      )}
-    </div>
-
-    {/* Ligne budgétaire */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Ligne budgétaire
-      </label>
-       <select
-          required
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                    focus:ring-2 focus:ring-blue-500"
-          {...register("idPlanFondActivite", { required: "Ligne budgétaire obligatoire" })}
+      {/* Ligne budgétaire */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Ligne budgétaire
+        </label>
+        <select
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("idPlanFondActivite")}
           onChange={(e) => {
-            const selected = previsions.find((p: any) => p.id.toString() === e.target.value);
+            const selected = previsions.find(
+              (p: any) => p.id.toString() === e.target.value
+            );
             if (selected) handleAffichePrevisionData(selected);
           }}
         >
@@ -493,207 +471,170 @@ const onSubmit = async (data) => {
             </option>
           ))}
         </select>
+      </div>
 
+      {/* Catégorie */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Categorie
+        </label>
+        <input
+          type="text"
+          readOnly
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+          value={categorie.libelle}
+        />
+      </div>
 
-      {errors.idPlanFondActivite && (
-        <p className="text-red-600 text-xs mt-1">{errors.idPlanFondActivite.message}</p>
-      )}
-    </div>
+      {/* Bailleur */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Bailleur
+        </label>
+        <input
+          type="text"
+          readOnly
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+          value={bailleurs.libelle}
+        />
+      </div>
 
-    
- {/* Categorie */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Categorie
-      </label>
-      <input
-        type="text"
-        readOnly
-        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-        value={categorie.libelle}
-      />
-    </div>
+      {/* Bénéficiaire */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Bénéficiaire
+        </label>
+        <input
+          type="text"
+          readOnly
+          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+          value={beneficiaire.libelle}
+        />
+      </div>
 
-    
- {/* bailleur */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Bailleur
-      </label>
-      <input
-        type="text"
-        readOnly
-        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-        value={bailleurs.libelle}
-      />
-    </div> 
-    {/* Bénéficiaire */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Bénéficiaire
-      </label>
-      <input
-        type="text"
-        readOnly
-        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-        value={beneficiaire.libelle}
-      />
-    </div> 
+      {/* Responsable */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Responsable
+        </label>
+        <select
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("idResponsable")}
+        >
+          <option value="">Sélectionner</option>
+          {fonctionnaires.map((element: any) => (
+            <option key={element.id} value={element.id}>
+              {element.nom} {element.prenom}
+            </option>
+          ))}
+        </select>
+      </div>
 
-    {/* Responsable */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Responsable
-      </label>
-      <select
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("idResponsable")}
-      >
-        <option value="">Sélectionner</option>
-         {
-        fonctionnaires.map((element:any)=>(
-        <option value={element.id}>{element.nom} {element.prenom}</option>
-       ))
-      }
-      </select>
-    </div>
+      {/* Engagement */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Engagement
+        </label>
+        <select
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("idEngagement")}
+          onChange={(e) => {
+            const selected = engagements.find(
+              (p: any) => p.id.toString() === e.target.value
+            );
+            if (selected) handleAfficheEngagementData(selected);
+          }}
+        >
+          <option value="">Sélectionner</option>
+          {engagements.map((element: any) => (
+            <option key={element.id} value={element.id}>
+              {element.bonEngagement}
+            </option>
+          ))}
+        </select>
+      </div>
 
-    {/* engament */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Engagement
-      </label>
-      <select
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("idEngagement")}
-         onChange={(e) => {
-      e.preventDefault(); // sécurité
-      const selected = engagements.find(
-        (p: any) => p.id.toString() === e.target.value
-      );
-      if (selected) handleAfficheEngagementData(selected);
-    }}
-      >
-        <option value="">Sélectionner</option>
-         {
-        engagements.map((element:any)=>(
-        <option key={element.id} value={element.id}>{element.bonEngagement}</option>
-       ))
-      }
-      </select>
-    </div> 
-     {/* Devise */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Devise
-      </label>
-      <select
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("idDevise")}
-      >
-        <option value="">Sélectionner</option>
-        {devises?.map((element: any) => (
+      {/* Devise */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Devise
+        </label>
+        <select
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("idDevise")}
+        >
+          <option value="">Sélectionner</option>
+          {devises?.map((element: any) => (
             <option key={element.id} value={element.id}>
               {element.libelle}
             </option>
           ))}
-      </select>
-    </div>
+        </select>
+      </div>
 
-    {/* Montant */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Montant
-      </label>
-      <input
-        type="number"
-        step="0.01"
-        required
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("montant", {
-          required: "Montant obligatoire",
-          valueAsNumber: true,
-            min: {
-              value: 0,
-              message: "Le montant ne peut pas être inférieur à 0",
-            },
-        })}
-      />
-
-      {errors.montant && (
-        <p className="text-red-600 text-xs mt-1">{errors.montant.message}</p>
-      )}
-    </div>
-
-        {/* Taux */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        Taux devise
-      </label>
-     <input
+      {/* Montant */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Montant
+        </label>
+        <input
           type="number"
           step="0.01"
-          required
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                    focus:ring-2 focus:ring-blue-500"
-          defaultValue={1} // valeur par défaut
-          {...register("tauxDevise", {
-            required: "Taux devise obligatoire",
-            valueAsNumber: true
-          })}
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("montant", { valueAsNumber: true })}
         />
+      </div>
 
-
-      {errors.tauxDevise && (
-        <p className="text-red-600 text-xs mt-1">{errors.tauxDevise.message}</p>
-      )}
-    </div>
-
-       {/* piece */}
-    <div>
-      <label className="block text-sm font-medium text-gray-700 mb-1">
-        pièces justificative
-      </label>
-     <input
-          type="text" 
-          required
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                    focus:ring-2 focus:ring-blue-500"
-           {...register("piece", {
-            required: "Pièces justificative obligatoire",
-            valueAsNumber: true
-          })}
+      {/* Taux */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Taux devise
+        </label>
+        <input
+          type="number"
+          step="0.01"
+          defaultValue={1}
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("tauxDevise")}
         />
+      </div>
 
+      {/* Pièce */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Pièces justificative
+        </label>
+        <input
+          type="text"
+          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+          {...register("piece")}
+        />
+      </div>
 
-      {errors.piece && (
-        <p className="text-red-600 text-xs mt-1">{errors.piece.message}</p>
-      )}
     </div>
 
-  </div>
-    {/* Bloc récapitulatif visuel */}
-
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
-    <div>
-      <p className="text-xs text-gray-500">Montant engagé</p>
-      <p className="text-lg font-semibold text-gray-800">
-        {montantEngage}
-      </p>
+    {/* Bloc récapitulatif */}
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
+      <div>
+        <p className="text-xs text-gray-500">Montant engagé</p>
+        <p className="text-lg font-semibold text-gray-800">{montantEngage}</p>
+      </div>
+      <div>
+        <p className="text-xs text-gray-500">montant liquidé</p>
+        <p className="text-lg font-semibold text-blue-700">{montantLiquide}</p>
+      </div>
+      <div>
+        <p className="text-xs text-gray-500">Montant restant</p>
+        <p className="text-lg font-semibold text-green-700">
+          {montantRestantFonction(
+            montantEngage -
+              ((Number(watch("montant") || 0) *
+                Number(watch("tauxDevise") || 1)) +
+                montantLiquide)
+          )}
+        </p>
+      </div>
     </div>
-    <div>
-      <p className="text-xs text-gray-500">montant liquidé</p>
-      <p className="text-lg font-semibold text-blue-700">{montantLiquide}</p>
-    </div>
-    <div>
-      <p className="text-xs text-gray-500">Montant restant</p>
-      <p className="text-lg font-semibold text-green-700">{montantRestantFonction(montantEngage-((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1))+montantLiquide))}</p>
-    </div>
-  </div>
 
     {/* Objet */}
     <div className="md:col-span-2">
@@ -702,44 +643,56 @@ const onSubmit = async (data) => {
       </label>
       <input
         type="text"
-        required
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-        {...register("objet", { required: "Objet obligatoire" })}
+        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        {...register("objet")}
       />
-
-      {errors.objet && (
-        <p className="text-red-600 text-xs mt-1">{errors.objet.message}</p>
-      )}
     </div>
 
-  {/* Observations */}
-  <div>
-    <label className="block text-sm font-medium text-gray-700 mb-1">
-      Observations
-    </label>
-    <textarea
-      readOnly
-      disabled
-      rows={3}
-      className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                 focus:ring-2 focus:ring-blue-500"
-      {...register("observation")}
-    />
-  </div>
+    {/* Observations */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Observations
+      </label>
+      <textarea
+        rows={3}
+        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+        {...register("observation")}
+      />
+    </div>
 
-  {/* Actions */}
-  <div className="flex justify-end gap-3">
-    <button
-      type="submit"
-      className="inline-flex items-center rounded-md bg-green-600 px-6 py-2 text-sm
-                 font-medium text-white hover:bg-green-700 transition"
-    >
-      Enregistrer
-    </button> 
-  </div>
+  </fieldset>
 </form>
+<div className="flex justify-end gap-4 mt-6 border-t pt-4">
+  {/* Retourner */}
+  <button
+    type="button"
+    className="inline-flex items-center rounded-md border border-orange-500
+               px-6 py-2 text-sm font-medium text-orange-600
+               hover:bg-orange-50 transition"
+  >
+    Retourner
+  </button>
 
+  {/* Rejeter */}
+  <button
+    type="button"
+    className="inline-flex items-center rounded-md border border-red-500
+               px-6 py-2 text-sm font-medium text-red-600
+               hover:bg-red-50 transition"
+  >
+    Rejeter
+  </button>
+
+  {/* Valider */}
+  <button
+    type="submit"
+    className="inline-flex items-center rounded-md bg-green-600
+               px-6 py-2 text-sm font-medium text-white
+               shadow hover:bg-green-700 transition"
+  >
+    Valider
+  </button>
+</div>
       
         {/* Liste */}
       {showLiquidationList && (
@@ -843,7 +796,7 @@ const onSubmit = async (data) => {
                       {eng.planActivite?.activite.libelle}
                     </td>
                     <td className="px-4 py-2 text-right font-medium">
-                      {eng.montant.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+                      {eng.montant.toLocaleString("fr-FR", { minimumFractionDigits: 2 ,disabled:true })}
                     </td>
                     <td className="px-4 py-2">{eng.devise?.symbole}</td>
                     <td className="px-4 py-2 text-center">
@@ -886,7 +839,7 @@ const onSubmit = async (data) => {
                     </td>
                     <td className="px-4 py-2 text-center space-x-2">
                       <button className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100">
-                        Voir
+                        Receptionée
                       </button>
                       <button className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100">
                         Modifier

@@ -281,139 +281,119 @@ export default function renderParActivitePage (){
   </div>
 
   {/* TABLE */}
-  <div className="px-6 pb-6">
-    <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
-      <div className="overflow-x-auto">
-        <table className="min-w-full text-sm">
-          <thead>
-            <tr className="bg-[#1f4e78] text-white">
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                Code
-              </th>
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                Description
-              </th>
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                Début
-              </th>
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                Fin
-              </th>
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                Quantité
-              </th>
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                C. Unitaire
-              </th>
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                Total
-              </th>
-              <th className="whitespace-nowrap px-4 py-3 text-left text-xs font-bold uppercase tracking-wider">
-                Source financement
-              </th>
-            </tr>
-          </thead>
+ <div className="px-6 pb-6 print:p-0">
+  <div className="overflow-hidden rounded-xl border border-gray-200 bg-white shadow-md print:shadow-none print:border-0">
+    <div className="overflow-x-auto">
+      <table className="min-w-full table-auto text-sm">
+        {/* EN-TÊTE MODERNE */}
+        <thead>
+          <tr className="bg-slate-900 text-white print:bg-gray-100 print:text-black">
+            <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-wider border-r border-slate-700">Code</th>
+            <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-wider">Description des Activités</th>
+            <th className="px-3 py-4 text-center text-[11px] font-bold uppercase tracking-wider">Période</th>
+            <th className="px-3 py-4 text-center text-[11px] font-bold uppercase tracking-wider">Qté</th>
+            <th className="px-3 py-4 text-right text-[11px] font-bold uppercase tracking-wider">P.U.</th>
+            <th className="px-4 py-4 text-right text-[11px] font-bold uppercase tracking-wider">Total</th>
+            <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-wider">Financement</th>
+          </tr>
+        </thead>
 
-          <tbody className="divide-y divide-gray-100">
-            {Object.entries(grouped).map(([pid, projetData], pIndex: any) => {
-              const categories = projetData.categories;
-              const totProj = totalProjet(categories);
+        <tbody className="divide-y divide-gray-200">
+          {Object.entries(grouped).map(([pid, projetData], pIndex) => {
+            const categories = projetData.categories;
+            const totProj = totalProjet(categories);
 
-              return (
-                <React.Fragment key={pid}>
-                  {/* PROJET */}
-                  <tr className="bg-blue-50/60 font-semibold text-gray-900">
-                    <td className="border-r border-gray-100 px-4 py-3">
-                      {String(pIndex + 1).padStart(2, "0")}
-                    </td>
-                    <td className="px-4 py-3" colSpan={5}>
-                      <span className="inline-flex items-center gap-2">
-                        <span className="h-2 w-2 rounded-full bg-blue-600" />
-                        {projetData.projet?.libelle}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 font-extrabold text-gray-900">
-                      {totProj.toLocaleString()}
-                    </td>
-                    <td className="px-4 py-3 text-gray-500">—</td>
-                  </tr>
+            return (
+              <React.Fragment key={pid}>
+                {/* LIGNE PROJET - Style "Header" */}
+                <tr className="bg-slate-100/80 group">
+                  <td className="border-l-4 border-blue-600 px-4 py-4 font-black text-blue-900 bg-blue-50">
+                    {String(pIndex + 1).padStart(2, "0")}
+                  </td>
+                  <td className="px-4 py-4 font-black text-blue-900 uppercase tracking-tight" colSpan={4}>
+                    PROJET : {projetData.projet?.libelle}
+                  </td>
+                  <td className="px-4 py-4 text-right font-black text-blue-900 text-base">
+                    {totProj.toLocaleString()}
+                  </td>
+                  <td className="px-4 py-4 text-gray-400 italic text-xs">Récapitulatif Projet</td>
+                </tr>
 
-                  {/* CATEGORIES */}
-                  {Object.entries(categories).map(([cid, catData], cIndex: any) => {
-                    const totCat = totalCategorie(catData.acts);
+                {Object.entries(categories).map(([cid, catData], cIndex) => {
+                  const totCat = totalCategorie(catData.acts);
 
-                    return (
-                      <React.Fragment key={cid}>
-                        {/* CATEGORIE */}
-                        <tr className="bg-orange-50/70 font-semibold text-gray-800">
-                          <td className="border-r border-gray-100 px-4 py-3">
-                            {String(cIndex + 1).padStart(3, "0")}
+                  return (
+                    <React.Fragment key={cid}>
+                      {/* LIGNE CATEGORIE - Style "Sub-Header" */}
+                      <tr className="bg-white">
+                        <td className="border-l-4 border-orange-400 px-4 py-3 font-bold text-orange-700 bg-orange-50/30 text-center">
+                          {String(cIndex + 1).padStart(3, "0")}
+                        </td>
+                        <td className="px-4 py-3 font-bold text-gray-700 italic" colSpan={4}>
+                          COMPOSANTE : {catData.categorie?.libelle}
+                        </td>
+                        <td className="px-4 py-3 text-right font-bold text-gray-800 border-b border-orange-100">
+                          {totCat.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-3 text-gray-400">—</td>
+                      </tr>
+
+                      {/* ACTIVITÉS - Style "Epuré" */}
+                      {catData.acts.map((act, aIndex) => (
+                        <tr key={aIndex} className="hover:bg-blue-50/30 transition-colors border-l-4 border-transparent hover:border-blue-200">
+                          <td className="px-4 py-2 text-center font-mono text-xs text-gray-400 border-r border-gray-50">
+                            {act.ligne}
                           </td>
-                          <td className="px-4 py-3" colSpan={5}>
-                            <span className="inline-flex items-center gap-2">
-                              <span className="h-2 w-2 rounded-full bg-orange-500" />
-                              {catData.categorie?.libelle}
+                          <td className="px-4 py-2 text-gray-700 font-medium">
+                            {act.activite?.libelle}
+                          </td>
+                          <td className="px-3 py-2 text-center text-[11px] text-gray-500 leading-tight">
+                            <span className="block font-bold text-gray-700">{act.datebebut}</span>
+                            <span className="block text-[10px]">au {act.datefin}</span>
+                          </td>
+                          <td className="px-3 py-2 text-center font-semibold text-gray-600">
+                            {act.quantite}
+                          </td>
+                          <td className="px-3 py-2 text-right text-gray-600 font-mono">
+                            {act.pu.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-2 text-right font-bold text-slate-900 bg-slate-50/50">
+                            {act.montant.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-2">
+                            <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200 uppercase">
+                              {act.bailleur?.libelle || 'Fonds Propres'}
                             </span>
                           </td>
-                          <td className="px-4 py-3 font-bold text-gray-900">
-                            {totCat.toLocaleString()}
-                          </td>
-                          <td className="px-4 py-3 text-gray-500">—</td>
                         </tr>
+                      ))}
+                    </React.Fragment>
+                  );
+                })}
 
-                        {/* ACTIVITÉS */}
-                        {catData.acts.map((act, aIndex: any) => (
-                          <tr
-                            key={aIndex}
-                            className="transition hover:bg-gray-50"
-                          >
-                            <td className="border-r border-gray-100 px-4 py-3 text-gray-700">
-                              {act.ligne}
-                            </td>
-                            <td className="px-4 py-3 text-gray-800">
-                              {act.activite?.libelle}
-                            </td>
-                            <td className="px-4 py-3 text-gray-600">
-                              {act.datebebut}
-                            </td>
-                            <td className="px-4 py-3 text-gray-600">
-                              {act.datefin}
-                            </td>
-                            <td className="px-4 py-3 text-gray-700">
-                              {act.quantite}
-                            </td>
-                            <td className="px-4 py-3 text-gray-700">
-                              {act.pu.toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 font-semibold text-gray-900">
-                              {act.montant.toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 text-gray-700">
-                              {act.bailleur?.libelle}
-                            </td>
-                          </tr>
-                        ))}
-                      </React.Fragment>
-                    );
-                  })}
-
-                  {/* TOTAL FINAL PROJET */}
-                  <tr className="bg-green-50 font-extrabold text-gray-900">
-                    <td className="px-4 py-3" colSpan={6}>
-                      TOTAL {projetData.projet?.libelle}
-                    </td>
-                    <td className="px-4 py-3" colSpan={2}>
-                      {totProj.toLocaleString()}
-                    </td>
-                  </tr>
-                </React.Fragment>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
+                {/* TOTAL FINAL DU PROJET - Design Type "Facture" */}
+                <tr className="border-t-2 border-blue-900">
+                  <td className="px-4 py-4 text-right font-black uppercase text-blue-900 bg-blue-50" colSpan={5}>
+                    TOTAL GÉNÉRAL DU PROJET
+                  </td>
+                  <td className="px-4 py-4 text-right font-black text-lg text-white bg-blue-600 shadow-inner">
+                    {totProj.toLocaleString()}
+                  </td>
+                  <td className="bg-blue-600 px-4 py-4 text-blue-200 text-[10px] font-bold uppercase">
+                    Consolidé
+                  </td>
+                </tr>
+                {/* Espaceur entre projets */}
+                <tr className="h-8 bg-gray-50"><td colSpan={7}></td></tr>
+              </React.Fragment>
+            );
+          })}
+        </tbody>
+      </table>
     </div>
   </div>
+</div>
+
 </div>
 
             );

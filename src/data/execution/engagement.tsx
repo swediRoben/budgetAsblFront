@@ -162,12 +162,45 @@ export const updateEngagement = async (id: number, data: any) => {
   }
 };
 
+export const rejeterEngagement = async (id: number, data: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/rejeter/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const retournerEngagement = async (id: number, data: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/retourner/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const validerEngagement = async (id: number) => {
+  try {
+    const response = await axios.put(`${API_URL}/valider/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const receptionEngagement = async (id: number) => {
+  try {
+    const response = await axios.put(`${API_URL}/receptioner/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}; 
+
 export const deleteEngagement = async (id: number) => {
   try {
     const response = await axios.delete(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
-    throw [];
+    throw error;
   }
 };
 

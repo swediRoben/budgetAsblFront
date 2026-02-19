@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { X } from 'lucide-react';
 
 import { getAllFonctionnaire } from "../../data/utilisateur/fonctionnaire";
-import { createEngagement, deleteEngagement, getAllEngagement, updateEngagement, getAllValider, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantEngage, getEngagementvaliderByIdExercice, getEngagementretournerByIdExercice, getEngagementrejeterByIdExercice, getEngagementreceptionerByIdExercice } from "../../data/execution/engagement";
+import { createEngagement, deleteEngagement, receptionEngagement, rejeterEngagement, retournerEngagement, validerEngagement, getAllValider, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantEngage, getEngagementvaliderByIdExercice, getEngagementretournerByIdExercice, getEngagementrejeterByIdExercice, getEngagementreceptionerByIdExercice } from "../../data/execution/engagement";
 import { getAllCategorie, getAllCategorieByProgramme } from "../../data/classification/categorie";
 import { getAllPlanfontprojet } from "../../data/classification/planfontprojet";
 import { getAllExercice } from "../../data/classification/exercice";
@@ -11,7 +12,7 @@ import { getAllDevise } from "../../data/classification/devise";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
-export default function renderEngagementPage() {
+export default function renderTraitementEngagementPage() {
   const [engagements, setEngagements] = useState([]);
   const [beneficiaire, setBeneficiaire] = useState([]);
   const [categorie, setCategorie] = useState([]);
@@ -32,8 +33,10 @@ export default function renderEngagementPage() {
   const [size] = useState(10);
   const [totalPages, setTotalPages] = useState(1);
   const [status, setStatus] = useState("");
+  const [showModal, setShowModal] = useState(false);
+  const [buttonName, setButtonName] = useState("");
   const [showaction, setShowaction] = useState(true);
-
+  const [idData, setIdData] = useState(null);
 
   const [showEngagementList, setShowEngagementList] = useState(false);
   const dataExercice = async () => {
@@ -53,6 +56,7 @@ export default function renderEngagementPage() {
 
   const getSommeMontantEngages = async (exercice: any, ligne: any) => {
     const montant = await getSommeMontantEngage(exercice, ligne);
+    console.log(montant)
     setMontantEngage(montant);
   };
 
@@ -62,7 +66,7 @@ export default function renderEngagementPage() {
     dataFonctionnaires();
   }, []);
 
-  const handleChangeExercice = (e: any) => {
+  const handleChangeExercice = async (e: any) => {
     const value = e.target.value;
     setExerciceId(value)
   }
@@ -71,7 +75,8 @@ export default function renderEngagementPage() {
 
   const getPlanfondByExercice = async (e: any) => {
     const value = e.target.value;
-    if (value !== "") { 
+    if (value !== "") {
+      setExerciceId(value)
       const data = await getAllPlanfontprojet(e.target.value);
       setPlanfontprojets(data)
     } else {
@@ -96,8 +101,7 @@ export default function renderEngagementPage() {
     setFin("");
     if (status === 'RECEPTIONNE') {
       const data = await getAllReceptionner(exerciceId, e);
-      console.log(data)
-      setEngagements(data); 
+      setEngagements(data);
     } else if (status === 'REJETE') {
       const data = await getAllRejeter(exerciceId, e);
       setEngagements(data);
@@ -113,7 +117,7 @@ export default function renderEngagementPage() {
     }
   }
 
-  const getEngagementByCategorie = async (e: any) => {
+  const getEngagementByCategorie = async (e) => {
     setEngagements([]);
     setCategorieId(e)
     setDebut("");
@@ -136,8 +140,7 @@ export default function renderEngagementPage() {
     }
   }
 
-
-  const getByDate = async (e: any) => {
+  const getByDate = async (e) => {
     setEngagements([]);
     if (debut === "") {
       setFin("");
@@ -216,16 +219,13 @@ export default function renderEngagementPage() {
     }
   }
 
-  const getLignes = async (idProjet: number) => {
-    const data = await getAllPrevision(exerciceId, idProjet, null);
-    setPrevisions(data)
-  }
 
   const getPrevisionParProjet = async (e: any) => {
     const value = e;
     if (value !== "") {
       setProjetId(e)
-      getLignes(e)
+      const data = await getAllPrevision(exerciceId, e, null);
+      setPrevisions(data)
     }
   }
 
@@ -262,6 +262,8 @@ export default function renderEngagementPage() {
   });
 
 
+
+
   const montantRestantFonction = (montantEngages: any) => {
     return montantEngages;
   }
@@ -277,54 +279,6 @@ export default function renderEngagementPage() {
     return formatted;
   }
 
-  const onSubmit = async (data: any) => {
-    try {
-      const montantRestants = montantVote - ((Number(data.montant || 0) * Number(data.tauxDevise || 1)) + montantEngage);
-      if (montantRestants < 0) {
-        toast.error("Impossibe de montant restant est negatif ")
-      } else {
-        if (!data.id) {
-          data.dataEnAttente = toOffsetDateTimeStart(data.dataEnAttente)
-          createEngagement(data)
-          toast.success("Engagement enregistré avec succes!");
-          reset({
-            id: null,
-            idProjet: null,
-            idPlanFondActivite: null,
-            idResponsable: null,
-            idDevise: null,
-            tauxDevise: 0,
-            montant: 0,
-            objet: "",
-            enAttente: true,
-            dataEnAttente: null,
-            observation: "",
-          })
-        } else {
-          data.dataEnAttente = toOffsetDateTimeStart(data.dataEnAttente)
-          updateEngagement(data.id, data)
-          toast.success("Engagement modifié avec succes!");
-          reset({
-            id: null,
-            idProjet: null,
-            idPlanFondActivite: null,
-            idResponsable: null,
-            idDevise: null,
-            tauxDevise: 0,
-            montant: 0,
-            objet: "",
-            enAttente: true,
-            dataEnAttente: null,
-            observation: "",
-          })
-        }
-      }
-
-    } catch (error) {
-      alert("Erreur lors de l'enregistrement !");
-    }
-  };
-
   useEffect(() => {
     const id = watch("idPlanFondActivite");
 
@@ -338,7 +292,13 @@ export default function renderEngagementPage() {
     return dateString ? dateString.split("T")[0] : null;
   };
 
+  const getLignes = async (idProjet: number) => {
+    const data = await getAllPrevision(exerciceId, idProjet, null);
+    setPrevisions(data)
+  }
+
   const hendleUpdata = async (data: any) => {
+    setIdData(data.id);
     await getLignes(data.idProjet);
 
     const id = data.idPlanFondActivite?.toString();
@@ -357,16 +317,56 @@ export default function renderEngagementPage() {
   };
 
 
-  const hendleDelete = async (data: any) => {
+  const hendleReception = async (data: any) => {
     try {
       setEngagements([])
-      deleteEngagement(data.id)
+      receptionEngagement(data.id)
       getCategorieByProjet(data.idProjet)
-      toast.success("Suppression avec succes");
+      toast.success("Engagement réceptionnéé");
     } catch (error) {
-      toast.error("Echec de suppression");
+      toast.error("Echec de l'operation");
     }
   }
+
+  const hendleAction = async (statut: string) => {
+    try {
+
+      if (idData && statut === "VALIDEE") {
+        validerEngagement(idData)
+        toast.success("Engagement validée avec succes!");
+        reset({
+          id: null,
+          idExercice: null,
+          idProjet: null,
+          idPlanFondActivite: null,
+          idResponsable: null,
+          idDevise: null,
+          tauxDevise: 0,
+          montant: 0,
+          objet: "",
+          enAttente: true,
+          dataEnAttente: null,
+          observation: "",
+        })
+      } else {
+        toast.success("Operation échoué !");
+      }
+
+    } catch (error) {
+      toast.success("Operation échoué !");
+    }
+  };
+
+  const {
+    register: registerReject,
+    handleSubmit: handleSubmitRejetReturn,
+    reset: resetRejet,
+    formState: { errors: errorsReject },
+  } = useForm({
+    defaultValues: { id: null, observation: null }
+  });
+
+
 
   const openList = (status: string) => {
     setEngagements([]);
@@ -380,12 +380,136 @@ export default function renderEngagementPage() {
     setShowEngagementList(true);
   }
 
-useEffect(() => {
-  const hasAction = engagements.some(
-    (eng: any) => eng.retourner || eng.enAttente
-  );
-  setShowaction(hasAction);
-}, [engagements]);
+  const openModal = (bouton: string) => {
+    setButtonName(bouton);
+    setShowModal(true);
+  };
+  const closeModal = () => {
+    resetRejet({ id: null, observation: null })
+    setShowModal(false);
+  };
+
+  const onSubmitRejet = async (data: any) => {
+    try {
+      if (idData && buttonName === "Retourner") {
+        retournerEngagement(idData, data)
+        toast.success("Engagement rejetée avec succes!");
+        reset({
+          id: null,
+          idExercice: null,
+          idProjet: null,
+          idPlanFondActivite: null,
+          idResponsable: null,
+          idDevise: null,
+          tauxDevise: 0,
+          montant: 0,
+          objet: "",
+          enAttente: true,
+          dataEnAttente: null,
+          observation: "",
+        });
+        closeModal();
+      } else if (idData && buttonName === "Rejeter") {
+        rejeterEngagement(idData, data)
+        toast.success("Engagement rejetée avec succes!");
+        reset({
+          id: null,
+          idExercice: null,
+          idProjet: null,
+          idPlanFondActivite: null,
+          idResponsable: null,
+          idDevise: null,
+          tauxDevise: 0,
+          montant: 0,
+          objet: "",
+          enAttente: true,
+          dataEnAttente: null,
+          observation: "",
+        })
+        closeModal();
+      } else {
+        toast.success("Operation échoué !");
+      }
+
+    } catch (error) {
+      toast.success("Operation échoué !");
+    }
+  };
+
+  const onSubmit = async (data: any) => {
+    return data;
+  }
+
+
+  const renderModalForm = () => {
+    return (
+      <form
+        onSubmit={handleSubmitRejetReturn(onSubmitRejet)}
+        className="w-full"
+      >
+
+        <div className="rounded-2xl bg-white shadow-lg ring-1 ring-gray-200 overflow-hidden">
+          {/* BODY */}
+          <div className="p-6 space-y-6">
+            {/* INPUTS GRID */}
+            <div >
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  observation/ motif <span className="text-red-500">*</span>
+                </label>
+
+                <textarea
+                  {...registerReject("observation", { required: "Observation obligatoire" })}
+                  placeholder="Ex: observation"
+                  className={`w-full bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+              ${errorsReject.observation ? "border-red-500 focus:border-red-500 focus:ring-red-100" : "border-gray-200"}
+            `}
+                ></textarea>
+
+                {errorsReject.observation && (
+                  <p className="mt-2 text-xs text-red-600 font-medium">
+                    {errorsReject.observation.message}
+                  </p>
+                )}
+              </div>
+
+
+            </div>
+
+            {/* FOOTER BUTTONS */}
+            <div className="px-6 py-4 border-t border-gray-100 bg-white flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="w-full sm:w-auto px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-semibold hover:bg-gray-50 transition"
+              >
+                Annuler
+              </button>
+
+              <button
+                type="submit"
+                className="inline-flex items-center rounded-md border border-red-500
+               px-6 py-2 text-sm font-medium text-red-600
+               hover:bg-red-50 transition" >
+                {buttonName}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    );
+
+  };
+
+  useEffect(() => {
+    const hasAction = engagements.some(
+      (eng: any) => eng.reception || eng.enAttente
+    );
+    setShowaction(hasAction);
+  }, [engagements]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
@@ -451,309 +575,288 @@ useEffect(() => {
 
       {/* Formulaire */}
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <input
-            type="text"
-            hidden
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-            {...register("id")}
-          />
+        <fieldset disabled className="space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-          {/* Exercice */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Exercice budgétaire
-            </label>
-            <select
-              className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm
-                   focus:outline-none focus:ring-2 focus:ring-blue-500"
-              {...register("idExercice", { required: "Exercice obligatoire" })}
-              onChange={(e) => {
-                getPlanfondByExercice(e);
-                handleChangeExercice(e);
-              }}
-            >
-              <option value="">Sélectionner</option>
-              {
-                exercices.map((element: any) => (
-                  <option value={element.id}>{element.libelle}</option>
-                ))
-              }
-            </select>
-
-            {errors.idExercice && (
-              <p className="text-red-600 text-xs mt-1">{errors.idExercice.message}</p>
-            )}
-          </div>
-
-          {/* Date */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date d’engagement
-            </label>
+            {/* id */}
             <input
-              type="date"
-              required
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-              {...register("dataEnAttente", { required: "Date obligatoire" })}
+              type="text"
+              hidden
+              {...register("id")}
             />
 
-            {errors.dataEnAttente && (
-              <p className="text-red-600 text-xs mt-1">{errors.dataEnAttente.message}</p>
-            )}
+            {/* Exercice */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Exercice budgétaire
+              </label>
+              <select
+                className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+                {...register("idExercice")}
+                onChange={(e) => {
+                  getPlanfondByExercice(e);
+                  handleChangeExercice(e);
+                }}
+              >
+                <option value="">Sélectionner</option>
+                {exercices.map((element: any) => (
+                  <option key={element.id} value={element.id}>
+                    {element.libelle}
+                  </option>
+                ))}
+              </select>
+
+              {errors.idExercice && (
+                <p className="text-red-600 text-xs mt-1">{errors.idExercice.message}</p>
+              )}
+            </div>
+
+            {/* Date */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Date d’engagement
+              </label>
+              <input
+                type="date"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+                {...register("dataEnAttente")}
+              />
+            </div>
+
+            {/* Projet */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Projet
+              </label>
+              <select
+                className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+                {...register("idProjet")}
+                onChange={(e) => getPrevisionParProjet(e.target.value)}
+              >
+                <option value="">Sélectionner un projet</option>
+                {planfondprojets.map((element: any) => (
+                  <option key={element.projet.id} value={element.projet.id}>
+                    {element.projet.libelle}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Ligne budgétaire */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Ligne budgétaire
+              </label>
+              <select
+                className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+                {...register("idPlanFondActivite")}
+                onChange={(e) => {
+                  const selected = previsions.find(
+                    (p: any) => p.id.toString() === e.target.value
+                  );
+                  if (selected) handleAffichePrevisionData(selected);
+                }}
+              >
+                <option value="">Sélectionner une ligne</option>
+                {previsions?.map((element: any) => (
+                  <option key={element.id} value={element.id}>
+                    {element.activite.libelle}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Catégorie */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Catégorie
+              </label>
+              <input
+                type="text"
+                readOnly
+                className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+                value={categorie.libelle}
+              />
+            </div>
+
+            {/* Bailleur */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bailleur
+              </label>
+              <input
+                type="text"
+                readOnly
+                className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+                value={bailleurs.libelle}
+              />
+            </div>
+
+            {/* Bénéficiaire */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Bénéficiaire
+              </label>
+              <input
+                type="text"
+                readOnly
+                className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+                value={beneficiaire.libelle}
+              />
+            </div>
+
+            {/* Responsable */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Responsable
+              </label>
+              <select
+                className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+                {...register("idResponsable")}
+              >
+                <option value="">Sélectionner</option>
+                {fonctionnaires.map((element: any) => (
+                  <option key={element.id} value={element.id}>
+                    {element.nom} {element.prenom}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Devise */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Devise
+              </label>
+              <select
+                className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+                {...register("idDevise")}
+              >
+                <option value="">Sélectionner</option>
+                {devises?.map((element: any) => (
+                  <option key={element.id} value={element.id}>
+                    {element.libelle}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Montant */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Montant
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+                {...register("montant", { valueAsNumber: true })}
+              />
+            </div>
+
+            {/* Taux */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Taux devise
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                defaultValue={1}
+                className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+                {...register("tauxDevise", { valueAsNumber: true })}
+              />
+            </div>
           </div>
 
-          {/* Projet */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Projet
-            </label>
-            <select
-              required
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-              {...register("idProjet", { required: "Projet obligatoire" })}
-              onChange={(e) => { getPrevisionParProjet(e.target.value) }}
-            >
-              <option value="">Sélectionner un projet</option>
-              {
-                planfondprojets.map((element: any) => (
-                  <option value={element.projet.id}>{element.projet.libelle}</option>
-                ))
-              }
-            </select>
-
-            {errors.idProjet && (
-              <p className="text-red-600 text-xs mt-1">{errors.idProjet.message}</p>
-            )}
+          {/* Bloc récapitulatif */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
+            <div>
+              <p className="text-xs text-gray-500">Montant engagé</p>
+              <p className="text-lg font-semibold text-gray-800">
+                {montantEngage}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Montant alloué</p>
+              <p className="text-lg font-semibold text-blue-700">
+                {montantVote}
+              </p>
+            </div>
+            <div>
+              <p className="text-xs text-gray-500">Montant restant</p>
+              <p className="text-lg font-semibold text-green-700">
+                {montantRestantFonction(
+                  montantVote -
+                  ((Number(watch("montant") || 0) *
+                    Number(watch("tauxDevise") || 1)) +
+                    montantEngage)
+                )}
+              </p>
+            </div>
           </div>
 
-          {/* Ligne budgétaire */}
-          <div>
+          {/* Objet */}
+          <div className="md:col-span-2">
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Ligne budgétaire
-            </label>
-            <select
-              required
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                    focus:ring-2 focus:ring-blue-500"
-              {...register("idPlanFondActivite", { required: "Ligne budgétaire obligatoire" })}
-              onChange={(e) => {
-                const selected = previsions.find((p: any) => p.id.toString() === e.target.value);
-                if (selected) handleAffichePrevisionData(selected);
-              }}
-            >
-              <option value="">Sélectionner une ligne</option>
-              {previsions?.map((element: any) => (
-                <option key={element.id} value={element.id}>
-                  {element.activite.libelle}
-                </option>
-              ))}
-            </select>
-
-
-            {errors.idPlanFondActivite && (
-              <p className="text-red-600 text-xs mt-1">{errors.idPlanFondActivite.message}</p>
-            )}
-          </div>
-
-
-          {/* Categorie */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Categorie
+              Objet de l’engagement
             </label>
             <input
               type="text"
-              readOnly
-              className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-              value={categorie.libelle}
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+              {...register("objet")}
             />
           </div>
 
-
-          {/* bailleur */}
+          {/* Observations */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bailleur
+              Observations
             </label>
-            <input
-              type="text"
-              readOnly
-              className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-              value={bailleurs.libelle}
+            <textarea
+              rows={3}
+              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+              {...register("observation")}
             />
           </div>
 
-          {/* Bénéficiaire */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Bénéficiaire
-            </label>
-            <input
-              type="text"
-              readOnly
-              className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-              value={beneficiaire.libelle}
-            />
-          </div>
-
-          {/* Responsable */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Responsable
-            </label>
-            <select
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-              {...register("idResponsable")}
-            >
-              <option value="">Sélectionner</option>
-              {
-                fonctionnaires.map((element: any) => (
-                  <option value={element.id}>{element.nom} {element.prenom}</option>
-                ))
-              }
-            </select>
-          </div>
-
-
-
-          {/* Devise */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Devise
-            </label>
-            <select
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-              {...register("idDevise", { required: "devise est obligatoire" })}
-            >
-              <option value="">Sélectionner</option>
-              {devises?.map((element: any) => (
-                <option key={element.id} value={element.id}>
-                  {element.libelle}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Montant */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Montant
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              required
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-              {...register("montant", {
-                required: "Montant obligatoire",
-                valueAsNumber: true,
-                min: {
-                  value: 0,
-                  message: "Le montant ne peut pas être inférieur à 0",
-                },
-              })}
-            />
-
-            {errors.montant && (
-              <p className="text-red-600 text-xs mt-1">{errors.montant.message}</p>
-            )}
-          </div>
-
-          {/* Taux */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Taux devise
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              required
-              className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                    focus:ring-2 focus:ring-blue-500"
-              defaultValue={1} // valeur par défaut
-              {...register("tauxDevise", {
-                required: "Taux devise obligatoire",
-                valueAsNumber: true
-              })}
-            />
-
-
-            {errors.tauxDevise && (
-              <p className="text-red-600 text-xs mt-1">{errors.tauxDevise.message}</p>
-            )}
-          </div>
-
-          {/* Bloc récapitulatif visuel */}
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
-          <div>
-            <p className="text-xs text-gray-500">Montant engagé</p>
-            <p className="text-lg font-semibold text-gray-800">
-              {montantEngage}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">montant alloué</p>
-            <p className="text-lg font-semibold text-blue-700">{montantVote}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Montant restant</p>
-            <p className="text-lg font-semibold text-green-700">{montantRestantFonction(montantVote - ((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1)) + montantEngage))}</p>
-          </div>
-        </div>
-
-        {/* Objet */}
-        <div className="md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Objet de l’engagement
-          </label>
-          <input
-            type="text"
-            required
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                   focus:ring-2 focus:ring-blue-500"
-            {...register("objet", { required: "Objet obligatoire" })}
-          />
-
-          {errors.objet && (
-            <p className="text-red-600 text-xs mt-1">{errors.objet.message}</p>
-          )}
-        </div>
-
-        {/* Observations */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Observations
-          </label>
-          <textarea
-            readOnly
-            disabled
-            rows={3}
-            className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
-                 focus:ring-2 focus:ring-blue-500"
-            {...register("observation")}
-          />
-        </div>
-
-        {/* Actions */}
-        <div className="flex justify-end gap-3">
-          <button
-            type="submit"
-            className="inline-flex items-center rounded-md bg-green-600 px-6 py-2 text-sm
-                 font-medium text-white hover:bg-green-700 transition"
-          >
-            Enregistrer
-          </button>
-        </div>
+        </fieldset>
       </form>
+
+      <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+        {/* Retourner */}
+        <button
+          onClick={() => openModal("Retourner")}
+          type="button"
+          className="inline-flex items-center rounded-md border border-orange-500
+               px-6 py-2 text-sm font-medium text-orange-600
+               hover:bg-orange-50 transition"
+        >
+          Retourner
+        </button>
+
+        {/* Rejeter */}
+        <button
+
+          onClick={() => openModal("Rejeter")}
+          type="button"
+          className="inline-flex items-center rounded-md border border-red-500
+               px-6 py-2 text-sm font-medium text-red-600
+               hover:bg-red-50 transition"
+        >
+          Rejeter
+        </button>
+        {/* Valider */}
+        <button
+          onClick={() => hendleAction("VALIDEE")}
+          type="button"
+          className="inline-flex items-center rounded-md bg-green-600
+               px-6 py-2 text-sm font-medium text-white
+               shadow hover:bg-green-700 transition"
+        >
+          Valider
+        </button>
+      </div>
 
 
       {/* Liste */}
@@ -785,7 +888,9 @@ useEffect(() => {
                 <option value="">Exercice</option>
                 {
                   exercices.map((element: any) => (
-                    <option value={element.id}>{element.libelle}</option>
+                    <option key={element.id} value={element.id}>
+                      {element.libelle}
+                    </option>
                   ))
                 }
               </select>
@@ -798,7 +903,7 @@ useEffect(() => {
                 <option value="">Projet</option>
                 {
                   planfondprojets.map((element: any) => (
-                    <option value={element.projet.id}>{element.projet.libelle}</option>
+                    <option key={element.projet.id} value={element.projet.id}>{element.projet.libelle}</option>
                   ))
                 }
               </select>
@@ -811,7 +916,7 @@ useEffect(() => {
                 <option value="">Catégorie</option>
                 {
                   categorie.map((element: any) => (
-                    <option value={element.id}>{element.libelle}</option>
+                    <option key={element.id} value={element.id}>{element.libelle}</option>
                   ))
                 }
               </select>
@@ -845,9 +950,9 @@ useEffect(() => {
                       <th className="px-4 py-3 text-center">Statut</th>
                       <th className="px-4 py-3 text-center">Date statut</th>
                       {
-                        showaction?( 
-                      <th className="px-4 py-3 text-center">Actions</th>
-                        ):null
+                        showaction ? (
+                          <th className="px-4 py-3 text-center">Actions</th>
+                        ) : null
                       }
                     </tr>
                   </thead>
@@ -902,23 +1007,28 @@ useEffect(() => {
                                     : eng.dataEnAttente
                           )}
                         </td>
+                        {(eng.reception || eng.enAttente) && (
+                          <td className="px-4 py-2 text-center space-x-2">
+                            <button
+                              onClick={() => {
+                                if (!eng.reception) {
+                                  hendleReception(eng);
+                                }
+                              }}
+                              className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
+                              disabled={eng.reception}
+                            >
+                              {eng.reception ? "Déjà réceptionné" : "Réceptionner"}
+                            </button>
 
-                       {(eng.retourner || eng.enAttente) && (
-                            <td className="px-4 py-2 text-center space-x-2">
-                              <button
-                                onClick={() => hendleUpdata(eng)}
-                                className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100"
-                              >
-                                update
-                              </button>
-                              <button
-                                onClick={() => hendleDelete(eng)}
-                                className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
-                              >
-                                del
-                              </button>
-                            </td>
-                          )}
+                            <button
+                              onClick={() => hendleUpdata(eng)}
+                              className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100"
+                            >
+                              Voir
+                            </button>
+                          </td>
+                        )}
 
                       </tr>
                     ))}
@@ -950,6 +1060,30 @@ useEffect(() => {
         </div>
       )}
 
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              {/* HEADER */}
+              <div className="px-6 py-4  bg-gradient-to-r from-blue-50 to-white">
+                <p className="text-sm text-red-500 mt-1">
+                  Voulez-vous vraiment faire cette action ?
+                </p>
+              </div>
+              <button
+                onClick={closeModal}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {renderModalForm()}
+
+          </div>
+        </div>
+      )}
     </div>
 
   );

@@ -31,12 +31,20 @@ import RenderParProjetPage from "./components/pages/ParProjetPage";
 import RenderParActivitePage from "./components/pages/ParActivitePage";
 import RenderParCategoriePage from "./components/pages/ParClassePage";
 import RenderElaborationPage from "./components/pages/ElaborationPage";
-import RenderLiquidationPage from "./components/pages/LiquidationPage";
 import RenderRapportLiquidationPage from "./components/pages/RapportLiquidationPage";
 import RenderRapportEngagementPage from "./components/pages/RapportEngagementPage";
 import RenderEngagementPage from "./components/pages/EngagementPage";
+import RenderLiquidationPage from "./components/pages/LiquidationPage";
+import RenderTraitementEngagementPage from "./components/pages/TraitementEngagementPage";
+import RenderTraitementLiquidationPage from "./components/pages/TraitementLiquidationPage";
 import RenderFonctionnairePage from "./components/pages/FonctionnairePage";
 import RenderUserPage from "./components/pages/UserPage";
+import RenderTresorieTableBorPage from "./components/pages/tresorerie/tableDebord";
+import RenderTresorieBanquePage from "./components/pages/tresorerie/banque";
+import RenderTresorieCompteBancairePage from "./components/pages/tresorerie/compteBancaire";
+import RenderTresorieJournalPage from "./components/pages/tresorerie/journal";
+import RenderTresorieRapprochementPage from "./components/pages/tresorerie/rapprochement";
+import RenderTresorieSituationPage from "./components/pages/tresorerie/situation";
 
 type ExpandedMenusType = {
   [key: string]: boolean;
@@ -181,6 +189,16 @@ const BudgetApp = () => {
           icon: <DollarSign className="w-4 h-4" />,
         },
         {
+          id: "traitementengagment",
+          name: "Traitement engagement",
+          icon: <FileText className="w-4 h-4" />,
+        },
+        {
+          id: "traitementliquidation",
+          name: "Traitement liquidation",
+          icon: <DollarSign className="w-4 h-4" />,
+        },
+        {
           id: "rapportEngagement",
           name: "Rapport Engagement",
           icon: <PieChart className="w-4 h-4" />,
@@ -198,25 +216,35 @@ const BudgetApp = () => {
       icon: <CheckSquare className="w-5 h-5" />,
       subMenus: [
         {
+          id: "tableBord",
+          name: "Table de bord",
+          icon: <FileText className="w-4 h-4" />,
+        },
+        {
           id: "banque",
           name: "Banque",
           icon: <FileText className="w-4 h-4" />,
         },
-        {
+         {
           id: "compteBancaire",
           name: "Compte bancaire",
           icon: <FileText className="w-4 h-4" />,
         },
         {
-          id: "encaissement",
-          name: "Encaissement",
+          id: "journal",
+          name: "Journal de tresorerie",
           icon: <FileText className="w-4 h-4" />,
         },
-        {
-          id: "decaissement",
-          name: "Décaissement",
-          icon: <DollarSign className="w-4 h-4" />,
+         {
+          id: "rapprochement",
+          name: "Rapprochement",
+          icon: <FileText className="w-4 h-4" />,
         },
+         {
+          id: "situation",
+          name: "Situation",
+          icon: <FileText className="w-4 h-4" />,
+        }
       ],
     },
     {
@@ -352,10 +380,28 @@ const BudgetApp = () => {
         return <RenderEngagementPage />;
       case "liquidation":
         return <RenderLiquidationPage />;
+      case "traitementengagment":
+        return <RenderTraitementEngagementPage />;
+      case "traitementliquidation":
+        return <RenderTraitementLiquidationPage />; 
       case "rapportEngagement":
         return <RenderRapportEngagementPage />;
       case "rapportLiquidation":
         return <RenderRapportLiquidationPage />;
+
+      //Tresorerie
+      case "tableBord":
+        return <RenderTresorieTableBorPage />;
+      case "banque":
+        return <RenderTresorieBanquePage />;
+      case "compteBancaire":
+        return <RenderTresorieCompteBancairePage />;
+      case "journal":
+        return <RenderTresorieJournalPage />;
+      case "rapprochement":
+        return <RenderTresorieRapprochementPage />;
+      case "situation":
+        return <RenderTresorieSituationPage />; 
 
       // parametre
       case "exercice":
