@@ -102,29 +102,29 @@ export default function tresorerieBanquePage (){
            <input {...registerBanque("id", { required: false})} readOnly hidden/>
           <input {...registerBanque("libelle", { required: "nom de la banque est obligatoire" })}
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsBanque.code ? "border-red-500" : "border-gray-300"
+              errorsBanque.libelle ? "border-red-500" : "border-gray-300"
           }`}
           placeholder="nom de la banque" />
-          {errorsBanque.code && <span>{"Code obligatoire"}</span>}
+          {errorsBanque.libelle && <span>{"Code obligatoire"}</span>}
         </div>
         <div className="mb-4 display-flex">
           <label>Actif</label>
           <input type='radio' value={"true"} {...registerBanque("actif")} 
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsBanque.code ? "border-red-500" : "border-gray-300"
+              errorsBanque.actif ? "border-red-500" : "border-gray-300"
           }`}  />
            <input type='radio' value={"false"} {...registerBanque("actif")} 
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsBanque.code ? "border-red-500" : "border-gray-300"
+              errorsBanque.actif ? "border-red-500" : "border-gray-300"
           }`} />
-          {errorsBanque.libelle && <span>{"Libellé obligatoire"}</span>}
+          {errorsBanque.actif && <span>{"actif obligatoire"}</span>}
         </div>
         <div className="mb-4">
           <label>Compte</label>
           <select {...registerBanque("idCompteComptable", { required: "Compte est obligatoire" })}
           onChange={e=>setIdcompte(Number(e.target.value))}
                     className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsBanque.type ? "border-red-500" : "border-gray-300" 
+              errorsBanque.idCompteComptable ? "border-red-500" : "border-gray-300" 
           }`}>
             <option value="">Sélectionner un compte</option>
              {plancomptables.map((element) => (
@@ -133,7 +133,7 @@ export default function tresorerieBanquePage (){
                       </option>
                     ))}
           </select>
-          {errorsBanque.type && <span>{"Type obligatoire"}</span>}
+          {errorsBanque.idCompteComptable && <span>{"compte obligatoire"}</span>}
         </div>
        
          <div className="flex gap-4 mt-6">

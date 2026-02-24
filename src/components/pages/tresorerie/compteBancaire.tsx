@@ -258,17 +258,24 @@ const renderTresorieCompteBancairePage: React.FC = () => {
             } = useForm();
         
            const onSubmitComptebancaire = async (data:any) => { 
+
                   try { 
                     if (!data.id) { 
                       await createComptebancaire(data);
                     } else { 
                       await updateComptebancaire(data.id,data); 
                     }
+                   setNumerobc(null)
+                   setIdbanque(null)
+                   setIddevise(null)
                     toast.success("Operation effectuée avec succès !");
                     resetComptebancaire();
                      dataComptebancaire(idbanque,iddevise,numerobc);
                     closeModal();
                   } catch (error:any) {
+                   setNumerobc(null)
+                   setIdbanque(null)
+                   setIddevise(null)
                     toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
                      dataComptebancaire(idbanque,iddevise,numerobc);
                   }
@@ -292,6 +299,7 @@ const renderTresorieCompteBancairePage: React.FC = () => {
               resetComptebancaire(data); 
               setIdcompte(data.idComteComptable);
               setIdbanque(data.idBanque)
+              setIddevise(data.idDevise)
               setIdsrcfinancement(data.sourceFinacementId)
               openModal('Comptebancaire') 
           }
@@ -315,36 +323,84 @@ const renderTresorieCompteBancairePage: React.FC = () => {
     return (
       <form onSubmit={handleSubmitComptebancaire(onSubmitComptebancaire)} className='p-6'>
         <div className="mb-4">
-          <label>Code</label>
+          <label>Numero compte</label>
            <input {...registerComptebancaire("id", { required: false})} readOnly hidden/>
-          <input {...registerComptebancaire("code", { required: "Code obligatoire" })}
+          <input {...registerComptebancaire("numero", { required: "numero obligatoire" })}
           className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsComptebancaire.code ? "border-red-500" : "border-gray-300"
+              errorsComptebancaire.numero ? "border-red-500" : "border-gray-300"
           }`}
-          placeholder="Ex: 1" />
-          {errorsComptebancaire.code && <span>{"Code obligatoire"}</span>}
+          placeholder="numero compte Ex: 1" />
+          {errorsComptebancaire.numero && <span>{"Code obligatoire"}</span>}
         </div>
-        <div className="mb-4">
-          <label>Libellé</label>
-          <input {...registerComptebancaire("libelle", { required: "Libellé obligatoire" })} 
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsComptebancaire.code ? "border-red-500" : "border-gray-300"
-          }`}
-          placeholder="Ex: Charges de Personnel" />
-          {errorsComptebancaire.libelle && <span>{"Libellé obligatoire"}</span>}
-        </div>
-        <div className="mb-4">
-          <label>Type</label>
-          <select {...registerComptebancaire("type", { required: "Type obligatoire" })}
+      
+          <div className="mb-4">
+          <label>banque</label>
+          <select {...registerComptebancaire("idBanque", { required: "banque est obligatoire" })}
+          onChange={e=>setIdbanque(Number(e.target.value))}
                     className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsComptebancaire.type ? "border-red-500" : "border-gray-300"
+              errorsComptebancaire.idBanque ? "border-red-500" : "border-gray-300" 
           }`}>
-            <option value="">Sélectionner un type</option>
-            <option value="Dépense">Dépense</option>
-            <option value="Recette">Recette</option>
+            <option value="">Sélectionner un banque</option>
+             {banques.map((element) => (
+                      <option key={element.id} value={element.id}>
+                         {element.libelle}
+                      </option>
+                    ))}
           </select>
-          {errorsComptebancaire.type && <span>{"Type obligatoire"}</span>}
+          {errorsComptebancaire.idBanque && <span>{"banque obligatoire"}</span>}
         </div>
+
+          <div className="mb-4">
+          <label>Devise</label>
+          <select {...registerComptebancaire("idDevise", { required: "Compte est obligatoire" })}
+          onChange={e=>setIddevise(Number(e.target.value))}
+                    className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsComptebancaire.idDevise ? "border-red-500" : "border-gray-300" 
+          }`}>
+            <option value="">Sélectionner un compte</option>
+             {devises.map((element) => (
+                      <option key={element.id} value={element.id}>
+                         {element.libelle}
+                      </option>
+                    ))}
+          </select>
+          {errorsComptebancaire.idDevise && <span>{"devise obligatoire"}</span>}
+        </div>
+
+            <div className="mb-4">
+          <label>Source de financement</label>
+          <select {...registerComptebancaire("sourceFinacementId", { required: "source est obligatoire" })}
+          onChange={e=>setIdsrcfinancement(Number(e.target.value))}
+                    className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsComptebancaire.sourceFinacementId ? "border-red-500" : "border-gray-300" 
+          }`}>
+            <option value="">Sélectionner Source</option>
+             {bailleurs.map((element) => (
+                      <option key={element.id} value={element.id}>
+                          {element.libelle}
+                      </option>
+                    ))}
+          </select>
+          {errorsComptebancaire.sourceFinacementId && <span>{"source Finacement obligatoire"}</span>}
+        </div>
+
+        <div className="mb-4">
+          <label>Compte comptable</label>
+          <select {...registerComptebancaire("idComteComptable", { required: "Compte est obligatoire" })}
+          onChange={e=>setIdcompte(Number(e.target.value))}
+                    className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsComptebancaire.idComteComptable ? "border-red-500" : "border-gray-300" 
+          }`}>
+            <option value="">Sélectionner un compte</option>
+             {plancomptables.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.numero} - {element.libelle}
+                      </option>
+                    ))}
+          </select>
+          {errorsComptebancaire.idComteComptable && <span>{"Compte obligatoire"}</span>}
+        </div>
+
        
          <div className="flex gap-4 mt-6">
            <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
