@@ -61,7 +61,7 @@ export default function renderClassePage (){
       
        const hendleUpdata=(data:any,type:string)=>{  
             resetClasse(data); 
-            openModal('classe') 
+            openModal(type) 
         }
 
       // MODAL
@@ -85,14 +85,7 @@ export default function renderClassePage (){
     return (
       <form onSubmit={handleSubmitClasse(onSubmitClasse)} className='p-6'>
         <div className="mb-4">
-          <label>Code</label>
-           <input {...registerClasse("id", { required: false})} readOnly hidden/>
-          <input {...registerClasse("code", { required: "Code obligatoire" })}
-          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
-              errorsClasse.code ? "border-red-500" : "border-gray-300"
-          }`}
-          placeholder="Ex: 1" />
-          {errorsClasse.code && <span>{"Code obligatoire"}</span>}
+          <input {...registerClasse("id", { required: false})} readOnly hidden/>
         </div>
         <div className="mb-4">
           <label>Libellé</label>
@@ -182,7 +175,7 @@ export default function renderClassePage (){
     <td className="border border-gray-300 px-4 py-2">{i+1}</td>
     {/* <td className="border border-gray-300 px-4 py-2">{datas.code}</td> */}
     <td className="border border-gray-300 px-4 py-2">{datas.libelle}</td>
-    <td className="border border-gray-300 px-4 py-2">Dépense</td>
+    <td className="border border-gray-300 px-4 py-2">{datas.type}</td>
     <td className="border border-gray-300 px-4 py-2 text-center">
       <button className="text-blue-600 hover:text-blue-800 mr-2" onClick={()=>hendleUpdata(datas,'classe')}>Modifier</button>
       <button className="text-red-600 hover:text-red-800" onClick={()=>hendleDelete(datas.id,'classe')}>Supprimer</button>

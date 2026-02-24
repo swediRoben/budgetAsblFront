@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-  import { X } from 'lucide-react';
+ 
  import {getAllFonctionnaire} from "../../data/utilisateur/fonctionnaire";
-import {createLiquidation,deleteLiquidation,getAllLiquidation,updateLiquidation,getAllValiderLiqidation,getAllReceptionner,getAllRejeter,getAllRetourne,getAllEnAttente,getSommeMontantLiquide,getLiquidationvaliderByIdExercice,getLiquidationretournerByIdExercice,getLiquidationrejeterByIdExercice,getLiquidationreceptionerByIdExercice} from "../../data/execution/liquidation"; 
+import {createLiquidation,deleteLiquidation,receptionLiquidation,rejeterLiquidation,retournerLiquidation,validerLiquidation,getAllLiquidation,updateLiquidation,getAllValiderLiqidation,getAllReceptionner,getAllRejeter,getAllRetourne,getAllEnAttente,getSommeMontantLiquide,getLiquidationvaliderByIdExercice,getLiquidationretournerByIdExercice,getLiquidationrejeterByIdExercice,getLiquidationreceptionerByIdExercice} from "../../data/execution/liquidation"; 
 import {getAllEngagementValiderLiquider} from "../../data/execution/engagement"; 
 import {getAllCategorie,getAllCategorieByProgramme} from "../../data/classification/categorie"; 
 import {getAllPlanfontprojet} from "../../data/classification/planfontprojet";
@@ -11,8 +11,9 @@ import {getAllDevise} from "../../data/classification/devise";
 
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
+import { X } from 'lucide-react';
 
-export default function renderTraitementLiquidationPage (){
+export default function renderLiquidationPage (){
   const [Liquidations, setLiquidations] = useState([]);   
   const [engagements, setEngagements] = useState([]);   
     const [beneficiaire, setBeneficiaire] = useState([]);
@@ -25,16 +26,23 @@ export default function renderTraitementLiquidationPage (){
     const [exercices, setExercices] = useState([]); 
     const [fonctionnaires, setFonctionnaires] = useState([]);
     const [devises, setDevises] = useState([]);  
+    const [engagementid, setEngagementid] = useState(null);  
     const [previsions, setPrevisions] = useState([]); 
     const [montantEngage, setMontantEngage] = useState(0.0);  
     const [montantLiquide, setMontantLiquide] = useState(0);     
     const [bonEngagment, setBonEngagment] = useState("");  
+      const [showModal, setShowModal] = useState(false); 
+        const [buttonName, setButtonName] = useState("");
+    const [tauxdeviseengagement, setTauxdeviseengagement] = useState(0);  
+    const [devise, setDevise] = useState(null);  
     const [debut, setDebut] = useState("");
     const [fin, setFin] = useState("");
     const [page, setPage] = useState(0);
     const [size] = useState(10);  
     const [totalPages, setTotalPages] = useState(1);
     const [status, setStatus] = useState(""); 
+    const [showaction, setShowaction] = useState(true);
+      const [idData, setIdData] = useState(null);
     
  
     const [showLiquidationList, setShowLiquidationList] = useState(false); 
@@ -49,17 +57,24 @@ export default function renderTraitementLiquidationPage (){
        }
     
     const dataEngagement =async (exercice:any,projet:any,ligne:any)=>{
-         const data=await getAllEngagementValiderLiquider(exercice,projet,ligne); 
+         const data=await getAllEngagementValiderLiquider(exercice,projet,ligne);  
          setEngagements(data) 
        }
     
     const dataMontant =async (data:any)=>{
          const montantLiquide=await getSommeMontantLiquide(exerciceId,data.id);
-         setMontantEngage(data.montant*data.tauxDevise)
+         setMontantEngage(data.montant)
+         setTauxdeviseengagement(data.tauxDevise)
          setMontantLiquide(montantLiquide);  
+         setDevise(data.devise.id);
        }
 
-      
+ useEffect(() => {
+  if (devise) {
+    setValue("idDevise", devise); 
+  }
+}, [devise]);  
+
   const dataFonctionnaires =async ()=>{
             const data=await getAllFonctionnaire(); 
             setFonctionnaires(data)
@@ -233,7 +248,10 @@ useEffect(() => {
           setPrevisions(data) 
          }
    } 
-
+ const getLignes = async (idProjet: number) => {
+    const data = await getAllPrevision(exerciceId, idProjet, null);
+    setPrevisions(data)
+  }
   const handleAffichePrevisionData=(data:any)=>{  
         setCategorie(data.categorie);
         setBeneficiaire(data.beneficiaire)
@@ -244,12 +262,14 @@ useEffect(() => {
     const handleAfficheEngagementData=(data:any)=>{  
        setBonEngagment(data.bonEngagement); 
         dataMontant(data);
+        return data;
    }
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
     watch,
   } = useForm({
@@ -288,32 +308,68 @@ const formatted = date.toLocaleString()
 return formatted;
 }
 
-const onSubmit = async (data) => {
-  try {
-    const montantRestants= montantEngage-((Number(data.montant || 0)*Number(data.tauxDevise || 1))+montantLiquide);  
-    if (montantRestants<0) {
-      toast.error("Impossibe de montant restant est negatif ")
-    }else{
-      if (!data.id) { 
-        data.dataEnAttente=toOffsetDateTimeStart(data.dataEnAttente)
-       createLiquidation(data)
-       toast.success("Liquidation enregistré avec succes!");
-       reset()
-     }else{
-        data.dataEnAttente=toOffsetDateTimeStart(data.dataEnAttente)
-       updateLiquidation(data,data.id)
-       toast.success("Liquidation modifié avec succes!");
-       reset()
-     }
-    }
-
-  } catch (error) {
-    console.error("SAVE ERROR:", error);
-    alert("Erreur lors de l'enregistrement !");
-  }
-};
-
  
+
+   useEffect(() => { 
+     const id = watch("idPlanFondActivite");
+     if (id && previsions.length > 0) {
+       const selected = previsions.find((p: any) => p.id.toString() === id);
+       if (selected) handleAffichePrevisionData(selected);
+     }
+   }, [previsions, watch("idPlanFondActivite")]);
+ 
+   const formatDate = (dateString: string) => {
+     return dateString ? dateString.split("T")[0] : null;
+   };
+
+   useEffect(()=>{
+      const id = watch("idEngagement");
+      if (id && engagements.length > 0) {
+        const selected = engagements.find(
+          (p: any) => p.id.toString() === id);
+          if (selected) handleAfficheEngagementData(selected);
+        }
+        setEngagementid(id);
+  
+    });
+ 
+    
+  useEffect(() => {
+   if (engagementid && engagements.length > 0) {
+     setValue("idEngagement", engagementid); 
+   }
+ }, [engagements,engagementid]);  
+ 
+   const hendleUpdata = async (data: any) => {
+      setIdData(data.id);
+     await getLignes(data.idProjet);
+ 
+     const id = data.idPlanFondActivite?.toString();
+     const idEnga = data.idEngagement?.toString();
+ 
+     reset({
+       ...data,
+       dataEnAttente: formatDate(data.dataEnAttente),
+       idPlanFondActivite: id,
+       idEngagement:idEnga
+     });
+ 
+     // 🔥 chercher la ligne sélectionnée et déclencher l'affichage
+     const selected = previsions.find((p: any) => p.id.toString() === id);
+     if (selected) handleAffichePrevisionData(selected);
+ 
+     setShowLiquidationList(false);
+   };
+ 
+ 
+  
+   useEffect(() => {
+     const hasAction = Liquidations.some(
+       (liq: any) => liq.reception || liq.enAttente
+     );
+     setShowaction(hasAction);
+   }, [Liquidations]);
+   
     
  const openList=(status:string)=>{
    setLiquidations([]);
@@ -326,14 +382,193 @@ const onSubmit = async (data) => {
   setStatus(status); 
   setShowLiquidationList(true);
  }
-        
+   
+ 
+ 
+   const hendleReception = async (data: any) => {
+     try {
+       setEngagements([])
+       receptionLiquidation(data.id)
+       getCategorieByProjet(data.idProjet)
+       toast.success("Engagement réceptionnéé");
+     } catch (error) {
+       toast.error("Echec de l'operation");
+     }
+   }
+ 
+   const hendleAction = async (statut: string) => {
+     try {
+ 
+       if (idData && statut === "VALIDEE") {
+         validerLiquidation(idData)
+         toast.success("Engagement validée avec succes!");
+         reset({
+           id: null,
+           idExercice: null,
+           idProjet: null,
+           idPlanFondActivite: null,
+           idResponsable: null,
+           idDevise: null,
+           tauxDevise: 0,
+           montant: 0,
+           objet: "",
+           enAttente: true,
+           dataEnAttente: null,
+           observation: "",
+         })
+       } else {
+         toast.success("Operation échoué !");
+       }
+ 
+     } catch (error) {
+       toast.success("Operation échoué !");
+     }
+   };
+ 
+   const {
+     register: registerReject,
+     handleSubmit: handleSubmitRejetReturn,
+     reset: resetRejet,
+     formState: { errors: errorsReject },
+   } = useForm({
+     defaultValues: { id: null, observation: null }
+   });
+ 
+     const onSubmitRejet = async (data: any) => {
+    try {
+      if (idData && buttonName === "Retourner") {
+        retournerLiquidation(idData, data)
+        toast.success("Engagement rejetée avec succes!");
+        reset({
+            id: null, 
+            idExercice: null,
+            idProjet: null,
+            idEngagement: null,
+            bonEngagment: null,
+            idPlanFondActivite: null,
+            idResponsable: null,
+            idDevise: null,
+            tauxDevise: 0,
+            montant: 0,
+            piece: "",
+            objet: "",
+            enAttente: true,
+            dataEnAttente:null,
+            observation: "",
+          });
+        closeModal();
+      } else if (idData && buttonName === "Rejeter") {
+        rejeterLiquidation(idData, data)
+        toast.success("Engagement rejetée avec succes!");
+        reset({
+              id: null, 
+              idExercice: null,
+              idProjet: null,
+              idEngagement: null,
+              bonEngagment: null,
+              idPlanFondActivite: null,
+              idResponsable: null,
+              idDevise: null,
+              tauxDevise: 0,
+              montant: 0,
+              piece: "",
+              objet: "",
+              enAttente: true,
+              dataEnAttente:null,
+              observation: "",
+            })
+        closeModal();
+      } else {
+        toast.success("Operation échoué !");
+      }
+
+    } catch (error) {
+      toast.success("Operation échoué !");
+    }
+  };
+
+  const onSubmit = async (data: any) => {
+    return data;
+  }
+
+  const openModal = (bouton: string) => {
+    setButtonName(bouton);
+    setShowModal(true);
+  };
+
+    const closeModal = () => {
+    resetRejet({ id: null, observation: null })
+    setShowModal(false);
+  };
+  const renderModalForm = () => {
+    return (
+      <form
+        onSubmit={handleSubmitRejetReturn(onSubmitRejet)}
+        className="w-full"
+      >
+
+        <div className="rounded-2xl bg-white shadow-lg ring-1 ring-gray-200 overflow-hidden">
+          {/* BODY */}
+          <div className="p-6 space-y-6">
+            {/* INPUTS GRID */}
+            <div >
+
+              <div>
+                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                  observation/ motif <span className="text-red-500">*</span>
+                </label>
+
+                <textarea
+                  {...registerReject("observation", { required: "Observation obligatoire" })}
+                  placeholder="Ex: observation"
+                  className={`w-full bg-white px-4 py-3 text-sm text-gray-900 shadow-sm outline-none transition
+              focus:ring-4 focus:ring-blue-100 focus:border-blue-500
+              ${errorsReject.observation ? "border-red-500 focus:border-red-500 focus:ring-red-100" : "border-gray-200"}
+            `}
+                ></textarea>
+
+                {errorsReject.observation && (
+                  <p className="mt-2 text-xs text-red-600 font-medium">
+                    {errorsReject.observation.message}
+                  </p>
+                )}
+              </div>
+
+
+            </div>
+
+            {/* FOOTER BUTTONS */}
+            <div className="px-6 py-4 border-t border-gray-100 bg-white flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                onClick={closeModal}
+                className="w-full sm:w-auto px-5 py-3 rounded-xl border border-gray-200 bg-white text-gray-700 font-semibold hover:bg-gray-50 transition"
+              >
+                Annuler
+              </button>
+
+              <button
+                type="submit"
+                className="inline-flex items-center rounded-md border border-red-500
+               px-6 py-2 text-sm font-medium text-red-600
+               hover:bg-red-50 transition" >
+                {buttonName}
+              </button>
+            </div>
+          </div>
+        </div>
+      </form>
+
+    );
+
+  };
       
        return (
          <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
         {/* Header */}
         <div className="mb-8 border-b pb-4">
           <h2 className="text-2xl font-semibold text-gray-800">
-            Liquidation de Dépense
+            Traitement des liquidations des engagements
           </h2>
           <p className="text-sm text-gray-500 mt-1">
             Saisie et consultation des Liquidations budgétaires
@@ -392,307 +627,314 @@ const onSubmit = async (data) => {
       
        {/* Formulaire */}
 <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-  <fieldset disabled className="space-y-8">
 
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
 
-      {/* Exercice */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Exercice budgétaire
-        </label>
-        <select
-          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-          {...register("idExercice")}
-          onChange={(e) => {
-            getPlanfondByExercice(e);
-            handleChangeExercice(e);
-          }}
-        >
-          <option value="">Sélectionner</option>
-          {exercices.map((element: any) => (
-            <option key={element.id} value={element.id}>
-              {element.libelle}
-            </option>
-          ))}
-        </select>
-      </div>
+    <input
+      type="text"
+      hidden
+      className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
+      {...register("id")}
+      disabled={true}
+    />
 
-      {/* Date */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Date d’Liquidation
-        </label>
-        <input
-          type="date"
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("dataEnAttente")}
-        />
-      </div>
-
-      {/* Projet */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Projet
-        </label>
-        <select
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("idProjet")}
-          onChange={(e) => getPrevisionParProjet(e.target.value)}
-        >
-          <option value="">Sélectionner un projet</option>
-          {planfondprojets.map((element: any) => (
-            <option key={element.projet.id} value={element.projet.id}>
-              {element.projet.libelle}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Ligne budgétaire */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Ligne budgétaire
-        </label>
-        <select
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("idPlanFondActivite")}
-          onChange={(e) => {
-            const selected = previsions.find(
-              (p: any) => p.id.toString() === e.target.value
-            );
-            if (selected) handleAffichePrevisionData(selected);
-          }}
-        >
-          <option value="">Sélectionner une ligne</option>
-          {previsions?.map((element: any) => (
-            <option key={element.id} value={element.id}>
-              {element.activite.libelle}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Catégorie */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Categorie
-        </label>
-        <input
-          type="text"
-          readOnly
-          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-          value={categorie.libelle}
-        />
-      </div>
-
-      {/* Bailleur */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Bailleur
-        </label>
-        <input
-          type="text"
-          readOnly
-          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-          value={bailleurs.libelle}
-        />
-      </div>
-
-      {/* Bénéficiaire */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Bénéficiaire
-        </label>
-        <input
-          type="text"
-          readOnly
-          className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-          value={beneficiaire.libelle}
-        />
-      </div>
-
-      {/* Responsable */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Responsable
-        </label>
-        <select
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("idResponsable")}
-        >
-          <option value="">Sélectionner</option>
-          {fonctionnaires.map((element: any) => (
-            <option key={element.id} value={element.id}>
-              {element.nom} {element.prenom}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Engagement */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Engagement
-        </label>
-        <select
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("idEngagement")}
-          onChange={(e) => {
-            const selected = engagements.find(
-              (p: any) => p.id.toString() === e.target.value
-            );
-            if (selected) handleAfficheEngagementData(selected);
-          }}
-        >
-          <option value="">Sélectionner</option>
-          {engagements.map((element: any) => (
-            <option key={element.id} value={element.id}>
-              {element.bonEngagement}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Devise */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Devise
-        </label>
-        <select
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("idDevise")}
-        >
-          <option value="">Sélectionner</option>
-          {devises?.map((element: any) => (
-            <option key={element.id} value={element.id}>
-              {element.libelle}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {/* Montant */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Montant
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("montant", { valueAsNumber: true })}
-        />
-      </div>
-
-      {/* Taux */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Taux devise
-        </label>
-        <input
-          type="number"
-          step="0.01"
-          defaultValue={1}
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("tauxDevise")}
-        />
-      </div>
-
-      {/* Pièce */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
-          Pièces justificative
-        </label>
-        <input
-          type="text"
-          className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-          {...register("piece")}
-        />
-      </div>
-
-    </div>
-
-    {/* Bloc récapitulatif */}
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
-      <div>
-        <p className="text-xs text-gray-500">Montant engagé</p>
-        <p className="text-lg font-semibold text-gray-800">{montantEngage}</p>
-      </div>
-      <div>
-        <p className="text-xs text-gray-500">montant liquidé</p>
-        <p className="text-lg font-semibold text-blue-700">{montantLiquide}</p>
-      </div>
-      <div>
-        <p className="text-xs text-gray-500">Montant restant</p>
-        <p className="text-lg font-semibold text-green-700">
-          {montantRestantFonction(
-            montantEngage -
-              ((Number(watch("montant") || 0) *
-                Number(watch("tauxDevise") || 1)) +
-                montantLiquide)
-          )}
-        </p>
-      </div>
-    </div>
-
-    {/* Objet */}
-    <div className="md:col-span-2">
+    {/* Exercice */}
+    <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        Objet de l’Liquidation
+        Exercice budgétaire
+      </label>
+      <select
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("idExercice")}
+        disabled={true}
+      >
+        <option value="">Sélectionner</option>
+        {exercices.map((element:any) => (
+          <option key={element.id} value={element.id}>{element.libelle}</option>
+        ))}
+      </select>
+    </div>
+
+    {/* Date */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Date d’Liquidation
+      </label>
+      <input
+        type="date"
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("dataEnAttente")}
+        disabled={true}
+      />
+    </div>
+
+    {/* Projet */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Projet
+      </label>
+      <select
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("idProjet")}
+        disabled={true}
+      >
+        <option value="">Sélectionner un projet</option>
+        {planfondprojets.map((element:any) => (
+          <option key={element.projet.id} value={element.projet.id}>
+            {element.projet.libelle}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* Ligne budgétaire */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Ligne budgétaire
+      </label>
+      <select
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("idPlanFondActivite")}
+        disabled={true}
+      >
+        <option value="">Sélectionner une ligne</option>
+        {previsions?.map((element:any) => (
+          <option key={element.id} value={element.id}>
+            {element.activite.libelle}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* Categorie */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Categorie
       </label>
       <input
         type="text"
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-        {...register("objet")}
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        value={categorie.libelle}
+        readOnly
       />
     </div>
 
-    {/* Observations */}
+    {/* Bailleur */}
     <div>
       <label className="block text-sm font-medium text-gray-700 mb-1">
-        Observations
+        Bailleur
       </label>
-      <textarea
-        rows={3}
-        className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-        {...register("observation")}
+      <input
+        type="text"
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        value={bailleurs.libelle}
+        readOnly
       />
     </div>
 
-  </fieldset>
+    {/* Bénéficiaire */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Bénéficiaire
+      </label>
+      <input
+        type="text"
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        value={beneficiaire.libelle}
+        readOnly
+      />
+    </div>
+
+    {/* Responsable */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Responsable
+      </label>
+      <select
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("idResponsable")}
+        disabled={true}
+      >
+        <option value="">Sélectionner</option>
+        {fonctionnaires.map((element:any) => (
+          <option key={element.id} value={element.id}>
+            {element.nom} {element.prenom}
+          </option>
+        ))}
+      </select>
+    </div>
+
+    {/* Engagement */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Engagement
+      </label>
+      <select
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("idEngagement")}
+        disabled={true}
+      >
+        <option value="">Sélectionner</option>
+        {engagements.map((element:any) => (
+          <option key={element.id} value={element.id}>{element.bonEngagement}</option>
+        ))}
+      </select>
+    </div>
+
+    {/* Devise */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Devise
+      </label>
+      <select
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("idDevise")}
+        disabled={true}
+      >
+        <option value="">Sélectionner</option>
+        {devises?.map((element:any) => (
+          <option key={element.id} value={element.id}>{element.libelle}</option>
+        ))}
+      </select>
+    </div>
+
+    {/* Montant */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Montant
+      </label>
+      <input
+        type="number"
+        step="0.01"
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("montant")}
+        disabled={true}
+      />
+    </div>
+
+    {/* Taux */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Taux devise
+      </label>
+      <input
+        type="number"
+        step="0.01"
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("tauxDevise")}
+        disabled={true}
+      />
+    </div>
+
+    {/* Pièces justificatives */}
+    <div>
+      <label className="block text-sm font-medium text-gray-700 mb-1">
+        Pièces justificative
+      </label>
+      <input
+        type="text"
+        className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+        {...register("piece")}
+        disabled={true}
+      />
+    </div>
+  </div>
+
+  {/* Bloc récapitulatif visuel */}
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-6 shadow-sm">
+    <div className="flex flex-col gap-1">
+      <p className="text-xs text-gray-500 uppercase">Montant engagé</p>
+      <p className="text-lg font-semibold text-gray-800">
+        {montantEngage.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+      </p>
+      <p className="text-xs text-gray-500 uppercase mt-2">Taux engagé</p>
+      <p className="text-lg font-semibold text-gray-800">
+        {tauxdeviseengagement.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+      </p>
+    </div>
+
+    <div className="flex flex-col gap-1">
+      <p className="text-xs text-gray-500 uppercase">Montant liquidé</p>
+      <p className="text-lg font-semibold text-blue-700">
+        {montantLiquide.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+      </p>
+    </div>
+
+    <div className="flex flex-col gap-1">
+      <p className="text-xs text-gray-500 uppercase">Montant restant</p>
+      <p className="text-lg font-semibold text-green-700">
+        {montantRestantFonction(
+          montantEngage > montantLiquide
+            ? montantEngage - ((Number(watch("montant") || 0) || 1)) + montantLiquide
+            : montantLiquide - montantEngage
+        ).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+      </p>
+    </div>
+  </div>
+
+  {/* Objet */}
+  <div className="md:col-span-2">
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      Objet de l’Liquidation
+    </label>
+    <input
+      type="text"
+      className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+      {...register("objet")}
+      disabled={true}
+    />
+  </div>
+
+  {/* Observations */}
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-1">
+      Observations
+    </label>
+    <textarea
+      rows={3}
+      className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
+      {...register("observation")}
+      disabled={true}
+    />
+  </div>
+
 </form>
-<div className="flex justify-end gap-4 mt-6 border-t pt-4">
-  {/* Retourner */}
-  <button
-    type="button"
-    className="inline-flex items-center rounded-md border border-orange-500
+   
+      <div className="flex justify-end gap-4 mt-6 border-t pt-4">
+        {/* Retourner */}
+        <button
+          onClick={() => openModal("Retourner")}
+          type="button"
+          className="inline-flex items-center rounded-md border border-orange-500
                px-6 py-2 text-sm font-medium text-orange-600
                hover:bg-orange-50 transition"
-  >
-    Retourner
-  </button>
+        >
+          Retourner
+        </button>
 
-  {/* Rejeter */}
-  <button
-    type="button"
-    className="inline-flex items-center rounded-md border border-red-500
+        {/* Rejeter */}
+        <button
+
+          onClick={() => openModal("Rejeter")}
+          type="button"
+          className="inline-flex items-center rounded-md border border-red-500
                px-6 py-2 text-sm font-medium text-red-600
                hover:bg-red-50 transition"
-  >
-    Rejeter
-  </button>
-
-  {/* Valider */}
-  <button
-    type="submit"
-    className="inline-flex items-center rounded-md bg-green-600
+        >
+          Rejeter
+        </button>
+        {/* Valider */}
+        <button
+          onClick={() => hendleAction("VALIDEE")}
+          type="button"
+          className="inline-flex items-center rounded-md bg-green-600
                px-6 py-2 text-sm font-medium text-white
                shadow hover:bg-green-700 transition"
-  >
-    Valider
-  </button>
-</div>
+        >
+          Valider
+        </button>
+      </div>
+
       
         {/* Liste */}
       {showLiquidationList && (
@@ -782,7 +1024,11 @@ const onSubmit = async (data) => {
                   <th className="px-4 py-3 text-left">Devise</th>
                   <th className="px-4 py-3 text-center">Statut</th>
                   <th className="px-4 py-3 text-center">Date statut</th>
-                  <th className="px-4 py-3 text-center">Actions</th>
+                   {
+                        showaction?( 
+                      <th className="px-4 py-3 text-center">Actions</th>
+                        ):null
+                      }
                 </tr>
               </thead>
 
@@ -796,7 +1042,7 @@ const onSubmit = async (data) => {
                       {eng.planActivite?.activite.libelle}
                     </td>
                     <td className="px-4 py-2 text-right font-medium">
-                      {eng.montant.toLocaleString("fr-FR", { minimumFractionDigits: 2 ,disabled:true })}
+                      {eng.montant.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
                     </td>
                     <td className="px-4 py-2">{eng.devise?.symbole}</td>
                     <td className="px-4 py-2 text-center">
@@ -824,27 +1070,41 @@ const onSubmit = async (data) => {
                           : "En attente"}
                       </span>
                     </td>
-                    <td className="px-4 py-2">
-                      {toDateNormal(
-                        eng.rejet
-                          ? eng.dataRejet
-                          : eng.retourner
-                          ? eng.dataRetourner
-                          : eng.reception
-                          ? eng.dataReception
-                          : eng.validation
-                          ? eng.dataValidation
-                          : eng.dataEnAttente
-                      )}
-                    </td>
-                    <td className="px-4 py-2 text-center space-x-2">
-                      <button className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100">
-                        Receptionée
-                      </button>
-                      <button className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100">
-                        Modifier
-                      </button>
-                    </td>
+                                <td className="px-4 py-2">
+                          {toDateNormal(
+                            eng.rejet
+                              ? eng.dataRejet
+                              : eng.retourner
+                                ? eng.dataRetourner
+                                : eng.reception
+                                  ? eng.dataReception
+                                  : eng.validation
+                                    ? eng.dataValidation
+                                    : eng.dataEnAttente
+                          )}
+                        </td>
+                     {(eng.reception || eng.enAttente) && (
+                          <td className="px-4 py-2 text-center space-x-2">
+                            <button
+                              onClick={() => {
+                                if (!eng.reception) {
+                                  hendleReception(eng);
+                                }
+                              }}
+                              className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
+                              disabled={eng.reception}
+                            >
+                              {eng.reception ? "Déjà réceptionné" : "Réceptionner"}
+                            </button>
+
+                            <button
+                              onClick={() => hendleUpdata(eng)}
+                              className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100"
+                            >
+                              Voir
+                            </button>
+                          </td>
+                        )}
                   </tr>
                 ))}
               </tbody>
@@ -874,7 +1134,30 @@ const onSubmit = async (data) => {
       </div>
     </div>
       )}
-      
+
+       {showModal && (
+             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+               <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+                 <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                   {/* HEADER */}
+                   <div className="px-6 py-4  bg-gradient-to-r from-blue-50 to-white">
+                     <p className="text-sm text-red-500 mt-1">
+                       Voulez-vous vraiment faire cette action ?
+                     </p>
+                   </div>
+                   <button
+                     onClick={closeModal}
+                     className="text-gray-500 hover:text-gray-700"
+                   >
+                     <X className="w-6 h-6" />
+                   </button>
+                 </div>
+     
+                 {renderModalForm()}
+     
+               </div>
+             </div>
+           )} 
       </div>
       
         ); 

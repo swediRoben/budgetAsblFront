@@ -218,7 +218,7 @@ export default function renderParActivitePage (){
   {/* HEADER */}
   <div className="flex flex-col gap-1 border-b border-gray-200 px-6 py-5">
     <h2 className="text-2xl font-extrabold tracking-tight text-gray-900">
-      Rapport plan prévisionnel
+      Rapport plan prévisionnel annulle
     </h2>
     <p className="text-sm text-gray-500">
       Sélectionnez un exercice et un projet pour afficher les prévisions.

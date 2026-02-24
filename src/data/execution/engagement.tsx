@@ -158,7 +158,7 @@ export const updateEngagement = async (id: number, data: any) => {
     const response = await axios.put(`${API_URL}/${id}`, data);
     return response.data;
   } catch (error) {
-    throw [];
+   throw error;
   }
 };
 

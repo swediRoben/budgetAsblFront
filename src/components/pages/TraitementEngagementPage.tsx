@@ -516,7 +516,7 @@ export default function renderTraitementEngagementPage() {
       {/* Header */}
       <div className="mb-8 border-b pb-4">
         <h2 className="text-2xl font-semibold text-gray-800">
-          Engagement de Dépense
+         Traitement des engagements de dépenses
         </h2>
         <p className="text-sm text-gray-500 mt-1">
           Saisie et consultation des engagements budgétaires

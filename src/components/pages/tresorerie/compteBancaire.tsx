@@ -1,8 +1,18 @@
  
 
-import React from "react";
-import { Bell, Plus, Building2, ExternalLink, Copy } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Bell, Plus, Building2, ExternalLink, Copy, X } from "lucide-react";
+import { useForm } from "react-hook-form";
 
+import {getAllBanque} from "../../../data/tresorerie/banques";
+import {getAllPlancompte} from "../../../data/classification/planComptable";
+import {createComptebancaire,deleteComptebancaire,getAllComptebancaire,updateComptebancaire} from "../../../data/tresorerie/comptebancaire";
+import {getAllBailleur} from "../../../data/classification/bailleur";
+import {getAllDevise} from "../../../data/classification/devise";
+
+import toast from "react-hot-toast";
+
+ 
 /* ===========================
    INTERFACE COMPLETE
 =========================== */
@@ -175,24 +185,280 @@ const accounts: AccountCardProps[] = [
 =========================== */
 
 const renderTresorieCompteBancairePage: React.FC = () => {
+   const [comptebancaires, setComptebancaires] = useState([]) 
+   const [banques, setBanques] = useState([]) 
+   const [plancomptables, setPlancomptables] = useState([]);
+   
+   const [idcompte, setIdcompte] = useState(null); 
+   const [numerobc, setNumerobc] = useState(null); 
+   const [idbanque, setIdbanque] = useState(null); 
+   const [iddevise, setIddevise] = useState(null); 
+   const [idsrcfinancement, setIdsrcfinancement] = useState(null); 
+   const [bailleurs, setBailleurs] = useState(null);  
+     const [devises, setDevises] = useState([]);
+
+   const [formData, setFormData] = useState({});
+      const [modalType, setModalType] = useState("");
+      const [showModal, setShowModal] = useState(false);
+  
+  
+     // GET
+      const dataComptebancaire =async (banque:number,devise:number,numero:string)=>{
+        const data=await getAllComptebancaire(banque,devise,numero); 
+        setComptebancaires(data) 
+      } 
+
+           const dataBanque =async ()=>{
+             const data=await getAllBanque(); 
+             setBanques(data) 
+           } 
+              const dataPlancompte =async ()=>{
+                      const data=await getAllPlancompte(); 
+                      setPlancomptables(data) 
+                    }
+   const dataDevise =async ()=>{
+        const data=await getAllDevise(); 
+        setDevises(data) 
+      }
+
+            const dataBailleur =async ()=>{
+              const data=await getAllBailleur(); 
+              setBailleurs(data) 
+            } 
+
+          useEffect(()=>{
+            dataBanque();
+            dataDevise();
+            dataBailleur();
+            dataPlancompte();
+            dataComptebancaire(idbanque,iddevise,numerobc);
+          },[])
+     
+     const getNumero=(numero:string)=>{
+          setNumerobc(numero)
+     }  
+     
+     const getByBanque=(banque:number)=>{
+          setIdbanque(banque)
+     } 
+     
+      const getByDevise=(devise:number)=>{
+          setIddevise(devise)
+     }
+
+     const search=()=>{
+      dataComptebancaire(idbanque,iddevise,numerobc);
+     }
+          // CREATED 
+            const {
+              register: registerComptebancaire,
+              handleSubmit: handleSubmitComptebancaire,
+              reset: resetComptebancaire,
+              formState: { errors: errorsComptebancaire },
+            } = useForm();
+        
+           const onSubmitComptebancaire = async (data:any) => { 
+                  try { 
+                    if (!data.id) { 
+                      await createComptebancaire(data);
+                    } else { 
+                      await updateComptebancaire(data.id,data); 
+                    }
+                    toast.success("Operation effectuée avec succès !");
+                    resetComptebancaire();
+                     dataComptebancaire(idbanque,iddevise,numerobc);
+                    closeModal();
+                  } catch (error:any) {
+                    toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+                     dataComptebancaire(idbanque,iddevise,numerobc);
+                  }
+              };
+        
+            
+          const hendleDelete=(id:number)=>{
+            try { 
+              deleteComptebancaire(id);
+              dataComptebancaire(idbanque,iddevise,numerobc);
+            toast.success("Supression effectuée avec succès !");
+         
+            } catch (error) {
+            toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+              dataComptebancaire(idbanque,iddevise,numerobc);
+            }
+          }
+        
+        
+         const hendleUpdata=(data:any)=>{  
+              resetComptebancaire(data); 
+              setIdcompte(data.idComteComptable);
+              setIdbanque(data.idBanque)
+              setIdsrcfinancement(data.sourceFinacementId)
+              openModal('Comptebancaire') 
+          }
+  
+        // MODAL
+        const openModal = (type:any) => {
+          setModalType(type);
+          setFormData({});
+          setShowModal(true);
+        };
+  
+    const closeModal = () => {
+      resetComptebancaire({ id:null,code: null, libelle: null,type:null })
+      setShowModal(false); 
+    };
+       
+  
+  
+                // SHOW MODALL 
+   const renderModalForm = () => {  
+    return (
+      <form onSubmit={handleSubmitComptebancaire(onSubmitComptebancaire)} className='p-6'>
+        <div className="mb-4">
+          <label>Code</label>
+           <input {...registerComptebancaire("id", { required: false})} readOnly hidden/>
+          <input {...registerComptebancaire("code", { required: "Code obligatoire" })}
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsComptebancaire.code ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: 1" />
+          {errorsComptebancaire.code && <span>{"Code obligatoire"}</span>}
+        </div>
+        <div className="mb-4">
+          <label>Libellé</label>
+          <input {...registerComptebancaire("libelle", { required: "Libellé obligatoire" })} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsComptebancaire.code ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="Ex: Charges de Personnel" />
+          {errorsComptebancaire.libelle && <span>{"Libellé obligatoire"}</span>}
+        </div>
+        <div className="mb-4">
+          <label>Type</label>
+          <select {...registerComptebancaire("type", { required: "Type obligatoire" })}
+                    className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsComptebancaire.type ? "border-red-500" : "border-gray-300"
+          }`}>
+            <option value="">Sélectionner un type</option>
+            <option value="Dépense">Dépense</option>
+            <option value="Recette">Recette</option>
+          </select>
+          {errorsComptebancaire.type && <span>{"Type obligatoire"}</span>}
+        </div>
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+       </button>
+    </div>
+      </form>
+    );
+};
   return (
     <div className="min-h-screen bg-gray-50">
+            {showModal && (
+                                            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                                              <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+                                                <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                                  <h3 className="text-xl font-bold text-gray-800">
+                                                    {modalType === 'Comptebancaire' ? 'Ajouter une Comptebancaire' : 
+                                                     modalType === 'planComptable' ? 'Ajouter un Compte' : 
+                                                     'Ajouter un Élément'}
+                                                  </h3>
+                                                  <button
+                                                    onClick={closeModal}
+                                                    className="text-gray-500 hover:text-gray-700"
+                                                  >
+                                                    <X className="w-6 h-6" />
+                                                  </button>
+                                                </div>
+                                    
+                                                  {renderModalForm()}
+                                     
+                                              </div>
+                                            </div>
+                                          )}
       {/* Top Bar */}
-      <div className="flex justify-between items-center px-8 py-4 bg-white shadow-sm">
-        <input
-          type="text"
-          placeholder="Rechercher une transaction, un compte..."
-          className="w-96 px-4 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div className="bg-white shadow-sm border-b px-6 py-4">
+  <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
 
-        <div className="flex items-center gap-6">
-          <Bell className="text-gray-600 cursor-pointer" />
-          <div className="text-right">
-            <p className="text-sm text-gray-500">Solde Global</p>
-            <p className="font-bold text-blue-600">124 592,00 €</p>
-          </div>
-        </div>
+    {/* 🔎 Zone filtres */}
+    <div className="flex flex-col md:flex-row gap-3 w-full lg:w-auto">
+
+      {/* Recherche */}
+      <input
+        type="text"
+        onChange={e => setNumerobc(e.target.value || null)}
+        placeholder="Rechercher une transaction, un compte..."
+        className="w-full md:w-72 px-4 py-2.5 border border-gray-300 rounded-xl
+                   focus:outline-none focus:ring-2 focus:ring-blue-500
+                   text-sm"
+      />
+
+      {/* Banque */}
+      <select
+        onChange={e => setIdbanque(Number(e.target.value))}
+        className="w-full md:w-56 px-4 py-2.5 border border-gray-300 rounded-xl
+                   focus:outline-none focus:ring-2 focus:ring-blue-500
+                   text-sm bg-white"
+      >
+        <option value="">Banque</option>
+        {banques.map((element) => (
+          <option key={element.id} value={element.id}>
+            {element.libelle}
+          </option>
+        ))}
+      </select>
+
+      {/* Devise */}
+      <select
+        onChange={e => setIddevise(Number(e.target.value))}
+        className="w-full md:w-48 px-4 py-2.5 border border-gray-300 rounded-xl
+                   focus:outline-none focus:ring-2 focus:ring-blue-500
+                   text-sm bg-white"
+      >
+        <option value="">Devise</option>
+        {devises.map((element) => (
+          <option key={element.id} value={element.id}>
+            {element.libelle}
+          </option>
+        ))}
+      </select>
+
+      {/* Bouton recherche */}
+      <button
+        type="button"
+        onClick={search}
+        className="px-6 py-2.5 bg-blue-600 text-white rounded-xl
+                   hover:bg-blue-700 transition-all duration-200
+                   text-sm font-medium shadow-sm"
+      >
+        Rechercher
+      </button>
+    </div>
+
+    {/* 🔔 Zone droite */}
+    <div className="flex items-center justify-between lg:justify-end gap-6">
+      <Bell className="text-gray-600 cursor-pointer hover:text-blue-600 transition" />
+
+      <div className="text-right">
+        <p className="text-xs text-gray-500 uppercase tracking-wide">
+          Solde global
+        </p>
+        <p className="text-lg font-bold text-blue-600">
+          124 592,00 €
+        </p>
       </div>
+    </div>
+
+  </div>
+</div>
 
       {/* Content */}
       <div className="px-8 py-8">
@@ -206,7 +472,10 @@ const renderTresorieCompteBancairePage: React.FC = () => {
             </p>
           </div>
 
-          <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+          <button
+          
+          onClick={() => openModal('Comptebancaire')}
+          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
             <Plus size={18} />
             Ajouter un compte
           </button>

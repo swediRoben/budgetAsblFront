@@ -1,117 +1,223 @@
-import React from "react";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
-import { Target, TrendingUp, AlertTriangle } from "lucide-react";
+import React, { useEffect, useMemo, useState } from 'react';
+import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
 
-const data = [
-  { month: "Jan", real: 45000, forecast: 42000 },
-  { month: "Fév", real: 48000, forecast: 46000 },
-  { month: "Mar", forecast: 52000 },
-  { month: "Avr", forecast: 49000 },
-  { month: "Mai", forecast: 56000 },
-  { month: "Juin", forecast: 60000 },
-];
+import {createBanque,deleteBanque,getAllBanque,updateBanque} from "../../../data/tresorerie/banques";
 
-const renderTresorieBanquePage: React.FC = () => {
+import {getAllPlancompte} from "../../../data/classification/planComptable";
+ 
+import { useFieldArray, useForm } from "react-hook-form";
+import toast from "react-hot-toast"; 
+
+export default function tresorerieBanquePage (){ 
+
+ const [banques, setBanques] = useState([]) 
+ const [plancomptables, setPlancomptables] = useState([]);
+ const [idcompte, setIdcompte] = useState(null); 
+  
+ const [formData, setFormData] = useState({}); 
+    const [showModal, setShowModal] = useState(false);
+
+
+   // GET
+    const dataBanque =async ()=>{
+      const data=await getAllBanque(); 
+      setBanques(data) 
+    } 
+
+ 
+   
+       const dataPlancompte =async ()=>{
+            const data=await getAllPlancompte(); 
+            setPlancomptables(data) 
+          }
+
+     useEffect(()=>{
+      dataPlancompte()
+    },[])
+        // CREATED 
+          const {
+            register: registerBanque,
+            handleSubmit: handleSubmitBanque,
+            reset: resetBanque,
+            formState: { errors: errorsBanque },
+          } = useForm();
+      
+         const onSubmitBanque = async (data:any) => { 
+                try { 
+                  if (!data.id) { 
+                    await createBanque(data);
+                  } else { 
+                    await updateBanque(data.id,data); 
+                  }
+                  toast.success("Operation effectuée avec succès !");
+                  resetBanque();
+                  dataBanque();
+                  closeModal();
+                } catch (error:any) {
+                  toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+                }
+            };
+      
+          
+        const hendleDelete=(id:number,type:string)=>{
+          try { 
+            deleteBanque(id);
+            dataBanque();
+          toast.success("Supression effectuée avec succès !");
+       
+          } catch (error) {
+          toast.error("Erreur lors de l'operation'.",{style:{backgroundColor:"red",color:"white"}});
+            dataBanque();
+          }
+        }
+      
+      
+       const hendleUpdata=(data:any,type:string)=>{  
+            resetBanque(data); 
+            setIdcompte(data.idCompteComptable)
+            openModal('') 
+        }
+
+      // MODAL
+      const openModal = () => { 
+        setFormData({});
+        setShowModal(true);
+      };
+
+  const closeModal = () => {
+    resetBanque({ id:null,code: null, libelle: null,type:null })
+    setShowModal(false); 
+  };
+     useEffect(()=>{
+         dataBanque();
+       },[])
+
+ 
+       // SHOW MODALL 
+   const renderModalForm = () => {  
+    return (
+      <form onSubmit={handleSubmitBanque(onSubmitBanque)} className='p-6'>
+        <div className="mb-4">
+          <label>libelle</label>
+           <input {...registerBanque("id", { required: false})} readOnly hidden/>
+          <input {...registerBanque("libelle", { required: "nom de la banque est obligatoire" })}
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsBanque.code ? "border-red-500" : "border-gray-300"
+          }`}
+          placeholder="nom de la banque" />
+          {errorsBanque.code && <span>{"Code obligatoire"}</span>}
+        </div>
+        <div className="mb-4 display-flex">
+          <label>Actif</label>
+          <input type='radio' value={"true"} {...registerBanque("actif")} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsBanque.code ? "border-red-500" : "border-gray-300"
+          }`}  />
+           <input type='radio' value={"false"} {...registerBanque("actif")} 
+          className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsBanque.code ? "border-red-500" : "border-gray-300"
+          }`} />
+          {errorsBanque.libelle && <span>{"Libellé obligatoire"}</span>}
+        </div>
+        <div className="mb-4">
+          <label>Compte</label>
+          <select {...registerBanque("idCompteComptable", { required: "Compte est obligatoire" })}
+          onChange={e=>setIdcompte(Number(e.target.value))}
+                    className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsBanque.type ? "border-red-500" : "border-gray-300" 
+          }`}>
+            <option value="">Sélectionner un compte</option>
+             {plancomptables.map((element) => (
+                      <option key={element.id} value={element.id}>
+                        {element.numero} - {element.libelle}
+                      </option>
+                    ))}
+          </select>
+          {errorsBanque.type && <span>{"Type obligatoire"}</span>}
+        </div>
+       
+         <div className="flex gap-4 mt-6">
+           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
+                  Annuler
+                </button>
+                <button
+                  type="submit"
+                  className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+                >
+                  Enregistrer 
+       </button>
+    </div>
+      </form>
+    );
+};
+  
   return (
-    <div className="min-h-screen bg-gray-50 p-8">
-      <h1 className="text-xl text-gray-700 mb-8">
-        Analyse et projection de votre trésorerie à 6 mois.
-      </h1>
+    <div className="bg-white rounded-lg shadow-md p-6">
+          {showModal && (
+                                      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+                                        <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
+                                          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+                                            <h3 className="text-xl font-bold text-gray-800">
+                                             Ajouter une Banque 
+                                            </h3>
+                                            <button
+                                              onClick={closeModal}
+                                              className="text-gray-500 hover:text-gray-700"
+                                            >
+                                              <X className="w-6 h-6" />
+                                            </button>
+                                          </div>
+                              
+                                            {renderModalForm()}
+                               
+                                        </div>
+                                      </div>
+                                    )}
+      <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Banques </h2>
+      
+      <div className="mb-6">
+        <button 
+          onClick={() => openModal('')}
+          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
+        >
+          + Ajouter une Banque
+        </button>
+      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Graph Section */}
-        <div className="lg:col-span-2 bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Prévisions de Trésorerie
-          </h2>
-          <p className="text-sm text-gray-500 mb-6">
-            Comparaison Réel vs Prévisionnel (Budget)
-          </p>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Cmpte</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Actif</th>
+              <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+    {banques?.map((datas, i:any) => (
+  <tr key={datas.id} className="hover:bg-gray-50">
+    <td className="border border-gray-300 px-4 py-2">{i+1}</td>
+    {/* <td className="border border-gray-300 px-4 py-2">{datas.code}</td> */}
+    <td className="border border-gray-300 px-4 py-2">{datas.libelle}</td>
+    {plancomptables.filter(element=>element.id===datas.idCompteComptable)
+    .map((element) => ( 
+    <td className="border border-gray-300 px-4 py-2"> {element.numero} - {element.libelle}</td> ))}
+    <td className="border border-gray-300 px-4 py-2">{datas.actif?"activé":"bloqué"}</td>
+    <td className="border border-gray-300 px-4 py-2 text-center">
+      <button className="text-blue-600 hover:text-blue-800 mr-2" onClick={()=>hendleUpdata(datas,'')}>Modifier</button>
+      <button className="text-red-600 hover:text-red-800" onClick={()=>hendleDelete(datas.id,'')}>Supprimer</button>
+    </td>
+  </tr>
+))}
 
-          <div className="h-80">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data}>
-                <XAxis dataKey="month" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="real" fill="#2563eb" radius={[6, 6, 0, 0]} />
-                <Bar
-                  dataKey="forecast"
-                  fill="#e5e7eb"
-                  radius={[6, 6, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-        </div>
 
-        {/* Right Section */}
-        <div className="space-y-6">
-          {/* Objectif */}
-          <div className="bg-blue-600 text-white p-6 rounded-2xl shadow-md">
-            <div className="flex items-center gap-2">
-              <Target size={20} />
-              <h3 className="font-semibold">Objectif Fin de Mois</h3>
-            </div>
-
-            <div className="text-4xl font-bold mt-4">50 000 €</div>
-
-            <div className="mt-6">
-              <div className="flex justify-between text-sm mb-2">
-                <span>Progression</span>
-                <span>92%</span>
-              </div>
-              <div className="w-full bg-blue-400/40 h-2 rounded-full">
-                <div className="bg-white h-2 rounded-full w-[92%]" />
-              </div>
-            </div>
-          </div>
-
-          {/* Insights */}
-          <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-200">
-            <h3 className="font-semibold text-gray-900 mb-4">Insights</h3>
-
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="bg-green-100 p-2 rounded-full">
-                  <TrendingUp size={18} className="text-green-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">
-                    Surperformance
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Les encaissements de Février dépassent les prévisions de +8%.
-                  </p>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <div className="bg-yellow-100 p-2 rounded-full">
-                  <AlertTriangle size={18} className="text-yellow-600" />
-                </div>
-                <div>
-                  <p className="font-medium text-gray-900">
-                    Attention requise
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    Une grosse échéance TVA est prévue le 20 Mars (-12k€).
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+          </tbody>
+        </table>
       </div>
     </div>
   );
-};
 
-export default renderTresorieBanquePage;
+
+}

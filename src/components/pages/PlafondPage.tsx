@@ -152,7 +152,7 @@ export default function renderPlafondPage (){
   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
     <div>
       <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-        Plafond de dépense
+       Élaboration du Budget par projet
       </h2>
       <p className="text-sm text-gray-500 mt-1">
         Définissez les plafonds budgétaires par projet et source de financement

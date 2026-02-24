@@ -148,25 +148,25 @@ const BudgetApp = () => {
       subMenus: [
         {
           id: "plafond",
-          name: "Plafond de Dépense",
+          name: "Prévision par projet",
           icon: <BookOpen className="w-4 h-4" />,
         },
         {
           id: "plafondNature",
-          name: "Plafond par nature",
+          name: "Prévision par nature",
           icon: <BookOpen className="w-4 h-4" />,
         },
         {
           id: "elaboration",
-          name: "Élaboration",
+          name: "Prévision par activité",
           icon: <BookOpen className="w-4 h-4" />,
         },
         {
           id: "etatSortie",
-          name: "État de Sortie",
+          name: "Rapports Prévisionnels",
           icon: <FileText className="w-4 h-4" />,
           pages: [
-            { id: "parProjet", name: "Plafond par projet" },
+            { id: "parProjet", name: "Prévision par projet" },
             { id: "parClasse", name: "Prévision par nature" },
             { id: "parActivite", name: "Prévision annuelle" },
           ],

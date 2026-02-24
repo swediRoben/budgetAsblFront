@@ -3,44 +3,173 @@ import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, 
 
   
 export default function renderRapportLiquidationPage (){  
+   const [exercice, setExercice] = useState("");
+  const [dateDebut, setDateDebut] = useState("");
+  const [dateFin, setDateFin] = useState("");
+  const [statut, setStatut] = useState("");
+
+    const [projet, setProjet] = useState("");
+  const [categorie, setCategorie] = useState("");
+  const [devise, setDevise] = useState("");
+  const [libelleBon, setLibelleBon] = useState("");
+
+  const [exercices,setExercices]=useState([]);
+  const [projets,setProjets]=useState([]);
+  const [categories,setCategories]=useState([]);
+  const [devises,setdevises]=useState([]);
+
+  const handlePrint = () => {
+    // tu peux éventuellement filtrer le rapport avant impression
+    window.print();
+  };
+
+
       return(
      <div className="max-w-6xl mx-auto bg-white p-10 rounded-sm shadow-sm border border-gray-100 print:border-0 print:shadow-none print:p-0">
   
   {/* EN-TÊTE INSTITUTIONNEL */}
   <div className="flex justify-between items-start border-b-2 border-gray-800 pb-4 mb-8">
-    <div className="space-y-1">
-      <h1 className="text-xl font-bold uppercase tracking-tight text-gray-900">Nom de l'Organisation / ONG</h1>
-      <p className="text-xs italic text-gray-500">Département des Finances & Administration</p>
-      <p className="text-[10px] text-gray-400">Adresse : _________________________________</p>
+   <div className="space-y-1">
+    <h1 className="text-xl font-bold uppercase tracking-tight text-gray-900">
+      Nom de l'Organisation / ONG
+    </h1>
+    <p className="text-xs italic text-gray-500">Département des Finances & Administration</p>
+
+    {/* Nouveau Select Statut */}
+    <div className="mt-2">
+      <label className="block text-[10px] uppercase font-bold text-gray-500 mb-1">Statut</label>
+      <select
+        value={statut}
+        onChange={(e) => setStatut(e.target.value)}
+        className="border rounded px-2 py-1 text-sm"
+      >
+        <option value="">-- Sélectionner --</option>
+        <option value="en_attente">En Attente</option>
+        <option value="validee">Validée</option>
+        <option value="rejetee">Rejetée</option>
+        <option value="retournee">Retournée</option>
+      </select>
     </div>
+  </div>
     
-    <div className="text-right">
-      <h2 className="text-lg font-black uppercase text-blue-900">État Récapitulatif des Liquidations</h2>
-      <p className="text-sm font-medium">Période : ____________________</p>
+        <div className="text-right space-y-2">
+      <h2 className="text-lg font-black uppercase text-blue-900">
+        État Récapitulatif des Liquidations
+      </h2>
+
+      {/* Filtre Période */}
+      <div className="flex flex-wrap justify-end gap-2 items-center text-sm font-medium">
+        {/* Exercice */}
+        <div>
+          <label className="block mb-1">Exercice</label>
+          <select
+            value={exercice}
+            onChange={(e) => setExercice(e.target.value)}
+            className="border rounded px-2 py-1 text-sm"
+          >
+            <option value="">-- Sélectionner --</option>
+            {exercices.map((ex) => (
+              <option key={ex.id} value={ex.id}>
+                {ex.libelle}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {/* Date Début */}
+        <div>
+          <label className="block mb-1">Date Début</label>
+          <input
+            type="date"
+            value={dateDebut}
+            onChange={(e) => setDateDebut(e.target.value)}
+            className="border rounded px-2 py-1 text-sm"
+          />
+        </div>
+
+        {/* Date Fin */}
+        <div>
+          <label className="block mb-1">Date Fin</label>
+          <input
+            type="date"
+            value={dateFin}
+            onChange={(e) => setDateFin(e.target.value)}
+            className="border rounded px-2 py-1 text-sm"
+          />
+        </div>
+      </div>
+
+      {/* Bouton Imprimer */}
       <button
-        onClick={() => window.print()}
+        onClick={handlePrint}
         className="mt-2 bg-slate-800 text-white px-4 py-1.5 text-xs font-bold rounded shadow hover:bg-slate-700 transition print:hidden"
       >
         IMPRIMER LE RAPPORT
       </button>
     </div>
+
   </div>
 
   {/* INFOS PROJET */}
-  <div className="grid grid-cols-3 gap-6 mb-8 bg-gray-50 p-4 border border-gray-200 rounded-lg">
-    <div>
-      <span className="block text-[10px] uppercase font-bold text-gray-500 italic">Projet / Programme</span>
-      <span className="text-sm font-semibold">___________________________</span>
+     <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8 bg-gray-50 p-4 border border-gray-200 rounded-lg">
+      
+      {/* Projet */}
+      <div>
+        <span className="block text-[10px] uppercase font-bold text-gray-500 italic">Projet / Programme</span>
+        <select
+          value={projet}
+          onChange={(e) => setProjet(e.target.value)}
+          className="mt-1 w-full border border-gray-300 rounded px-2 py-1 text-sm"
+        >
+          <option value="">-- Sélectionner --</option>
+          {projets.map((p) => (
+            <option key={p.id} value={p.id}>{p.nom}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Catégorie */}
+      <div>
+        <span className="block text-[10px] uppercase font-bold text-gray-500 italic">Catégorie</span>
+        <select
+          value={categorie}
+          onChange={(e) => setCategorie(e.target.value)}
+          className="mt-1 w-full border border-gray-300 rounded px-2 py-1 text-sm"
+        >
+          <option value="">-- Sélectionner --</option>
+          {categories.map((c) => (
+            <option key={c.id} value={c.id}>{c.nom}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Devise */}
+      <div>
+        <span className="block text-[10px] uppercase font-bold text-gray-500 italic">Devise</span>
+        <select
+          value={devise}
+          onChange={(e) => setDevise(e.target.value)}
+          className="mt-1 w-full border border-gray-300 rounded px-2 py-1 text-sm"
+        >
+          <option value="">-- Sélectionner --</option>
+          {devises.map((d) => (
+            <option key={d.id} value={d.id}>{d.nom}</option>
+          ))}
+        </select>
+      </div>
+
+      {/* Libellé / Numéro Bon */}
+      <div>
+        <span className="block text-[10px] uppercase font-bold text-gray-500 italic">Libellé / Numéro Bon</span>
+        <input
+          type="text"
+          value={libelleBon}
+          onChange={(e) => setLibelleBon(e.target.value)}
+          placeholder="Entrez le libellé ou numéro"
+          className="mt-1 w-full border border-gray-300 rounded px-2 py-1 text-sm"
+        />
+      </div>
     </div>
-    <div>
-      <span className="block text-[10px] uppercase font-bold text-gray-500 italic">Code Budgétaire</span>
-      <span className="text-sm font-semibold">B-2025-00X</span>
-    </div>
-    <div>
-      <span className="block text-[10px] uppercase font-bold text-gray-500 italic">Devise</span>
-      <span className="text-sm font-semibold">USD / Francs</span>
-    </div>
-  </div>
 
   {/* TABLEAU DES LIQUIDATIONS */}
   <table className="w-full border-collapse border border-gray-400 mb-8">

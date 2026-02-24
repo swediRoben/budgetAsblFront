@@ -300,6 +300,7 @@ export default function renderEngagementPage() {
             dataEnAttente: null,
             observation: "",
           })
+            setMontantVote(0)
         } else {
           data.dataEnAttente = toOffsetDateTimeStart(data.dataEnAttente)
           updateEngagement(data.id, data)
@@ -317,6 +318,7 @@ export default function renderEngagementPage() {
             dataEnAttente: null,
             observation: "",
           })
+            setMontantVote(0)
         }
       }
 
@@ -693,22 +695,35 @@ useEffect(() => {
           {/* Bloc récapitulatif visuel */}
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
-          <div>
-            <p className="text-xs text-gray-500">Montant engagé</p>
-            <p className="text-lg font-semibold text-gray-800">
-              {montantEngage}
-            </p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">montant alloué</p>
-            <p className="text-lg font-semibold text-blue-700">{montantVote}</p>
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Montant restant</p>
-            <p className="text-lg font-semibold text-green-700">{montantRestantFonction(montantVote - ((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1)) + montantEngage))}</p>
-          </div>
-        </div>
+       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-6 shadow-sm">
+  
+  {/* Montant engagé */}
+  <div className="flex flex-col gap-1">
+    <p className="text-xs text-gray-500 uppercase">Montant engagé</p>
+    <p className="text-lg font-semibold text-gray-800">
+      {montantEngage.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+    </p>
+  </div>
+
+  {/* Montant alloué */}
+  <div className="flex flex-col gap-1">
+    <p className="text-xs text-gray-500 uppercase">Montant alloué</p>
+    <p className="text-lg font-semibold text-blue-700">
+      {montantVote.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+    </p>
+  </div>
+
+  {/* Montant restant */}
+  <div className="flex flex-col gap-1">
+    <p className="text-xs text-gray-500 uppercase">Montant restant</p>
+    <p className="text-lg font-semibold text-green-700">
+      {montantRestantFonction(
+        montantVote - ((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1)) + montantEngage)
+      ).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+    </p>
+  </div>
+
+</div>
 
         {/* Objet */}
         <div className="md:col-span-2">

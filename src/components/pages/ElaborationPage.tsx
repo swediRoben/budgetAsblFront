@@ -389,7 +389,7 @@ export default function renderElaborationPage (){
   <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
     <div>
       <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-        Élaboration du Budget
+        Élaboration du Budget annuel
       </h2>
       <p className="text-sm text-gray-500 mt-1">
         Remplissez l’en-tête et ajoutez les lignes budgétaires en détail

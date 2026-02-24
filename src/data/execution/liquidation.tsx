@@ -143,7 +143,7 @@ export const updateLiquidation = async (id: number, data: any) => {
     const response = await axios.put(`${API_URL}/${id}`, data);
     return response.data;
   } catch (error) {
-    throw [];
+    throw error;
   }
 };
 
@@ -152,7 +152,7 @@ export const deleteLiquidation = async (id: number) => {
     const response = await axios.delete(`${API_URL}/${id}`);
     return response.data;
   } catch (error) {
-    throw [];
+    throw error;
   }
 };
 
@@ -219,4 +219,37 @@ export const getSommeMontantLiquide = async (idExercice: any, idEngement: any): 
     return 0;
   }
 };
+
+export const rejeterLiquidation = async (id: number, data: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/rejeter/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const retournerLiquidation = async (id: number, data: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/retourner/${id}`, data);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const validerLiquidation = async (id: number) => {
+  try {
+    const response = await axios.put(`${API_URL}/valider/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+};
+export const receptionLiquidation = async (id: number) => {
+  try {
+    const response = await axios.put(`${API_URL}/receptioner/${id}`);
+    return response.data;
+  } catch (error) {
+    throw error;
+  }
+}; 
 

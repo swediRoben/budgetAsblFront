@@ -40,7 +40,7 @@ export default function renderParProjetPage (){
   {/* HEADER */}
   <div className="flex flex-col gap-1 border-b border-gray-200 pb-4 mb-6">
     <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">
-      Rapport de budget annuel par projet
+      Rapport par projet
     </h2>
     <p className="text-sm text-gray-500">
       Vue consolidée par projet et source de financement

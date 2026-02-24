@@ -29,12 +29,16 @@ export default function renderLiquidationPage (){
     const [montantEngage, setMontantEngage] = useState(0.0);  
     const [montantLiquide, setMontantLiquide] = useState(0);     
     const [bonEngagment, setBonEngagment] = useState("");  
+    const [tauxdeviseengagement, setTauxdeviseengagement] = useState(0);  
+    const [devise, setDevise] = useState(null);  
+    const [engagementid, setEngagementid] = useState(null);  
     const [debut, setDebut] = useState("");
     const [fin, setFin] = useState("");
     const [page, setPage] = useState(0);
     const [size] = useState(10);  
     const [totalPages, setTotalPages] = useState(1);
     const [status, setStatus] = useState(""); 
+    const [showaction, setShowaction] = useState(true);
     
  
     const [showLiquidationList, setShowLiquidationList] = useState(false); 
@@ -49,17 +53,24 @@ export default function renderLiquidationPage (){
        }
     
     const dataEngagement =async (exercice:any,projet:any,ligne:any)=>{
-         const data=await getAllEngagementValiderLiquider(exercice,projet,ligne); 
+         const data=await getAllEngagementValiderLiquider(exercice,projet,ligne);  
          setEngagements(data) 
        }
     
     const dataMontant =async (data:any)=>{
          const montantLiquide=await getSommeMontantLiquide(exerciceId,data.id);
          setMontantEngage(data.montant)
+         setTauxdeviseengagement(data.tauxDevise)
          setMontantLiquide(montantLiquide);  
+         setDevise(data.devise.id);
        }
 
-      
+ useEffect(() => {
+  if (devise) {
+    setValue("idDevise", devise); 
+  }
+}, [devise]);  
+
   const dataFonctionnaires =async ()=>{
             const data=await getAllFonctionnaire(); 
             setFonctionnaires(data)
@@ -233,7 +244,10 @@ useEffect(() => {
           setPrevisions(data) 
          }
    } 
-
+ const getLignes = async (idProjet: number) => {
+    const data = await getAllPrevision(exerciceId, idProjet, null);
+    setPrevisions(data)
+  }
   const handleAffichePrevisionData=(data:any)=>{  
         setCategorie(data.categorie);
         setBeneficiaire(data.beneficiaire)
@@ -244,12 +258,14 @@ useEffect(() => {
     const handleAfficheEngagementData=(data:any)=>{  
        setBonEngagment(data.bonEngagement); 
         dataMontant(data);
+        return data;
    }
 
   const {
     register,
     handleSubmit,
     formState: { errors },
+    setValue,
     reset,
     watch,
   } = useForm({
@@ -288,32 +304,140 @@ const formatted = date.toLocaleString()
 return formatted;
 }
 
-const onSubmit = async (data) => {
+const onSubmit = async (data:any) => {
   try {
     const montantRestants= montantEngage-((Number(data.montant || 0)*Number(data.tauxDevise || 1))+montantLiquide);  
     if (montantRestants<0) {
       toast.error("Impossibe de montant restant est negatif ")
     }else{
+      
+        data.bonEngagment=bonEngagment
       if (!data.id) { 
         data.dataEnAttente=toOffsetDateTimeStart(data.dataEnAttente)
        createLiquidation(data)
        toast.success("Liquidation enregistré avec succes!");
-       reset()
+       reset({
+      id: null, 
+      idExercice: null,
+      idProjet: null,
+      idEngagement: null,
+      bonEngagment: null,
+      idPlanFondActivite: null,
+      idResponsable: null,
+      idDevise: null,
+      tauxDevise: 0,
+      montant: 0,
+      piece: "",
+      objet: "",
+      enAttente: true,
+      dataEnAttente:null,
+      observation: "",
+    })
+         setMontantEngage(0);
+         setTauxdeviseengagement(0);
+         setDevise(null);
      }else{
         data.dataEnAttente=toOffsetDateTimeStart(data.dataEnAttente)
        updateLiquidation(data,data.id)
        toast.success("Liquidation modifié avec succes!");
-       reset()
+       reset({
+      id: null, 
+      idExercice: null,
+      idProjet: null,
+      idEngagement: null,
+      bonEngagment: null,
+      idPlanFondActivite: null,
+      idResponsable: null,
+      idDevise: null,
+      tauxDevise: 0,
+      montant: 0,
+      piece: "",
+      objet: "",
+      enAttente: true,
+      dataEnAttente:null,
+      observation: "",
+    })
+        setMontantEngage(0);
+         setTauxdeviseengagement(0);
+         setDevise(null);
      }
     }
-
+        
   } catch (error) {
     console.error("SAVE ERROR:", error);
     alert("Erreur lors de l'enregistrement !");
   }
 };
 
+   useEffect(() => { 
+     const id = watch("idPlanFondActivite");
+     if (id && previsions.length > 0) {
+       const selected = previsions.find((p: any) => p.id.toString() === id);
+       if (selected) handleAffichePrevisionData(selected);
+     }
+   }, [previsions, watch("idPlanFondActivite")]);
  
+   const formatDate = (dateString: string) => {
+     return dateString ? dateString.split("T")[0] : null;
+   };
+
+   useEffect(()=>{
+      const id = watch("idEngagement");
+      if (id && engagements.length > 0) {
+        const selected = engagements.find(
+          (p: any) => p.id.toString() === id);
+          if (selected) handleAfficheEngagementData(selected);
+        }
+        setEngagementid(id);
+ 
+   });
+
+   
+ useEffect(() => {
+  if (engagementid && engagements.length > 0) {
+    setValue("idEngagement", engagementid); 
+  }
+}, [engagements,engagementid]);  
+ 
+   const hendleUpdata = async (data: any) => {
+     await getLignes(data.idProjet);
+ 
+     const id = data.idPlanFondActivite?.toString();
+     const idEnga = data.idEngagement?.toString();
+ 
+     reset({
+       ...data,
+       dataEnAttente: formatDate(data.dataEnAttente),
+       idPlanFondActivite: id,
+       idEngagement:idEnga
+     });
+ 
+     // 🔥 chercher la ligne sélectionnée et déclencher l'affichage
+     const selected = previsions.find((p: any) => p.id.toString() === id);
+     if (selected) handleAffichePrevisionData(selected);
+ 
+     setShowLiquidationList(false);
+   };
+ 
+ 
+   const hendleDelete = async (data: any) => {
+     try {
+       setEngagements([])
+       deleteLiquidation(data.id)
+       getCategorieByProjet(data.idProjet)
+       toast.success("Suppression avec succes");
+     } catch (error) {
+       toast.error("Echec de suppression");
+     }
+   }
+
+   useEffect(() => {
+     const hasAction = Liquidations.some(
+       (liq: any) => liq.retourner || liq.enAttente
+     );
+     setShowaction(hasAction);
+   }, [Liquidations]);
+   
     
  const openList=(status:string)=>{
    setLiquidations([]);
@@ -576,10 +700,9 @@ const onSubmit = async (data) => {
       if (selected) handleAfficheEngagementData(selected);
     }}
       >
-        <option value="">Sélectionner</option>
-         {
+          {
         engagements.map((element:any)=>(
-        <option key={element.id} value={element.id}>{element.bonEngagement}</option>
+        <option value={element.id}>{element.bonEngagement}</option>
        ))
       }
       </select>
@@ -592,7 +715,7 @@ const onSubmit = async (data) => {
       <select
         className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                    focus:ring-2 focus:ring-blue-500"
-        {...register("idDevise")}
+        {...register("idDevise",{disabled:true})}
       >
         <option value="">Sélectionner</option>
         {devises?.map((element: any) => (
@@ -659,13 +782,11 @@ const onSubmit = async (data) => {
         pièces justificative
       </label>
      <input
-          type="text" 
-          required
+          type="text"  
           className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                     focus:ring-2 focus:ring-blue-500"
            {...register("piece", {
-            required: "Pièces justificative obligatoire",
-            valueAsNumber: true
+            required: "Pièces justificative obligatoire" 
           })}
         />
 
@@ -678,22 +799,39 @@ const onSubmit = async (data) => {
   </div>
     {/* Bloc récapitulatif visuel */}
 
-  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-4">
-    <div>
-      <p className="text-xs text-gray-500">Montant engagé</p>
-      <p className="text-lg font-semibold text-gray-800">
-        {montantEngage}
-      </p>
-    </div>
-    <div>
-      <p className="text-xs text-gray-500">montant liquidé</p>
-      <p className="text-lg font-semibold text-blue-700">{montantLiquide}</p>
-    </div>
-    <div>
-      <p className="text-xs text-gray-500">Montant restant</p>
-      <p className="text-lg font-semibold text-green-700">{montantRestantFonction(montantEngage-((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1))+montantLiquide))}</p>
-    </div>
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-6 shadow-sm">
+  
+  {/* Montant engagé */}
+  <div className="flex flex-col gap-1">
+    <p className="text-xs text-gray-500 uppercase">Montant engagé</p>
+    <p className="text-lg font-semibold text-gray-800">
+      {montantEngage.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+    </p>
+    <p className="text-xs text-gray-500 uppercase mt-2">Taux engagé</p>
+    <p className="text-lg font-semibold text-gray-800">
+      {tauxdeviseengagement.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+    </p>
   </div>
+
+  {/* Montant liquidé */}
+  <div className="flex flex-col gap-1">
+    <p className="text-xs text-gray-500 uppercase">Montant liquidé</p>
+    <p className="text-lg font-semibold text-blue-700">
+      {montantLiquide.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+    </p>
+  </div>
+
+  {/* Montant restant */}
+  <div className="flex flex-col gap-1">
+    <p className="text-xs text-gray-500 uppercase">Montant restant</p>
+    <p className="text-lg font-semibold text-green-700">
+      {montantRestantFonction(
+        montantEngage>montantLiquide?montantEngage - ((Number(watch("montant") || 0) || 1)) + montantLiquide:montantLiquide-montantEngage
+      ).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+    </p>
+  </div>
+
+</div>
 
     {/* Objet */}
     <div className="md:col-span-2">
@@ -829,7 +967,11 @@ const onSubmit = async (data) => {
                   <th className="px-4 py-3 text-left">Devise</th>
                   <th className="px-4 py-3 text-center">Statut</th>
                   <th className="px-4 py-3 text-center">Date statut</th>
-                  <th className="px-4 py-3 text-center">Actions</th>
+                   {
+                        showaction?( 
+                      <th className="px-4 py-3 text-center">Actions</th>
+                        ):null
+                      }
                 </tr>
               </thead>
 
@@ -871,27 +1013,36 @@ const onSubmit = async (data) => {
                           : "En attente"}
                       </span>
                     </td>
-                    <td className="px-4 py-2">
-                      {toDateNormal(
-                        eng.rejet
-                          ? eng.dataRejet
-                          : eng.retourner
-                          ? eng.dataRetourner
-                          : eng.reception
-                          ? eng.dataReception
-                          : eng.validation
-                          ? eng.dataValidation
-                          : eng.dataEnAttente
-                      )}
-                    </td>
-                    <td className="px-4 py-2 text-center space-x-2">
-                      <button className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100">
-                        Voir
-                      </button>
-                      <button className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100">
-                        Modifier
-                      </button>
-                    </td>
+                                <td className="px-4 py-2">
+                          {toDateNormal(
+                            eng.rejet
+                              ? eng.dataRejet
+                              : eng.retourner
+                                ? eng.dataRetourner
+                                : eng.reception
+                                  ? eng.dataReception
+                                  : eng.validation
+                                    ? eng.dataValidation
+                                    : eng.dataEnAttente
+                          )}
+                        </td>
+
+                       {(eng.retourner || eng.enAttente) && (
+                            <td className="px-4 py-2 text-center space-x-2">
+                              <button
+                                onClick={() => hendleUpdata(eng)}
+                                className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100"
+                              >
+                                update
+                              </button>
+                              <button
+                                onClick={() => hendleDelete(eng)}
+                                className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
+                              >
+                                del
+                              </button>
+                            </td>
+                          )}
                   </tr>
                 ))}
               </tbody>
