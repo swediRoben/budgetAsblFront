@@ -159,7 +159,7 @@ export default function tresorerieBanquePage (){
                                           <div className="flex items-center justify-between p-6 border-b border-gray-200">
                                             <h3 className="text-xl font-bold text-gray-800">
                                              Ajouter une Banque 
-                                            </h3>
+                                            </h3> 
                                             <button
                                               onClick={closeModal}
                                               className="text-gray-500 hover:text-gray-700"
