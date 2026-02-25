@@ -2,7 +2,7 @@
 import axios from "axios";
  
 // const API_URL = "http://localhost:8080/api/Comptebancaires";
-const API_URL = "http://localhost:8080/budget/v1/api/compte-comptables";
+const API_URL = "http://localhost:8080/budget/v1/api/compte-bancaires";
 
 export const getAllComptebancaire = async (banqueId:number,idDevise:number,numero:string) => {
   try {

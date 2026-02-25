@@ -185,6 +185,20 @@ const renderTresorieCompteBancairePage: React.FC = () => {
           {errorsComptebancaire.idBanque && <span>{"banque obligatoire"}</span>}
         </div>
 
+                  <div className="mb-4">
+          <label>Type de compte</label>
+          <select {...registerComptebancaire("typeCompte", { required: "type de compte est obligatoire" })}
+                    className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${
+              errorsComptebancaire.typeCompte ? "border-red-500" : "border-gray-300" 
+          }`}> 
+            <option value="">Sélectionner un type de compte </option>
+            <option value="COURENT">COURENT</option>
+            <option value="EPARGNE">EPARGNE</option>
+            <option value="BLOQUE">BLOQUE</option>
+          </select>
+          {errorsComptebancaire.typeCompte && <span>{"type de compte est obligatoire"}</span>}
+        </div>
+
           <div className="mb-4">
           <label>Devise</label>
           <select {...registerComptebancaire("idDevise", { required: "Compte est obligatoire" })}
@@ -286,7 +300,7 @@ const renderTresorieCompteBancairePage: React.FC = () => {
       <input
         type="text"
         onChange={e => setNumerobc(e.target.value || null)}
-        placeholder="Rechercher une transaction, un compte..."
+        placeholder="Rechercher un numero de compte..."
         className="w-full md:w-72 px-4 py-2.5 border border-gray-300 rounded-xl
                    focus:outline-none focus:ring-2 focus:ring-blue-500
                    text-sm"
@@ -294,7 +308,7 @@ const renderTresorieCompteBancairePage: React.FC = () => {
 
       {/* Banque */}
       <select
-        onChange={e => setIdbanque(Number(e.target.value))}
+        onChange={e => setIdbanque(e.target.value)}
         className="w-full md:w-56 px-4 py-2.5 border border-gray-300 rounded-xl
                    focus:outline-none focus:ring-2 focus:ring-blue-500
                    text-sm bg-white"
@@ -309,7 +323,7 @@ const renderTresorieCompteBancairePage: React.FC = () => {
 
       {/* Devise */}
       <select
-        onChange={e => setIddevise(Number(e.target.value))}
+        onChange={e => setIddevise(e.target.value)}
         className="w-full md:w-48 px-4 py-2.5 border border-gray-300 rounded-xl
                    focus:outline-none focus:ring-2 focus:ring-blue-500
                    text-sm bg-white"
@@ -338,14 +352,14 @@ const renderTresorieCompteBancairePage: React.FC = () => {
     <div className="flex items-center justify-between lg:justify-end gap-6">
       <Bell className="text-gray-600 cursor-pointer hover:text-blue-600 transition" />
 
-      <div className="text-right">
+      {/* <div className="text-right">
         <p className="text-xs text-gray-500 uppercase tracking-wide">
           Solde global
         </p>
         <p className="text-lg font-bold text-blue-600">
           124 592,00 €
         </p>
-      </div>
+      </div> */}
     </div>
 
   </div>
@@ -391,20 +405,13 @@ const renderTresorieCompteBancairePage: React.FC = () => {
         </div>
         <ExternalLink size={18} className="text-gray-400 cursor-pointer" />
       </div>
-
-      {/* Balance */}
-      <div className="mt-6">
-        <p className="text-sm text-gray-500">Solde Total</p>
-        <p className="text-3xl font-bold text-blue-600 mt-1">
-          {/* {formatCurrency(balance, currency)} */}
-        </p>
-      </div>
+ 
 
       {/* Details */}
       <div className="mt-5 space-y-2 text-sm">
         <div className="flex justify-between">
           <span className="text-gray-500">Type</span>
-          {/* <span className="font-medium text-gray-900">{type}</span> */}
+          <span className="font-medium text-gray-900">{element.typeCompte}</span>
         </div>
 
         <div className="flex justify-between items-center">
@@ -416,38 +423,19 @@ const renderTresorieCompteBancairePage: React.FC = () => {
         </div>
 
         <div className="flex justify-between">
-          <span className="text-gray-500">Disponible</span>
+          <span className="text-gray-500">solder</span>
+          {devises.filter(b=>b.id===element.idDevise)
+             .map((b) => ( 
           <span className="text-green-600 font-medium">
-            {/* {formatCurrency(availableBalance, currency)} */}
+            {formatCurrency(element.montant, b.symbole)}
           </span>
-        </div>
+          ))}
+        </div>  
 
-        <div className="flex justify-between">
-          <span className="text-gray-500">Bloqué</span>
-          <span className="text-red-500 font-medium">
-            {/* {formatCurrency(blockedBalance, currency)} */}
-          </span>
-        </div>
-
-        <div className="flex justify-between">
-          <span className="text-gray-500">Statut</span>
-          {/* <span
-            className={`px-2 py-1 rounded-full text-xs font-medium ${
-              status === "ACTIVE"
-                ? "bg-green-100 text-green-700"
-                : status === "SUSPENDED"
-                ? "bg-yellow-100 text-yellow-700"
-                : "bg-gray-200 text-gray-600"
-            }`}
-          >
-            {status}
-          </span> */}
-        </div>
-
-        <div className="flex justify-between">
+        {/* <div className="flex justify-between">
           <span className="text-gray-500">Dernière MàJ</span>
-          {/* <span className="text-gray-900">{lastUpdate}</span> */}
-        </div>
+          <span className="text-gray-900">{lastUpdate}</span>
+        </div> */}
       </div>
 
       {/* Buttons */}
