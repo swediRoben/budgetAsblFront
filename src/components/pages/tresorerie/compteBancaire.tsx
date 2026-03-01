@@ -12,16 +12,6 @@ import {getAllDevise} from "../../../data/classification/devise";
 
 import toast from "react-hot-toast";
 
- 
-/* ===========================
-   INTERFACE COMPLETE
-=========================== */
-
- 
-
-/* ===========================
-   FORMATTER €
-=========================== */
 
 const formatCurrency = (amount: number, currency: string) =>
   new Intl.NumberFormat("fr-FR", {
@@ -395,7 +385,7 @@ const renderTresorieCompteBancairePage: React.FC = () => {
         <div className="flex items-center gap-3">
           <div className="bg-blue-50 p-3 rounded-xl">
             <Building2 className="text-blue-600" size={22} />
-          </div>
+          </div> 
           <div>
              {banques.filter(b=>b.id===element.idBanque)
              .map((b) => ( 
@@ -413,6 +403,14 @@ const renderTresorieCompteBancairePage: React.FC = () => {
           <span className="text-gray-500">Type</span>
           <span className="font-medium text-gray-900">{element.typeCompte}</span>
         </div>
+
+         <div className="flex justify-between">
+          <span className="text-gray-500">Src Financement</span>
+          {bailleurs.filter(b=>b.id===element.sourceFinacementId)
+             .map((b) => ( 
+            <span className="font-medium text-gray-900">{b.libelle}</span>
+          ))}
+        </div> 
 
         <div className="flex justify-between items-center">
           <span className="text-gray-500">IBAN</span>

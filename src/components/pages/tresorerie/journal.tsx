@@ -1,7 +1,14 @@
 import { X } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+
+import {getAllBanque} from "../../../data/tresorerie/banques";
+import {getAllPlancompte} from "../../../data/classification/planComptable";
+import {getAllComptebancaire} from "../../../data/tresorerie/comptebancaire";
+import {createJournal,deleteJournal,getAllJournal,updateJournal} from "../../../data/tresorerie/journal";
+import {getAllBailleur} from "../../../data/classification/bailleur";
+import {getAllDevise} from "../../../data/classification/devise";
 
 const renderTresorieJournalPage: React.FC = () => {
   const transactions = [
@@ -42,9 +49,59 @@ const renderTresorieJournalPage: React.FC = () => {
 
   const [journals, setJournanls] = useState([])
 
+     const [comptebancaires, setComptebancaires] = useState([]) 
+     const [banques, setBanques] = useState([]) 
+     const [plancomptables, setPlancomptables] = useState([]);
+     
+     const [idcompte, setIdcompte] = useState(null); 
+     const [numerobc, setNumerobc] = useState(null); 
+     const [idbanque, setIdbanque] = useState(null); 
+     const [iddevise, setIddevise] = useState(null); 
+     const [idsrcfinancement, setIdsrcfinancement] = useState(null); 
+     const [bailleurs, setBailleurs] = useState(null);  
+       const [devises, setDevises] = useState([]);
+
   const [formData, setFormData] = useState({});
   const [modalType, setModalType] = useState("");
   const [showModal, setShowModal] = useState(false);
+
+  // GET
+    const dataJournal = async (exercice: number,banque: number,numero: string,debut:any,fin:any) => {
+      const data = await getAllJournal(exercice, banque, numero,debut,fin);
+      setJournanls(data)
+    } 
+  
+    const dataComptebancaire = async (banque: number) => {
+      const data = await getAllComptebancaire(banque,null, null);
+      setComptebancaires(data)
+    }
+  
+    const dataBanque = async () => {
+      const data = await getAllBanque();
+      setBanques(data)
+    }
+    const dataPlancompte = async () => {
+      const data = await getAllPlancompte();
+      setPlancomptables(data)
+    }
+    const dataDevise = async () => {
+      const data = await getAllDevise();
+      setDevises(data)
+    }
+  
+    const dataBailleur = async () => {
+      const data = await getAllBailleur();
+      setBailleurs(data)
+    }
+
+     useEffect(()=>{ 
+                dataJournal(null,null,null,null,null);
+                dataBanque();
+                dataDevise();
+                dataBailleur();
+                dataPlancompte();
+               dataComptebancaire(null,null,null);
+              },[])
 
   const {
     register,
