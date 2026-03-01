@@ -177,7 +177,7 @@ const renderTresorieJournalPage: React.FC = () => {
             </label>
             <input
               type="text"
-              {...register("exercice", { required: "Exercice obligatoire" })}
+              {...register("exerciceId", { required: "Exercice obligatoire" })}
               placeholder="2026"
               className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
             />

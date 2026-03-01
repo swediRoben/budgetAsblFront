@@ -44,7 +44,7 @@ import RenderTresorieBanquePage from "./components/pages/tresorerie/banque";
 import RenderTresorieCompteBancairePage from "./components/pages/tresorerie/compteBancaire";
 import RenderTresorieJournalPage from "./components/pages/tresorerie/journal";
 import RenderTresorieRapprochementPage from "./components/pages/tresorerie/rapprochement";
-import RenderTresorieSituationPage from "./components/pages/tresorerie/situation";
+import JournalTresorerieForm from "./components/pages/tresorerie/decaissement";
 
 type ExpandedMenusType = {
   [key: string]: boolean;
@@ -401,7 +401,7 @@ const BudgetApp = () => {
       case "rapprochement":
         return <RenderTresorieRapprochementPage />;
       case "situation":
-        return <RenderTresorieSituationPage />; 
+        return <JournalTresorerieForm />; 
 
       // parametre
       case "exercice":
