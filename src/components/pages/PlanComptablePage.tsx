@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
 
-import {createClasse,deleteClasse,getAllClasse,updateClasse} from "../../data/classification/classes";
+import {getAllClasse} from "../../data/classification/classes";
 import {createPlancompte,deletePlancompte,getAllPlancompte,updatePlancompte} from "../../data/classification/planComptable";
  import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 
