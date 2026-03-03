@@ -586,33 +586,7 @@ export default function JournalTresorerieForm() {
                                 ))
                             }
                         </select>
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
-                            Plan Comptable
-                        </label>
-                        <select
-                            {...register("planComptableId", { required: "compte comptable requis" })}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === "") return;
-                                getClasseByCompteComptable(Number(value))
-                            }
-                            }
-
-                        >
-                            <option value="">-- Choisir --</option>
-                            {
-                                plansComptables?.map((data) => (
-                                    <option key={data.id} value={data.id}>
-                                        {data.numero}-{data.libelle}
-                                    </option>
-                                ))
-                            }
-                        </select>
-                    </div>
+                    </div> 
 
                     {/* Mode Paiement */}
                     <div>
@@ -642,6 +616,33 @@ export default function JournalTresorerieForm() {
                             />
                         </div>
                     )}
+
+                        <div>
+                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
+                            Plan Comptable
+                        </label>
+                        <select
+                            {...register("planComptableId", { required: "compte comptable requis" })}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "") return;
+                                getClasseByCompteComptable(Number(value))
+                            }
+                            }
+
+                        >
+                            <option value="">-- Choisir --</option>
+                            {
+                                plansComptables?.map((data) => (
+                                    <option key={data.id} value={data.id}>
+                                        {data.numero}-{data.libelle}
+                                    </option>
+                                ))
+                            }
+                        </select>
+                    </div>
+                    
                     {renderSelect("Classe", "classeId", classes)}
                     {renderSelect("Compte Bancaire", "compteBancaireId", comptesBancaires)}
                     {renderSelect("Bailleur", "sourceFinacementId", bailleurs)}
