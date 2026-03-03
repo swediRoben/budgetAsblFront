@@ -8,6 +8,12 @@ import { getAllExercice } from "../../../data/classification/exercice";
 import { getAllPrevision } from "../../../data/classification/prevision";
 import { getAllDevise } from "../../../data/classification/devise";
 
+import { getAllBanque } from "../../../data/tresorerie/banques";
+import { getAllPlancompte, getPlancompteById } from "../../../data/classification/planComptable";
+import { getAllComptebancaire } from "../../../data/tresorerie/comptebancaire";
+import { createJournal, deleteJournal, getAllJournal, updateJournal } from "../../../data/tresorerie/journal";
+import { getAllBailleur } from "../../../data/classification/bailleur";
+
 import { useForm } from "react-hook-form";
 
 import toast from "react-hot-toast";
@@ -35,6 +41,7 @@ export default function JournalTresorerieForm() {
     const [buttonName, setButtonName] = useState("");
     const [tauxdeviseengagement, setTauxdeviseengagement] = useState(0);
     const [devise, setDevise] = useState(null);
+    const [budget, setBudget] = useState(false)
     const [debut, setDebut] = useState("");
     const [fin, setFin] = useState("");
     const [page, setPage] = useState(0);
@@ -50,8 +57,33 @@ export default function JournalTresorerieForm() {
     const [classes, setClasses] = useState([]);
     const [comptesBancaires, setComptesBancaires] = useState([]);
 
+    const dataComptebancaire = async (banque: number) => {
+        const data = await getAllComptebancaire(banque, null, null);
+        setComptesBancaires(data)
+    }
 
+    const dataBanque = async () => {
+        const data = await getAllBanque();
+        setBanques(data)
+    }
+    const dataPlancompte = async () => {
+        const data = await getAllPlancompte();
+        setPlansComptables(data)
+    }
 
+    const dataBailleur = async () => {
+        const data = await getAllBailleur();
+        setBailleurs(data)
+    }
+
+    const getCompteBancaireByBanque = (idBanque: number) => {
+        dataComptebancaire(idBanque)
+    }
+
+    const getClasseByCompteComptable = async (idCompte: number) => {
+        const data = await getPlancompteById(idCompte);
+        setClasses(data?.classe);
+    }
     const [showLiquidationList, setShowLiquidationList] = useState(false);
     const dataExercice = async () => {
         const data = await getAllExercice();
@@ -68,19 +100,6 @@ export default function JournalTresorerieForm() {
         setEngagements(data)
     }
 
-    const dataMontant = async (data: any) => {
-        const montantLiquide = await getSommeMontantLiquide(exerciceId, data.id);
-        setMontantEngage(data.montant)
-        setTauxdeviseengagement(data.tauxDevise)
-        setMontantLiquide(montantLiquide);
-        setDevise(data.devise.id);
-    }
-
-    useEffect(() => {
-        if (devise) {
-            setValue("deviseId", devise);
-        }
-    }, [devise]);
 
     const dataFonctionnaires = async () => {
         const data = await getAllFonctionnaire();
@@ -88,7 +107,10 @@ export default function JournalTresorerieForm() {
     }
 
     useEffect(() => {
+        dataPlancompte();
+        dataBanque();
         dataExercice();
+        dataBailleur();
         dataDevise();
         dataFonctionnaires();
     }, []);
@@ -188,8 +210,8 @@ export default function JournalTresorerieForm() {
             const data = await getAllPrevision(exerciceId, e, null);
             setPrevisions(data)
         }
-    } 
-    
+    }
+
     const handleAffichePrevisionData = (data: any) => {
         setCategorie(data.categorie);
         setBeneficiaire(data.beneficiaire)
@@ -202,7 +224,7 @@ export default function JournalTresorerieForm() {
         dataMontant(data);
         return data;
     }
- 
+
 
     const toOffsetDateTimeStart = (dateStr: string) => {
         return dateStr ? `${dateStr}T00:00:00Z` : null;
@@ -214,7 +236,7 @@ export default function JournalTresorerieForm() {
         const formatted = date.toLocaleString()
         return formatted;
     }
- 
+
 
     const formatDate = (dateString: string) => {
         return dateString ? dateString.split("T")[0] : null;
@@ -230,13 +252,45 @@ export default function JournalTresorerieForm() {
         setEngagementid(id);
 
     });
- 
+    const closeAll = () => {
+        setLiquidations([]);
+        setBailleurs([]);
+        setDevises([]);
+        setPrevisions([]);
+        setPlansComptables([]);
+        setClasses([]);
+    }
     const hendleUpdata = async (data: any) => {
-        setIdData(data.id); 
-
-       console.log(data)
+        closeAll();
+        setLiquidations(prev => [...prev, data]);
+        setBailleurs(prev => [...prev, data.planActivite.source]);
+        setDevises(prev => [...prev, data?.devise]);
+        setPrevisions(prev => [...prev, data.planActivite]);
+        setPlansComptables(prev => [...prev, data.planActivite.planComptable]);
+        setClasses(prev => [...prev, data.planActivite.planComptable.classe]);
+        setShowLiquidationList(false);
+        setBudget(true)
     };
- 
+
+    useEffect(() => {
+        if (budget && Liquidations.length > 0) {
+            console.log(Liquidations)
+            setValue("idExercice", Liquidations[0].idExercice);
+            setValue("taux", Liquidations[0].tauxDevise);
+            setValue("montant", Liquidations[0].montant);
+            setValue("classeId", Liquidations[0]?.planActivite?.planComptable?.classe?.id);
+            setValue("deviseId", Liquidations[0]?.idDevise);
+            setValue("liquidationId", Liquidations[0].id);
+            setValue("idPlanFondActivite", Liquidations[0].planActivite?.id);
+            setValue("projetId", Liquidations[0].idProjet);
+            setValue("categorieId", Liquidations[0].planActivite?.categorie?.id);
+            setValue("sourceFinacementId", Liquidations[0].planActivite?.source?.id);
+            setValue("reference", Liquidations[0].bonEngagment);
+            setValue("planComptableId", Liquidations[0].planActivite?.planComptable?.id);
+            setValue("objet", Liquidations[0].objet);
+        }
+
+    }, [Liquidations]);
 
     const openList = (status: string) => {
         setLiquidations([]);
@@ -248,6 +302,7 @@ export default function JournalTresorerieForm() {
         setFin("");
         setStatus(status);
         setShowLiquidationList(true);
+        setBudget(false)
     }
 
 
@@ -303,7 +358,6 @@ export default function JournalTresorerieForm() {
     };
 
     const closeModal = () => {
-        resetRejet({ id: null, observation: null })
         setShowModal(false);
     };
 
@@ -322,6 +376,8 @@ export default function JournalTresorerieForm() {
             montant: "",
             objet: "",
             date: "",
+            projetId: "",
+            categorieId: "",
             banqueId: "",
             planComptableId: "",
             classeId: "",
@@ -340,27 +396,58 @@ export default function JournalTresorerieForm() {
     const modePaiement = watch("modepaiement");
     const typeMouvement = watch("typemouvement"); // 👈 on surveille le type
 
-    const renderSelect = (label, fieldName, options, required = false) => (
-        <div>
-            <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
-                {label}
-            </label>
-            <select
-                {...register(fieldName, required ? { required: `${label} requis` } : {})}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-            >
-                <option value="">-- Choisir --</option>
-                {options.map((o) => (
-                    <option key={o.id} value={o.id}>
-                        {o.name}
+    const renderSelect = (label, fieldName, options, required = false) => {
+        const renderOptions = () => {
+            if (label === "Liquidation") {
+                return options?.map((o) => (
+                    <option key={o?.id} value={o?.id}>
+                        {o?.objet}
                     </option>
-                ))}
-            </select>
-            {errors[fieldName] && (
-                <p className="text-red-500 text-xs mt-1">{errors[fieldName]?.message}</p>
-            )}
-        </div>
-    );
+                ));
+            } else if (label === "Plan Activité") {
+                return options?.map((o) => (
+                    <option key={o?.id} value={o?.id}>
+                        {o?.activite?.code} {o?.activite?.libelle}
+                    </option>
+                ));
+            } else if (label === "Compte Bancaire") {
+                return options?.map((o) => (
+                    <option key={o?.id} value={o?.id}>
+                        {o?.libelle}
+                    </option>
+                ));
+            } else {
+                return options?.map((o) => (
+                    <option key={o?.id} value={o?.id}>
+                        {o?.libelle}
+                    </option>
+                ));
+            }
+        };
+
+        return (
+            <div>
+                <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
+                    {label}
+                </label>
+
+                <select
+                    {...register(fieldName, required ? { required: `${label} requis` } : {})}
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                >
+                    <option value="">-- Choisir --</option>
+
+                    {renderOptions()}
+                </select>
+
+                {errors[fieldName] && (
+                    <p className="text-red-500 text-xs mt-1">
+                        {errors[fieldName]?.message}
+                    </p>
+                )}
+            </div>
+        );
+    };
 
     return (
 
@@ -394,11 +481,19 @@ export default function JournalTresorerieForm() {
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
                             Exercice ID
                         </label>
-                        <input
-                            type="number"
+                        <select
                             {...register("idExercice", { required: "Exercice requis" })}
                             className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                        />
+                        >
+                            <option value="">-- Choisir --</option>
+                            {
+                                exercices?.map((exercice) => (
+                                    <option key={exercice.id} value={exercice.id}>
+                                        {exercice.libelle}
+                                    </option>
+                                ))
+                            }
+                        </select>
                     </div>
 
                     {/* Type Mouvement */}
@@ -417,14 +512,16 @@ export default function JournalTresorerieForm() {
                     </div>
 
                     {/* Type liquidation */}
-                    <div className="flex justify-start mb-4">
-                        <button
-                            onClick={() => openList('VALIDE')}
-                            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition-colors duration-200"
-                        >
-                            Liste des liquidations
-                        </button>
-                    </div>
+                    {typeMouvement === "CREDIT" && (
+                        <>
+                            <div className="flex justify-start mb-4">
+                                <button
+                                    onClick={() => openList('VALIDE')}
+                                    className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition-colors duration-200"
+                                >Liste des liquidations </button>
+                            </div>
+                        </>
+                    )}
                     {/* Montant */}
                     <div>
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
@@ -463,6 +560,60 @@ export default function JournalTresorerieForm() {
                         />
                     </div>
 
+
+                    {/* Sélects fixes */}
+                    {renderSelect("Devise", "deviseId", devises)}
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
+                            Banque
+                        </label>
+                        <select
+                            {...register("banqueId", { required: "Banque requis" })}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "") return; // on ignore le choix vide
+                                getCompteBancaireByBanque(Number(value));
+                            }}
+                        >
+                            <option value="">-- Choisir --</option>
+                            {
+                                banques?.map((data) => (
+                                    <option key={data.id} value={data.id}>
+                                        {data.libelle}
+                                    </option>
+                                ))
+                            }
+                        </select>
+                    </div>
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
+                            Plan Comptable
+                        </label>
+                        <select
+                            {...register("planComptableId", { required: "compte comptable requis" })}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "") return;
+                                getClasseByCompteComptable(Number(value))
+                            }
+                            }
+
+                        >
+                            <option value="">-- Choisir --</option>
+                            {
+                                plansComptables?.map((data) => (
+                                    <option key={data.id} value={data.id}>
+                                        {data.numero}-{data.libelle}
+                                    </option>
+                                ))
+                            }
+                        </select>
+                    </div>
+
                     {/* Mode Paiement */}
                     <div>
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
@@ -480,10 +631,10 @@ export default function JournalTresorerieForm() {
                     </div>
 
                     {/* Numéro Chèque (conditionnel) */}
-                    {modePaiement === "CHEQUE" && (
+                    {(modePaiement === "CHEQUE" || modePaiement === "VIREMENT") && (
                         <div>
                             <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
-                                Numéro Chèque
+                                Numéro Chèque / Virement
                             </label>
                             <input
                                 {...register("numroCheque")}
@@ -491,17 +642,12 @@ export default function JournalTresorerieForm() {
                             />
                         </div>
                     )}
-
-                    {/* Sélects fixes */}
-                    {renderSelect("Banque", "banqueId", banques)}
-                    {renderSelect("Plan Comptable", "planComptableId", plansComptables)}
                     {renderSelect("Classe", "classeId", classes)}
-                    {renderSelect("Devise", "deviseId", devises)}
                     {renderSelect("Compte Bancaire", "compteBancaireId", comptesBancaires)}
                     {renderSelect("Bailleur", "sourceFinacementId", bailleurs)}
 
                     {/* Champs à cacher si DEBIT */}
-                    {typeMouvement !== "DEBIT" && (
+                    {typeMouvement === "CREDIT" && (
                         <>
                             {renderSelect("Liquidation", "liquidationId", Liquidations)}
                             {renderSelect("Plan Activité", "idPlanFondActivite", previsions)}
@@ -640,14 +786,14 @@ export default function JournalTresorerieForm() {
                                                 <td className="px-4 py-2 text-center">
                                                     <span
                                                         className={`px-3 py-1 rounded-full text-xs font-semibold ${eng.rejet
-                                                                ? "bg-red-100 text-red-700"
-                                                                : eng.retourner
-                                                                    ? "bg-violet-100 text-violet-700"
-                                                                    : eng.reception
-                                                                        ? "bg-blue-100 text-blue-700"
-                                                                        : eng.validation
-                                                                            ? "bg-green-100 text-green-700"
-                                                                            : "bg-yellow-100 text-yellow-700"
+                                                            ? "bg-red-100 text-red-700"
+                                                            : eng.retourner
+                                                                ? "bg-violet-100 text-violet-700"
+                                                                : eng.reception
+                                                                    ? "bg-blue-100 text-blue-700"
+                                                                    : eng.validation
+                                                                        ? "bg-green-100 text-green-700"
+                                                                        : "bg-yellow-100 text-yellow-700"
                                                             }`}
                                                     >
                                                         {eng.rejet
