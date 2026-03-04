@@ -51,6 +51,9 @@ export default function JournalTresorerieForm() {
     const [showaction, setShowaction] = useState(true);
     const [idData, setIdData] = useState(null);
 
+    const [idDevise, setIdDevise] = useState(null);
+    const [showBanque, setShowBanque] = useState(false);
+
 
     const [banques, setBanques] = useState([]);
     const [plansComptables, setPlansComptables] = useState([]);
@@ -58,8 +61,20 @@ export default function JournalTresorerieForm() {
     const [comptesBancaires, setComptesBancaires] = useState([]);
 
     const dataComptebancaire = async (banque: number) => {
-        const data = await getAllComptebancaire(banque, null, null);
-        setComptesBancaires(data)
+        setComptesBancaires([]);
+        const data = await getAllComptebancaire(banque, idDevise, null);
+        setComptesBancaires(data);
+    }
+
+    const showBanqueByDevise = (id:number) => {
+        
+        if (id!=0) {
+            setIdDevise(id);
+            setShowBanque(true);
+        } else {
+            setIdDevise(id);
+            setShowBanque(false);
+        }
     }
 
     const dataBanque = async () => {
@@ -81,8 +96,9 @@ export default function JournalTresorerieForm() {
     }
 
     const getClasseByCompteComptable = async (idCompte: number) => {
+        setClasses([])
         const data = await getPlancompteById(idCompte);
-        setClasses(data?.classe);
+        setClasses(press => [...press, data.data?.classe]);
     }
     const [showLiquidationList, setShowLiquidationList] = useState(false);
     const dataExercice = async () => {
@@ -322,22 +338,9 @@ export default function JournalTresorerieForm() {
         try {
 
             if (idData && statut === "VALIDEE") {
-                validerLiquidation(idData)
+                // validerLiquidation(idData)
                 toast.success("Engagement validée avec succes!");
-                //  reset({
-                //    id: null,
-                //    idExercice: null,
-                //    idProjet: null,
-                //    idPlanFondActivite: null,
-                //    idResponsable: null,
-                //    idDevise: null,
-                //    tauxDevise: 0,
-                //    montant: 0,
-                //    objet: "",
-                //    enAttente: true,
-                //    dataEnAttente: null,
-                //    observation: "",
-                //  })
+
             } else {
                 toast.success("Operation échoué !");
             }
@@ -347,9 +350,45 @@ export default function JournalTresorerieForm() {
         }
     };
 
+    const formatOffsetDate = (value) => {
+  if (!value) return null;
+  return new Date(value).toISOString(); // ✅ ajoute Z
+};
 
     const onSubmit = async (data: any) => {
-        return data;
+        try {
+            data.date=formatOffsetDate(data.date)
+            if (!data.id) {
+                await createJournal(data);
+            } else {
+                await updateJournal(data.id, data);
+            }
+            reset({
+    id: null,
+    reference: "",
+    idExercice: null,
+    typemouvement: "",
+    taux: null,
+    montant: null,
+    objet: "",
+    date: "",
+    projetId: null,
+    categorieId: null,
+    banqueId: null,
+    planComptableId: null,
+    classeId: null,
+    deviseId: null,
+    compteBancaireId: null,
+    liquidationId: null,
+    idPlanFondActivite: null,
+    sourceFinacementId: null,
+    modepaiement: "",
+    numroCheque: "",
+  })
+            toast.success("Operation effectuée avec succès !");
+        } catch (error) {
+            toast.error("Erreur lors de l'operation'.", { style: { backgroundColor: "red", color: "white" } });
+        }
     }
 
     const openModal = (bouton: string) => {
@@ -361,35 +400,37 @@ export default function JournalTresorerieForm() {
         setShowModal(false);
     };
 
-    const {
-        register,
-        handleSubmit,
-        watch,
-        setValue,
-        formState: { errors },
-    } = useForm({
-        defaultValues: {
-            reference: "",
-            idExercice: "",
-            typemouvement: "",
-            taux: "",
-            montant: "",
-            objet: "",
-            date: "",
-            projetId: "",
-            categorieId: "",
-            banqueId: "",
-            planComptableId: "",
-            classeId: "",
-            deviseId: "",
-            compteBancaireId: "",
-            liquidationId: "",
-            idPlanFondActivite: "",
-            sourceFinacementId: "",
-            modepaiement: "",
-            numroCheque: "",
-        },
-    });
+   const {
+  register,
+  handleSubmit,
+  watch,
+  reset,
+  setValue,
+  formState: { errors },
+} = useForm({
+  defaultValues: {
+    id: null,
+    reference: "",
+    idExercice: null,
+    typemouvement: "",
+    taux: null,
+    montant: null,
+    objet: "",
+    date: "",
+    projetId: null,
+    categorieId: null,
+    banqueId: null,
+    planComptableId: null,
+    classeId: null,
+    deviseId: null,
+    compteBancaireId: null,
+    liquidationId: null,
+    idPlanFondActivite: null,
+    sourceFinacementId: null,
+    modepaiement: "",
+    numroCheque: "",
+  },
+});
 
 
 
@@ -413,7 +454,7 @@ export default function JournalTresorerieForm() {
             } else if (label === "Compte Bancaire") {
                 return options?.map((o) => (
                     <option key={o?.id} value={o?.id}>
-                        {o?.libelle}
+                        {o?.numero}
                     </option>
                 ));
             } else {
@@ -464,6 +505,7 @@ export default function JournalTresorerieForm() {
                 >
                     {/* Référence */}
                     <div>
+                        <input {...register("id", { required: false })} readOnly hidden />
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
                             Référence
                         </label>
@@ -548,6 +590,33 @@ export default function JournalTresorerieForm() {
                         />
                     </div>
 
+
+                    {/* Sélects fixes */}
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
+                            Devise
+                        </label>
+                        <select
+                            {...register("deviseId", { required: "Devise requise" })}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                            onChange={(e) => {
+                                const value = e.target.value;
+                                if (value === "") return null; // on ignore le choix vide
+                                showBanqueByDevise(Number(value));
+                            }}
+                        >
+                            <option value="0">-- Choisir --</option>
+                            {
+                                devises?.map((data) => (
+                                    <option key={data?.id} value={data?.id}>
+                                        {data?.libelle} ({data?.symbole})
+                                    </option>
+                                ))
+                            }
+                        </select>
+                    </div>
+
                     {/* Date */}
                     <div>
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
@@ -561,32 +630,37 @@ export default function JournalTresorerieForm() {
                     </div>
 
 
-                    {/* Sélects fixes */}
-                    {renderSelect("Devise", "deviseId", devises)}
+                    {
+                        showBanque && (
+                            <>
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
+                                        Banque
+                                    </label>
+                                    <select
+                                        {...register("banqueId", { required: "Banque requise" })}
+                                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
+                                        onChange={(e) => {
+                                            const value = e.target.value;
+                                            if (value === "") return; // on ignore le choix vide
+                                            getCompteBancaireByBanque(Number(value));
+                                        }}
+                                    >
+                                        <option value="">-- Choisir --</option>
+                                        {
+                                            banques?.map((data) => (
+                                                <option key={data.id} value={data.id}>
+                                                    {data.libelle}
+                                                </option>
+                                            ))
+                                        }
+                                    </select>
+                                </div>
+                                {renderSelect("Compte Bancaire", "compteBancaireId", comptesBancaires)}
+                            </>
 
-                    <div>
-                        <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
-                            Banque
-                        </label>
-                        <select
-                            {...register("banqueId", { required: "Banque requis" })}
-                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none"
-                            onChange={(e) => {
-                                const value = e.target.value;
-                                if (value === "") return; // on ignore le choix vide
-                                getCompteBancaireByBanque(Number(value));
-                            }}
-                        >
-                            <option value="">-- Choisir --</option>
-                            {
-                                banques?.map((data) => (
-                                    <option key={data.id} value={data.id}>
-                                        {data.libelle}
-                                    </option>
-                                ))
-                            }
-                        </select>
-                    </div> 
+                        )
+                    }
 
                     {/* Mode Paiement */}
                     <div>
@@ -617,7 +691,7 @@ export default function JournalTresorerieForm() {
                         </div>
                     )}
 
-                        <div>
+                    <div>
                         <label className="block text-xs font-bold text-gray-600 uppercase mb-1">
                             Plan Comptable
                         </label>
@@ -642,9 +716,8 @@ export default function JournalTresorerieForm() {
                             }
                         </select>
                     </div>
-                    
+
                     {renderSelect("Classe", "classeId", classes)}
-                    {renderSelect("Compte Bancaire", "compteBancaireId", comptesBancaires)}
                     {renderSelect("Bailleur", "sourceFinacementId", bailleurs)}
 
                     {/* Champs à cacher si DEBIT */}

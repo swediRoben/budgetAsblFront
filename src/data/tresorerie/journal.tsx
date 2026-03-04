@@ -2,7 +2,7 @@
 import axios from "axios";
  
 // const API_URL = "http://localhost:8080/api/Journals";
-const API_URL = "http://localhost:8080/budget/v1/api//api/journal-tresorerie";
+const API_URL = "http://localhost:8080/budget/v1/api/journal-tresorerie";
 
 export const getAllJournal = async (exerciceId:number,banqueId:number,numero:string,debut:any,fin:any) => {
   try {

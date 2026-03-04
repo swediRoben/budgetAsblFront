@@ -45,6 +45,7 @@ import RenderTresorieCompteBancairePage from "./components/pages/tresorerie/comp
 import RenderTresorieJournalPage from "./components/pages/tresorerie/journal";
 import RenderTresorieRapprochementPage from "./components/pages/tresorerie/rapprochement";
 import JournalTresorerieForm from "./components/pages/tresorerie/decaissement";
+import ComptabilitePage from "./components/pages/tresorerie/comptabilite";
 
 type ExpandedMenusType = {
   [key: string]: boolean;
