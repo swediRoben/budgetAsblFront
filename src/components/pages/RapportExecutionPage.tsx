@@ -191,17 +191,16 @@ import React, { useEffect, useMemo, useState } from 'react';
               <th className="border border-gray-400 px-3 py-3 text-left w-28">Béneficiaire</th>
               <th className="border border-gray-400 px-3 py-3 text-left w-28">Credit vote</th>
               <th className="border border-gray-400 px-3 py-3 text-left">Credit engagé</th>
-              <th className="border border-gray-400 px-3 py-3 text-left">Credit liquidé</th>
-              <th className="border border-gray-400 px-3 py-3 text-right w-32">Credit disponible</th> 
+              <th className="border border-gray-400 px-3 py-3 text-left">Credit liquidé</th>  
             </tr>
           </thead>
           <tbody className="text-xs text-gray-800">
             {rapports.map((item) => (
               <tr key={item} className="odd:bg-white even:bg-gray-50">
-                <td className="border border-gray-300 px-3 py-2 text-center italic text-gray-400 underline">{item?.planActivite?.activite?.libelle}</td>
-                <td className="border border-gray-300 px-3 py-2">{item.planActivite?.sournce?.libelle}</td>
+                <td className="border border-gray-300 px-3 py-2 text-center ">{item?.planActivite?.activite?.libelle}</td>
+                <td className="border border-gray-300 px-3 py-2">{item.planActivite?.source?.libelle}</td>
                 <td className="border border-gray-300 px-3 py-2">{item.planActivite?.beneficiaire?.libelle}</td>
-                <td className="border border-gray-300 px-3 py-2 text-center italic text-gray-400 underline">{item?.planActivite?.montant}</td>
+                <td className="border border-gray-300 px-3 py-2 font-mono font-bold">{item?.planActivite?.montant}</td>
                 <td className="border border-gray-300 px-3 py-2 font-mono font-bold">{item.montantEngage}</td>
                 <td className="border border-gray-300 px-3 py-2 font-mono font-bold">{item.montantLiquide}</td>         </tr>
             ))}
