@@ -67,6 +67,13 @@ const renderTresorieJournalPage: React.FC = () => {
                dataComptebancaire(null,null,null);
               },[])
 
+      const toDateNormal = (dates: string) => {
+    const dateString = dates;
+    const date = new Date(dateString);
+    const formatted = date.toLocaleString()
+    return formatted;
+  }
+
  
   const hendleDelete = (id: number, type: string) => {
     try {
@@ -173,7 +180,7 @@ const renderTresorieJournalPage: React.FC = () => {
                   key={data.id}
                   className="border-b hover:bg-gray-50 transition"
                 >
-                  <td className="p-4">{formData(data.date)}</td>
+                  <td className="p-4">{toDateNormal(data.date)}</td>
 
                   <td className="p-4">
                     <span
