@@ -5,11 +5,15 @@ import toast from "react-hot-toast";
 
 import {getAllBanque} from "../../../data/tresorerie/banques";
 import {getAllPlancompte} from "../../../data/classification/planComptable";
-import {getAllComptebancaire} from "../../../data/tresorerie/comptebancaire";
-import {createJournal,deleteJournal,getAllJournal,updateJournal} from "../../../data/tresorerie/journal";
+ import {createJournal,deleteJournal,getAllJournal,updateJournal} from "../../../data/tresorerie/journal";
 import {getAllBailleur} from "../../../data/classification/bailleur";
-import {getAllDevise} from "../../../data/classification/devise";
+import {getAllDevise} from "../../../data/classification/devise"; 
+import { getAllCategorie } from "../../data/classification/categorie";
+import { getAllPlanfontprojet } from "../../data/classification/planfontprojet";
 
+
+ import { getAllExercice } from "../../../data/classification/exercice";
+ 
 const renderTresorieJournalPage: React.FC = () => {
 
   const [journals, setJournanls] = useState([])
@@ -18,13 +22,68 @@ const renderTresorieJournalPage: React.FC = () => {
      const [banques, setBanques] = useState([]) 
      const [plancomptables, setPlancomptables] = useState([]);
      
-     const [idcompte, setIdcompte] = useState(null); 
-     const [numerobc, setNumerobc] = useState(null); 
-     const [idbanque, setIdbanque] = useState(null); 
-     const [iddevise, setIddevise] = useState(null); 
-     const [idsrcfinancement, setIdsrcfinancement] = useState(null); 
-     const [bailleurs, setBailleurs] = useState(null);  
+    const [exercices, setExercices] = useState([]);
+    const [projets, setProjets] = useState([]);
+      const [categories, setCategories] = useState([]); 
+    const [classes, setClasses] = useState([]);
+    const [comptesBancaires, setComptesBancaires] = useState([]);
+
+     const [bailleurs, setBailleurs] = useState([]);  
        const [devises, setDevises] = useState([]);
+
+        const { register, handleSubmit, reset } = useForm();
+
+         const dataComptebancaire = async (banque: number) => {
+                setComptesBancaires([]);
+                const data = await getAllComptebancaire(banque, null, null);
+                setComptesBancaires(data);
+            }
+                const dataBanque = async () => {
+                    const data = await getAllBanque();
+                    setBanques(data)
+                }
+
+                    const dataExercice = async () => {
+                        const data = await getAllExercice();
+                        setExercices(data)
+                    }
+         
+                     const getPlanfondByExercice = async (e: any) => {
+                        const value = e.target.value;
+                        if (value !== "") {
+                         const data = await getAllPlanfontprojet(e.target.value);
+                          setProjets(data)
+                        } else {
+                          setProjets([])
+                        }
+                        setProjets([])
+                      }
+                    
+                      const getCategoriesByProjet = async (e: any) => {
+                        setCategories([])
+                        const data = await getAllCategorie(e);
+                        setCategories(e)
+                      }
+                    
+
+
+ const onSubmit = (data) => {
+    const filter = {
+      exerciceId: data.exerciceId || null,
+      debut: data.debut || null,
+      fin: data.fin || null,
+      reference: data.reference || null,
+      projetId: data.projetId || null,
+      categorieId: data.categorieId || null,
+      typeMouvement: data.typeMouvement || null,
+      sourceFinancementId: data.sourceFinancementId || null,
+      banqueId: data.banqueId || null,
+      compteBanqueId: data.compteBanqueId || null
+    };
+
+    onSearch(filter);
+  };
+       
 
   const [formData, setFormData] = useState({}); 
   const [showModal, setShowModal] = useState(false);
@@ -137,25 +196,123 @@ const renderTresorieJournalPage: React.FC = () => {
 
         {/* FILTER BAR */}
         <div className="bg-white rounded-xl shadow-sm border p-4 flex flex-wrap items-center gap-4 mb-6">
-          <input
-            type="text"
-            placeholder="Rechercher par libellé ou référence..."
-            className="flex-1 min-w-[250px] rounded-lg border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <form
+      onSubmit={handleSubmit(onSubmit)}
+      className="bg-white rounded-xl shadow-sm border p-4 grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
+    >
 
-          <select className="rounded-lg border px-4 py-2 text-sm bg-white">
-            <option>Toutes opérations</option>
-            <option>Encaissements</option>
-            <option>Décaissements</option>
-          </select>
+      {/* Référence */}
+      <input
+        type="text"
+        placeholder="Référence"
+        {...register("reference")}
+        className="border rounded-lg px-3 py-2 text-sm"
+      />
 
-          <button className="px-4 py-2 border rounded-lg text-sm hover:bg-gray-50">
-            Exporter
-          </button>
+      {/* Type mouvement */}
+      <select
+        {...register("typeMouvement")}
+        className="border rounded-lg px-3 py-2 text-sm"
+      >
+        <option value="">Toutes opérations</option>
+        <option value="DEBIT">Encaissement</option>
+        <option value="CREDIT">Décaissement</option>
+      </select>
 
-          <button onClick={() => openModal()} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
+      {/* Exercice */}
+      <select {...register("exerciceId")} className="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Exercice</option>
+        {exercices.map((e) => (
+          <option key={e.id} value={e.id}>
+            {e.libelle}
+          </option>
+        ))}
+      </select>
+
+      {/* Projet */}
+      <select {...register("projetId")} className="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Projet</option>
+        {projets.map((p) => (
+          <option key={p.id} value={p.id}>
+            {p.libelle}
+          </option>
+        ))}
+      </select>
+
+      {/* Catégorie */}
+      <select {...register("categorieId")} className="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Catégorie</option>
+        {categories.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.libelle}
+          </option>
+        ))}
+      </select>
+
+      {/* Banque */}
+      <select {...register("banqueId")} className="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Banque</option>
+        {banques.map((b) => (
+          <option key={b.id} value={b.id}>
+            {b.nom}
+          </option>
+        ))}
+      </select>
+
+      {/* Compte Banque */}
+      <select {...register("compteBanqueId")} className="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Compte Banque</option>
+        {comptesBancaires.map((c) => (
+          <option key={c.id} value={c.id}>
+            {c.numero}
+          </option>
+        ))}
+      </select>
+
+      {/* Source financement */}
+      <select {...register("sourceFinancementId")} className="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Source financement</option>
+        {bailleurs.map((s) => (
+          <option key={s.id} value={s.id}>
+            {s.libelle}
+          </option>
+        ))}
+      </select>
+
+      {/* Date début */}
+      <input
+        type="date"
+        {...register("debut")}
+        className="border rounded-lg px-3 py-2 text-sm"
+      />
+
+      {/* Date fin */}
+      <input
+        type="date"
+        {...register("fin")}
+        className="border rounded-lg px-3 py-2 text-sm"
+      />
+
+      {/* Bouton rechercher */}
+      <button
+        type="submit"
+        className="col-span-2 md:col-span-1 px-4 py-2 bg-blue-600 text-white rounded-lg"
+      >
+        Rechercher
+      </button>
+
+      {/* Nouvelle opération */}
+      <button
+        type="button"
+        onClick={openModal}
+        className="col-span-2 md:col-span-1 px-4 py-2 bg-green-600 text-white rounded-lg"
+      >
+        Nouvelle opération
+      </button>
+    </form>
+          {/* <button onClick={() => openModal()} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
             Nouvelle Opération
-          </button>
+          </button> */}
         </div>
 
         {/* TABLE */}
