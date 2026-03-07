@@ -262,7 +262,7 @@ const BudgetApp = () => {
       icon: <CheckSquare className="w-5 h-5" />,
       subMenus: [ 
         {
-          id: "journal",
+          id: "JournalComptable",
           name: "Journal",
           icon: <FileText className="w-4 h-4" />,
         },
@@ -447,7 +447,7 @@ const BudgetApp = () => {
         return <JournalTresorerieForm />; 
 
       //comptabilite
-      case "Journal":
+      case "JournalComptable":
         return <ComptabilitePage />; 
       
         
