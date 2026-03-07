@@ -22,6 +22,7 @@ export const getAllJournal = async (exerciceId:number,banqueId:number,numero:str
   }
 }
 
+
   export const getJournalById = async (id:number) => {
     try {
       const response = await axios.get(`${API_URL}/${id}`);

@@ -32,6 +32,7 @@ import RenderParActivitePage from "./components/pages/ParActivitePage";
 import RenderParCategoriePage from "./components/pages/ParClassePage";
 import RenderElaborationPage from "./components/pages/ElaborationPage";
 import RenderRapportLiquidationPage from "./components/pages/RapportLiquidationPage";
+import RenderRapportExecutionPage from "./components/pages/RapportExecutionPage";
 import RenderRapportEngagementPage from "./components/pages/RapportEngagementPage";
 import RenderEngagementPage from "./components/pages/EngagementPage";
 import RenderLiquidationPage from "./components/pages/LiquidationPage";
@@ -46,6 +47,7 @@ import RenderTresorieJournalPage from "./components/pages/tresorerie/journal";
 import RenderTresorieRapprochementPage from "./components/pages/tresorerie/rapprochement";
 import JournalTresorerieForm from "./components/pages/tresorerie/decaissement";
 import ComptabilitePage from "./components/pages/tresorerie/comptabilite";
+
 
 type ExpandedMenusType = {
   [key: string]: boolean;
@@ -92,6 +94,7 @@ const BudgetApp = () => {
     tresorerie: false,
     parametre: false,
     utilisateur: false,
+    comptabilite:false,
   });
 
   // submenus parents ouverts (ceux qui ont pages)
@@ -209,6 +212,11 @@ const BudgetApp = () => {
           name: "Rapport Liquidation",
           icon: <TrendingUp className="w-4 h-4" />,
         },
+        {
+          id: "rapportExecution",
+          name: "Rapport Execution",
+          icon: <TrendingUp className="w-4 h-4" />,
+        },
       ],
     },
     {
@@ -244,6 +252,38 @@ const BudgetApp = () => {
          {
           id: "situation",
           name: "Situation",
+          icon: <FileText className="w-4 h-4" />,
+        }
+      ],
+    },
+    {
+      id: "comptabilite",
+      name: "Comptabilite",
+      icon: <CheckSquare className="w-5 h-5" />,
+      subMenus: [ 
+        {
+          id: "journal",
+          name: "Journal",
+          icon: <FileText className="w-4 h-4" />,
+        },
+         {
+          id: "grandlivre",
+          name: "Grand livre",
+          icon: <FileText className="w-4 h-4" />,
+        },
+        {
+          id: "balance",
+          name: "Balance",
+          icon: <FileText className="w-4 h-4" />,
+        },
+         {
+          id: "Bilan",
+          name: "Billan",
+          icon: <FileText className="w-4 h-4" />,
+        },
+         {
+          id: "compteesultat",
+          name: "Compte de resultat",
           icon: <FileText className="w-4 h-4" />,
         }
       ],
@@ -389,6 +429,8 @@ const BudgetApp = () => {
         return <RenderRapportEngagementPage />;
       case "rapportLiquidation":
         return <RenderRapportLiquidationPage />;
+      case "rapportExecution":
+        return <RenderRapportExecutionPage />;
 
       //Tresorerie
       case "tableBord":
@@ -403,6 +445,13 @@ const BudgetApp = () => {
         return <RenderTresorieRapprochementPage />;
       case "situation":
         return <JournalTresorerieForm />; 
+
+      //comptabilite
+      case "Journal":
+        return <ComptabilitePage />; 
+      
+        
+
 
       // parametre
       case "exercice":

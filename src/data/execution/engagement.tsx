@@ -268,3 +268,18 @@ export const getSommeMontantEngage = async (idExercice: any, ligne: any): Promis
   }
 };
 
+
+export const getRapportGobal = async (exercice:any,projet:any,categorie:any) => {
+  try {
+    const response = await axios.get(`${API_URL}/rapportGeneral`,{
+      params:{
+        exercice,
+        projet,
+        categorie
+      }
+    });
+    return response.data;
+  } catch (error) {
+    throw [];
+  }
+};

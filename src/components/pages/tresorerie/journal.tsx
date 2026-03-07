@@ -11,41 +11,6 @@ import {getAllBailleur} from "../../../data/classification/bailleur";
 import {getAllDevise} from "../../../data/classification/devise";
 
 const renderTresorieJournalPage: React.FC = () => {
-  const transactions = [
-    {
-      date: "15/02/2024",
-      type: "Encaisse",
-      label: "Paiement Client - TechCorp",
-      category: "Ventes",
-      reference: "INV-2024-001",
-      amount: 12500,
-    },
-    {
-      date: "14/02/2024",
-      type: "Décaisse",
-      label: "Loyer Bureau Février",
-      category: "Loyer",
-      reference: "RENT-FEB",
-      amount: -2500,
-    },
-    {
-      date: "14/02/2024",
-      type: "Décaisse",
-      label: "Achat Matériel Informatique",
-      category: "Équipement",
-      reference: "PO-4592",
-      amount: -1240.5,
-    },
-    {
-      date: "13/02/2024",
-      type: "Encaisse",
-      label: "Remboursement TVA",
-      category: "Impôts",
-      reference: "TVA-Q4",
-      amount: 4500,
-    },
-  ];
-
 
   const [journals, setJournanls] = useState([])
 
@@ -61,8 +26,7 @@ const renderTresorieJournalPage: React.FC = () => {
      const [bailleurs, setBailleurs] = useState(null);  
        const [devises, setDevises] = useState([]);
 
-  const [formData, setFormData] = useState({});
-  const [modalType, setModalType] = useState("");
+  const [formData, setFormData] = useState({}); 
   const [showModal, setShowModal] = useState(false);
 
   // GET
@@ -103,30 +67,7 @@ const renderTresorieJournalPage: React.FC = () => {
                dataComptebancaire(null,null,null);
               },[])
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    watch,
-    formState: { errors },
-  } = useForm();
-
-  const onSubmit = async (data: any) => {
-    try {
-      if (!data.id) {
-        // await createClasse(data);
-      } else {
-        // await updateClasse(data.id,data); 
-      }
-      toast.success("Operation effectuée avec succès !");
-      reset();
-      // dataClasse();
-      closeModal();
-    } catch (error: any) {
-      toast.error("Erreur lors de l'operation'.", { style: { backgroundColor: "red", color: "white" } });
-    }
-  };
-
+ 
   const hendleDelete = (id: number, type: string) => {
     try {
       // deleteClasse(id);
@@ -139,286 +80,16 @@ const renderTresorieJournalPage: React.FC = () => {
     }
   }
 
-
-  const hendleUpdata = (data: any) => {
-    // resetClasse(data); 
-    openModal()
-  }
-
-  const openModal = () => {
-    setModalType();
+ 
+  const openModal = () => { 
     setFormData({});
     setShowModal(true);
   };
+ 
 
-  const closeModal = () => {
-    reset()
-    setShowModal(false);
-  };
-
-  const typeBudget = watch("typeBudget");
-
-  const renderModalForm = () => {
-    return (
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {/* ID caché */}
-          <input
-            type="text"
-            hidden
-            {...register("id", { disabled: true })}
-          />
-
-          {/* Exercice */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Exercice
-            </label>
-            <input
-              type="text"
-              {...register("exerciceId", { required: "Exercice obligatoire" })}
-              placeholder="2026"
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            {errors.exercice && (
-              <p className="text-red-600 text-xs mt-1">{errors.exercice.message}</p>
-            )}
-          </div>
-
-          {/* Date */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Date
-            </label>
-            <input
-              type="date"
-              {...register("date", { required: "Date obligatoire" })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            {errors.date && (
-              <p className="text-red-600 text-xs mt-1">{errors.date.message}</p>
-            )}
-          </div>
-
-          {/* Type de budget */}
-          <div>
-            <p className="text-sm font-semibold text-gray-700 mb-1">Type de budget</p>
-            <div className="flex gap-6">
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  value="budget"
-                  {...register("typeBudget")}
-                  className="accent-blue-500 w-5 h-5"
-                />
-                <span className="text-gray-700 font-medium">Budget</span>
-              </label>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="radio"
-                  value="nonBudget"
-                  {...register("typeBudget")}
-                  className="accent-blue-500 w-5 h-5"
-                />
-                <span className="text-gray-700 font-medium">Non Budget</span>
-              </label>
-            </div>
-          </div>
-
-          {/* Conditional Budget Fields */}
-          {typeBudget === "budget" && (
-            <>
-              {/* Bon d'engagement */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Bon d'engagement
-                </label>
-                <input
-                  type="text"
-                  {...register("bonEngagement")}
-                  placeholder="Numéro du bon"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                />
-              </div>
-
-              {/* Ligne budgétaire */}
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">
-                  Ligne budgétaire
-                </label>
-                <select
-                  {...register("ligneBudgetaire")}
-                  className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-                >
-                  <option value="">Sélectionner une ligne</option>
-                  <option value="LB01">LB01 - Personnel</option>
-                  <option value="LB02">LB02 - Fonctionnement</option>
-                  <option value="LB03">LB03 - Investissement</option>
-                </select>
-              </div>
-            </>
-          )}
-
-          {/* Conditional Non-Budget Field */}
-          {typeBudget === "nonBudget" && (
-            <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1">
-                Bailleur
-              </label>
-              <select
-                {...register("bailleur")}
-                className="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-              >
-                <option value="">Sélectionner un bailleur</option>
-                <option value="B001">Bailleur A</option>
-                <option value="B002">Bailleur B</option>
-                <option value="B003">Bailleur C</option>
-              </select>
-            </div>
-          )}
-
-          {/* Compte */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Compte
-            </label>
-            <select
-              {...register("compte", { required: "Compte obligatoire" })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            >
-              <option value="">Sélectionner un compte</option>
-              <option value="101">101 - Banque</option>
-              <option value="102">102 - Caisse</option>
-              <option value="103">103 - Fournisseur</option>
-            </select>
-            {errors.compte && (
-              <p className="text-red-600 text-xs mt-1">{errors.compte.message}</p>
-            )}
-          </div>
-
-          {/* Type de mouvement */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Type de mouvement
-            </label>
-            <select
-              {...register("type", { required: "Type obligatoire" })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            >
-              <option value="">Sélectionner</option>
-              <option value="debit">Débit</option>
-              <option value="credit">Crédit</option>
-            </select>
-            {errors.type && (
-              <p className="text-red-600 text-xs mt-1">{errors.type.message}</p>
-            )}
-          </div>
-
-          {/* Montant */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Montant
-            </label>
-            <input
-              type="number"
-              step="0.01"
-              {...register("montant", {
-                required: "Montant obligatoire",
-                min: { value: 0.01, message: "Le montant doit être > 0" },
-                valueAsNumber: true,
-              })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            {errors.montant && (
-              <p className="text-red-600 text-xs mt-1">{errors.montant.message}</p>
-            )}
-          </div>
-
-          {/* Devise */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Devise
-            </label>
-            <select
-              {...register("devise", { required: "Devise obligatoire" })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            >
-              <option value="">Sélectionner une devise</option>
-              <option value="USD">USD</option>
-              <option value="EUR">EUR</option>
-              <option value="BIF">BIF</option>
-            </select>
-            {errors.devise && (
-              <p className="text-red-600 text-xs mt-1">{errors.devise.message}</p>
-            )}
-          </div>
-
-          {/* Objet / Libellé */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Objet / Libellé
-            </label>
-            <input
-              type="text"
-              {...register("objet", { required: "Objet obligatoire" })}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-            {errors.objet && (
-              <p className="text-red-600 text-xs mt-1">{errors.objet.message}</p>
-            )}
-          </div>
-
-          {/* Observations */}
-          <div className="col-span-1 md:col-span-2 lg:col-span-3">
-            <label className="block text-sm font-semibold text-gray-700 mb-1">
-              Observations
-            </label>
-            <textarea
-              {...register("observation")}
-              rows={3}
-              className="w-full rounded-xl border border-gray-300 px-4 py-3 text-sm focus:ring-2 focus:ring-blue-400 focus:outline-none"
-            />
-          </div>
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex justify-end">
-          <button
-            type="submit"
-            className="inline-flex items-center justify-center rounded-xl bg-green-600 px-8 py-3 text-sm font-semibold text-white hover:bg-green-700 transition"
-          >
-            Enregistrer
-          </button>
-        </div>
-      </form>
-    );
-  };
+ 
   return (
     <div className="min-h-screen bg-gray-50">
-
-      {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-6xl mx-auto max-h-[90vh] overflow-y-auto">
-            {/* Header */}
-            <div className="flex items-center justify-between p-6 border-b border-gray-200">
-              <h3 className="text-xl font-bold text-gray-800">
-                {modalType === 'classe'
-                  ? 'Ajouter une Classe'
-                  : modalType === 'planComptable'
-                    ? 'Ajouter un Compte'
-                    : 'Ajouter un Élément'}
-              </h3>
-              <button onClick={closeModal} className="text-gray-500 hover:text-gray-700">
-                <X className="w-6 h-6" />
-              </button>
-            </div>
-
-            {/* Body */}
-            <div className="p-6">{renderModalForm()}</div>
-          </div>
-        </div>
-      )}
 
       {/* HEADER */}
       <div className="flex items-center justify-between bg-white px-8 py-4 border-b">
@@ -487,58 +158,69 @@ const renderTresorieJournalPage: React.FC = () => {
               <tr>
                 <th className="text-left p-4">Date</th>
                 <th className="text-left p-4">Type</th>
-                <th className="text-left p-4">Libellé</th>
-                <th className="text-left p-4">Catégorie</th>
+                <th className="text-left p-4">Libellé</th> 
                 <th className="text-left p-4">Référence</th>
                 <th className="text-right p-4">Montant</th>
-                <th className="text-center p-4">Actions</th>
+                <th className="text-right p-4">Taux</th> 
+                <th className="text-right p-4">Compte Bancaire</th>
+                <th className="text-center p-4" colSpan={2}>Actions</th>
               </tr>
             </thead>
 
             <tbody>
-              {transactions.map((tx, index) => (
+              {journals.map((data) => (
                 <tr
-                  key={index}
+                  key={data.id}
                   className="border-b hover:bg-gray-50 transition"
                 >
-                  <td className="p-4">{tx.date}</td>
+                  <td className="p-4">{formData(data.date)}</td>
 
                   <td className="p-4">
                     <span
-                      className={`px-3 py-1 rounded-full text-xs font-medium ${tx.amount > 0
+                      className={`px-3 py-1 rounded-full text-xs font-medium ${data.typemouvement ==="DEBIT"
                           ? "bg-green-100 text-green-700"
                           : "bg-red-100 text-red-700"
                         }`}
                     >
-                      {tx.type}
+                      {data.typemouvement==="DEBIT"?"ENCAISSEMENT":"DECAISSEMENT"}
                     </span>
                   </td>
 
                   <td className="p-4 font-medium">
-                    {tx.label}
+                    {data.objet}
                   </td>
 
                   <td className="p-4 text-gray-600">
-                    {tx.category}
+                    {data.reference}
                   </td>
 
-                  <td className="p-4 text-gray-500">
-                    {tx.reference}
-                  </td>
+                 
 
                   <td
-                    className={`p-4 text-right font-semibold ${tx.amount > 0
+                    className={`p-4 text-right font-semibold ${data.typemouvement  ==="DEBIT"
                         ? "text-green-600"
                         : "text-red-600"
                       }`}
-                  >
-                    {tx.amount > 0 ? "+" : ""}
-                    {tx.amount.toLocaleString("fr-FR")} €
+                  > 
+                    {data.montant.toLocaleString("fr-FR")} {data?.devise.symbole}
+                  </td>
+
+                   <td className="p-4 text-gray-500">
+                    {data.taux}
+                  </td> 
+                   <td className="p-4 text-gray-500">
+                    {data?.compteBancaire.numero}
                   </td>
 
                   <td className="p-4 text-center">
+                    
                     <button className="text-gray-400 hover:text-gray-700">
-                      ⋯
+                      plus
+                    </button> 
+                  </td>
+                   <td className="p-4 text-center"> 
+                    <button className="text-red-400 hover:text-gray-700">
+                      delete
                     </button>
                   </td>
                 </tr>
