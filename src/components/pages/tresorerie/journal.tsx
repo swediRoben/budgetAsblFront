@@ -32,12 +32,7 @@ const renderTresorieJournalPage: React.FC = () => {
        const [devises, setDevises] = useState([]);
 
         const { register, handleSubmit, reset } = useForm();
-
-         const dataComptebancaire = async (banque: number) => {
-                setComptesBancaires([]);
-                const data = await getAllComptebancaire(banque, null, null);
-                setComptesBancaires(data);
-            }
+ 
                 const dataBanque = async () => {
                     const data = await getAllBanque();
                     setBanques(data)
