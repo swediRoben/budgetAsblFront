@@ -8,8 +8,8 @@ import {getAllPlancompte} from "../../../data/classification/planComptable";
  import {createJournal,deleteJournal,getAllJournal,updateJournal} from "../../../data/tresorerie/journal";
 import {getAllBailleur} from "../../../data/classification/bailleur";
 import {getAllDevise} from "../../../data/classification/devise"; 
-import { getAllCategorie } from "../../data/classification/categorie";
-import { getAllPlanfontprojet } from "../../data/classification/planfontprojet";
+import { getAllCategorie } from "../../../data/classification/categorie";
+import { getAllPlanfontprojet } from "../../../data/classification/planfontprojet";
 
 
  import { getAllExercice } from "../../../data/classification/exercice";
@@ -94,10 +94,6 @@ const renderTresorieJournalPage: React.FC = () => {
       setComptebancaires(data)
     }
   
-    const dataBanque = async () => {
-      const data = await getAllBanque();
-      setBanques(data)
-    }
     const dataPlancompte = async () => {
       const data = await getAllPlancompte();
       setPlancomptables(data)
