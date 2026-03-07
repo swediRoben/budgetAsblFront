@@ -82,10 +82,20 @@ import React, { useEffect, useMemo, useState } from 'react';
       window.print();
     };
    
-  const totalMontantLocal = rapports.reduce((sum, item) => {
-    const montant = Number(item.montant) || 0;
+  const totalMontantVote = rapports.reduce((sum, item) => {
+    const montant = Number(item?.planActivite?.montant) || 0; 
+    return montant;
+  }, 0);
+
+    const totalMontantEngage = rapports.reduce((sum, item) => {
+    const montant = Number(item.montantEngage) || 0; 
+    return montant;
+  }, 0);
+
+    const totalMontantLiquide = rapports.reduce((sum, item) => {
+    const montant = Number(item.montantLiquide) || 0;
     const taux = Number(item.tauxDevise) || 0;
-    return sum + montant * taux;
+    return montant;
   }, 0);
   
     return (
@@ -197,8 +207,10 @@ import React, { useEffect, useMemo, useState } from 'react';
             ))}
             {/* LIGNE DE TOTAL */}
             <tr className="bg-gray-100 font-bold border-t-2 border-gray-800 text-sm">
-              <td colSpan="6" className="border border-gray-300 px-3 py-3 text-right uppercase tracking-widest">Total Général Liquidé</td>
-              <td className="border border-gray-800 px-3 py-3 text-right bg-yellow-50 text-blue-900 italic underline">{totalMontantLocal.toLocaleString()}</td>
+              <td colSpan="3" className="border border-gray-300 px-3 py-3 text-right uppercase tracking-widest">Total Général Liquidé</td>
+              <td className="border border-gray-800 px-3 py-3 text-right bg-yellow-50 text-blue-900 italic underline">{totalMontantVote.toLocaleString()}</td>
+              <td className="border border-gray-800 px-3 py-3 text-right bg-yellow-50 text-blue-900 italic underline">{totalMontantEngage.toLocaleString()}</td>
+              <td className="border border-gray-800 px-3 py-3 text-right bg-yellow-50 text-blue-900 italic underline">{totalMontantLiquide.toLocaleString()}</td>
             </tr>
           </tbody>
         </table>
