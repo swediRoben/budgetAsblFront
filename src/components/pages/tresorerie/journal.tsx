@@ -31,7 +31,7 @@ const renderTresorieJournalPage: React.FC = () => {
      const [bailleurs, setBailleurs] = useState([]);  
        const [devises, setDevises] = useState([]);
 
-        const { register, handleSubmit, reset } = useForm();
+        const { registerRecherche, handleSubmitRecherche, resetRecherche } = useForm();
  
                 const dataBanque = async () => {
                     const data = await getAllBanque();
@@ -62,7 +62,7 @@ const renderTresorieJournalPage: React.FC = () => {
                     
 
 
- const onSubmit = (data) => {
+ const onSubmitRecherche = (data) => {
     const filter = {
       exerciceId: data.exerciceId || null,
       debut: data.debut || null,
@@ -78,10 +78,7 @@ const renderTresorieJournalPage: React.FC = () => {
 
     onSearch(filter);
   };
-       
-
-  const [formData, setFormData] = useState({}); 
-  const [showModal, setShowModal] = useState(false);
+        
 
   // GET
     const dataJournal = async (exercice: number,banque: number,numero: string,debut:any,fin:any) => {
@@ -138,40 +135,46 @@ const renderTresorieJournalPage: React.FC = () => {
   }
 
  
-  const openModal = () => { 
-    setFormData({});
-    setShowModal(true);
-  };
  
 
- 
+ const [activeTab, setActiveTab] = useState("lines");
   return (
-    <div className="min-h-screen bg-gray-50">
 
-      {/* HEADER */}
-      <div className="flex items-center justify-between bg-white px-8 py-4 border-b">
-        <input
-          type="text"
-          placeholder="Rechercher une transaction, un commentaire..."
-          className="w-1/3 rounded-lg border px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+    <>
+        <div className="bg-white rounded-lg border">
 
-        <div className="flex items-center gap-6">
-          <div className="relative">
-            <div className="w-9 h-9 rounded-full border flex items-center justify-center cursor-pointer">
-              🔔
-            </div>
-            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full" />
-          </div>
+      {/* Tabs */}
+      <div className="flex border-b text-sm font-medium">
+        <button
+          onClick={() => setActiveTab("lines")}
+          className={`px-4 py-2 ${
+            activeTab === "lines"
+              ? "border-b-2 border-pink-500 text-pink-600"
+              : "text-gray-500"
+          }`}
+        >
+          JOURNALS
+        </button>
 
-          <div className="text-right">
-            <p className="text-xs text-gray-500">Solde Global</p>
-            <p className="text-blue-600 font-semibold text-lg">
-              124 592,00 €
-            </p>
-          </div>
-        </div>
+        <button
+          onClick={() => setActiveTab("info")}
+          className={`px-4 py-2 ${
+            activeTab === "info"
+              ? "border-b-2 border-pink-500 text-pink-600"
+              : "text-gray-500"
+          }`}
+        >
+          NOUVEL OPERATION
+        </button>
       </div>
+
+      {/* Content */}
+      <div className="p-4">
+
+        {/* Invoice Lines */}
+        {activeTab === "lines" && (
+           <div className="min-h-screen bg-gray-50">
+
 
       {/* CONTENT */}
       <div className="p-8">
@@ -186,32 +189,31 @@ const renderTresorieJournalPage: React.FC = () => {
         </div>
 
         {/* FILTER BAR */}
-        <div className="bg-white rounded-xl shadow-sm border p-4 flex flex-wrap items-center gap-4 mb-6">
-          <form
-      onSubmit={handleSubmit(onSubmit)}
-      className="bg-white rounded-xl shadow-sm border p-4 grid grid-cols-2 md:grid-cols-4 gap-4 mb-6"
-    >
+      {/* FILTER BAR */}
+<div className="bg-white rounded-xl shadow-sm border p-4 mb-6">
 
-      {/* Référence */}
+  <form onSubmit={handleSubmitRecherche(onSubmitRecherche)} className="space-y-4">
+
+    {/* Ligne 1 : Recherche principale */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
       <input
         type="text"
-        placeholder="Référence"
-        {...register("reference")}
-        className="border rounded-lg px-3 py-2 text-sm"
+        placeholder="Référence..."
+        {...registerRecherche("reference")}
+        className="border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 outline-none"
       />
 
-      {/* Type mouvement */}
       <select
-        {...register("typeMouvement")}
+        {...registerRecherche("typeMouvement")}
         className="border rounded-lg px-3 py-2 text-sm"
       >
-        <option value="">Toutes opérations</option>
+        <option value="">Type mouvement</option>
         <option value="DEBIT">Encaissement</option>
         <option value="CREDIT">Décaissement</option>
       </select>
 
-      {/* Exercice */}
-      <select {...register("exerciceId")} className="border rounded-lg px-3 py-2 text-sm">
+      <select {...registerRecherche("exerciceId")} className="border rounded-lg px-3 py-2 text-sm">
         <option value="">Exercice</option>
         {exercices.map((e) => (
           <option key={e.id} value={e.id}>
@@ -220,8 +222,7 @@ const renderTresorieJournalPage: React.FC = () => {
         ))}
       </select>
 
-      {/* Projet */}
-      <select {...register("projetId")} className="border rounded-lg px-3 py-2 text-sm">
+      <select {...registerRecherche("projetId")} className="border rounded-lg px-3 py-2 text-sm">
         <option value="">Projet</option>
         {projets.map((p) => (
           <option key={p.id} value={p.id}>
@@ -230,8 +231,12 @@ const renderTresorieJournalPage: React.FC = () => {
         ))}
       </select>
 
-      {/* Catégorie */}
-      <select {...register("categorieId")} className="border rounded-lg px-3 py-2 text-sm">
+    </div>
+
+    {/* Ligne 2 */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+
+      <select {...registerRecherche("categorieId")} className="border rounded-lg px-3 py-2 text-sm">
         <option value="">Catégorie</option>
         {categories.map((c) => (
           <option key={c.id} value={c.id}>
@@ -240,8 +245,7 @@ const renderTresorieJournalPage: React.FC = () => {
         ))}
       </select>
 
-      {/* Banque */}
-      <select {...register("banqueId")} className="border rounded-lg px-3 py-2 text-sm">
+      <select {...registerRecherche("banqueId")} className="border rounded-lg px-3 py-2 text-sm">
         <option value="">Banque</option>
         {banques.map((b) => (
           <option key={b.id} value={b.id}>
@@ -250,9 +254,8 @@ const renderTresorieJournalPage: React.FC = () => {
         ))}
       </select>
 
-      {/* Compte Banque */}
-      <select {...register("compteBanqueId")} className="border rounded-lg px-3 py-2 text-sm">
-        <option value="">Compte Banque</option>
+      <select {...registerRecherche("compteBanqueId")} className="border rounded-lg px-3 py-2 text-sm">
+        <option value="">Compte bancaire</option>
         {comptesBancaires.map((c) => (
           <option key={c.id} value={c.id}>
             {c.numero}
@@ -260,8 +263,7 @@ const renderTresorieJournalPage: React.FC = () => {
         ))}
       </select>
 
-      {/* Source financement */}
-      <select {...register("sourceFinancementId")} className="border rounded-lg px-3 py-2 text-sm">
+      <select {...registerRecherche("sourceFinancementId")} className="border rounded-lg px-3 py-2 text-sm">
         <option value="">Source financement</option>
         {bailleurs.map((s) => (
           <option key={s.id} value={s.id}>
@@ -270,41 +272,48 @@ const renderTresorieJournalPage: React.FC = () => {
         ))}
       </select>
 
-      {/* Date début */}
+    </div>
+
+    {/* Ligne 3 : Dates + Actions */}
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center">
+
       <input
         type="date"
-        {...register("debut")}
+        {...registerRecherche("debut")}
         className="border rounded-lg px-3 py-2 text-sm"
       />
 
-      {/* Date fin */}
       <input
         type="date"
-        {...register("fin")}
+        {...registerRecherche("fin")}
         className="border rounded-lg px-3 py-2 text-sm"
       />
 
-      {/* Bouton rechercher */}
-      <button
-        type="submit"
-        className="col-span-2 md:col-span-1 px-4 py-2 bg-blue-600 text-white rounded-lg"
-      >
-        Rechercher
-      </button>
+      {/* Boutons */}
+      <div className="flex gap-2 col-span-2 justify-end">
 
-      {/* Nouvelle opération */}
-      <button
-        type="button"
-        onClick={openModal}
-        className="col-span-2 md:col-span-1 px-4 py-2 bg-green-600 text-white rounded-lg"
-      >
-        Nouvelle opération
-      </button>
-    </form>
-          {/* <button onClick={() => openModal()} className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700">
-            Nouvelle Opération
-          </button> */}
-        </div>
+        <button
+          type="submit"
+          className="px-4 py-2 bg-blue-600 text-white rounded-lg text-sm hover:bg-blue-700"
+        >
+          Rechercher
+        </button>
+
+        <button
+          type="button"
+          onClick={openModal}
+          className="px-4 py-2 bg-green-600 text-white rounded-lg text-sm hover:bg-green-700"
+        >
+          Nouvelle opération
+        </button>
+
+      </div>
+
+    </div>
+
+  </form>
+
+</div>
 
         {/* TABLE */}
         <div className="bg-white rounded-xl shadow-sm border overflow-hidden">
@@ -385,6 +394,39 @@ const renderTresorieJournalPage: React.FC = () => {
         </div>
       </div>
     </div>
+        )}
+
+        {/* Other Info */}
+        {activeTab === "info" && (
+          <div className="grid grid-cols-2 gap-4">
+
+            <div>
+              <label className="block text-sm text-gray-600">Salesperson</label>
+              <input className="border rounded px-3 py-2 w-full"/>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-600">Payment Terms</label>
+              <input className="border rounded px-3 py-2 w-full"/>
+            </div>
+
+            <div>
+              <label className="block text-sm text-gray-600">Customer Reference</label>
+              <input className="border rounded px-3 py-2 w-full"/>
+            </div>
+
+          </div>
+        )}
+
+      </div>
+
+    </div>
+    
+    
+    
+  
+   
+      </>
   );
 };
 
