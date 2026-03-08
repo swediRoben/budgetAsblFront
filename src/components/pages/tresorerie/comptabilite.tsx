@@ -24,7 +24,7 @@ const ComptabilitePage = () => {
 
         const compteRes = await axios.get("http://localhost:8080/budget/v1/api/comptabilite/compte-resultat");
         setCompteResultat(compteRes.data);
-      } catch (error) {
+          } catch (error) {
         console.error("Erreur lors de la récupération des données :", error);
       }
     };
@@ -58,7 +58,7 @@ const ComptabilitePage = () => {
                 <td className="border px-2 py-1">{ecriture.objet}</td>
                 <td className="border px-2 py-1">{ecriture.type}</td>
                 <td className="border px-2 py-1">
-                  {ecriture.lignes.map((l) => (
+                  {ecriture?.lignes?.map((l) => (
                     <div key={l.id}>
                       {l.compte?.libelle || "Compte"} : Débit {l.debit || 0} / Crédit {l.credit || 0}
                     </div>
