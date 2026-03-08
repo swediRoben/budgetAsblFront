@@ -61,4 +61,19 @@ export const getAllJournal = async (exerciceId:number,banqueId:number,numero:str
       throw error;
      } 
   };
+
+    
+  export const filterJournal = async (page,size,data:any) => {
+    try { 
+      const response = await axios.post(`${API_URL}/search`, data,{
+         params:{
+        page,
+        size 
+         }
+      });  
+      return response.data?.content;
+    } catch (error) { 
+      return [];
+    }
+  };
   

@@ -47,10 +47,7 @@ export default function JournalTresorerieForm() {
     const [page, setPage] = useState(0);
     const [size] = useState(10);
     const [totalPages, setTotalPages] = useState(1);
-    const [status, setStatus] = useState("");
-    const [showaction, setShowaction] = useState(true);
-    const [idData, setIdData] = useState(null);
-
+    
     const [idDevise, setIdDevise] = useState(null);
     const [showBanque, setShowBanque] = useState(false);
 
@@ -110,11 +107,7 @@ export default function JournalTresorerieForm() {
         const data = await getAllDevise();
         setDevises(data)
     }
-
-    const dataEngagement = async (exercice: any, projet: any, ligne: any) => {
-        const data = await getAllEngagementValiderLiquider(exercice, projet, ligne);
-        setEngagements(data)
-    }
+ 
 
 
     const dataFonctionnaires = async () => {
@@ -217,23 +210,7 @@ export default function JournalTresorerieForm() {
             setPrevisions([])
         }
     }
-
-
-    const getPrevisionParProjet = async (e: any) => {
-        const value = e;
-        if (value !== "") {
-            setProjetId(e)
-            const data = await getAllPrevision(exerciceId, e, null);
-            setPrevisions(data)
-        }
-    }
-
-    const handleAffichePrevisionData = (data: any) => {
-        setCategorie(data.categorie);
-        setBeneficiaire(data.beneficiaire)
-        setBailleurs(data.source)
-        dataEngagement(exerciceId, data.idProjet, data.id);
-    }
+ 
 
     const handleAfficheEngagementData = (data: any) => {
         setBonEngagment(data.bonEngagement);
@@ -241,7 +218,7 @@ export default function JournalTresorerieForm() {
         return data;
     }
 
-
+ 
     const toOffsetDateTimeStart = (dateStr: string) => {
         return dateStr ? `${dateStr}T00:00:00Z` : null;
     };
@@ -308,48 +285,21 @@ export default function JournalTresorerieForm() {
 
     }, [Liquidations]);
 
-    const openList = (status: string) => {
+    const openList = () => {
         setLiquidations([]);
         setPlanfontprojets([]);
         setCategorie([]);
         setCategorieId(null);
         setProjetId(null);
         setDebut("");
-        setFin("");
-        setStatus(status);
+        setFin(""); 
         setShowLiquidationList(true);
         setBudget(false)
     }
 
 
 
-    const hendleReception = async (data: any) => {
-        try {
-            setEngagements([])
-            receptionLiquidation(data.id)
-            getCategorieByProjet(data.idProjet)
-            toast.success("Engagement réceptionnéé");
-        } catch (error) {
-            toast.error("Echec de l'operation");
-        }
-    }
-
-    const hendleAction = async (statut: string) => {
-        try {
-
-            if (idData && statut === "VALIDEE") {
-                // validerLiquidation(idData)
-                toast.success("Engagement validée avec succes!");
-
-            } else {
-                toast.success("Operation échoué !");
-            }
-
-        } catch (error) {
-            toast.success("Operation échoué !");
-        }
-    };
-
+   
     const formatOffsetDate = (value) => {
   if (!value) return null;
   return new Date(value).toISOString(); // ✅ ajoute Z
@@ -391,14 +341,7 @@ export default function JournalTresorerieForm() {
         }
     }
 
-    const openModal = (bouton: string) => {
-        setButtonName(bouton);
-        setShowModal(true);
-    };
-
-    const closeModal = () => {
-        setShowModal(false);
-    };
+ 
 
    const {
   register,
@@ -435,7 +378,7 @@ export default function JournalTresorerieForm() {
 
 
     const modePaiement = watch("modepaiement");
-    const typeMouvement = watch("typemouvement"); // 👈 on surveille le type
+    const typeMouvement = watch("typemouvement"); 
 
     const renderSelect = (label, fieldName, options, required = false) => {
         const renderOptions = () => {
@@ -558,7 +501,7 @@ export default function JournalTresorerieForm() {
                         <>
                             <div className="flex justify-start mb-4">
                                 <button
-                                    onClick={() => openList('VALIDE')}
+                                    onClick={() => openList()}
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition-colors duration-200"
                                 >Liste des liquidations </button>
                             </div>
