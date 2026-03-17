@@ -46,10 +46,11 @@ export default function renderLiquidationPage (){
     
  
     const [showLiquidationList, setShowLiquidationList] = useState(false); 
-    const dataExercice =async ()=>{
-            const data=await getAllExercice(); 
-            setExercices(data)
-     }  
+    
+      const dataExercice = async () => {
+         const data = await getAllExercice();
+         setExercices(data.filter(ex => ex.execution));
+       };
 
       const dataDevise =async ()=>{
          const data=await getAllDevise(); 

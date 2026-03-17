@@ -39,10 +39,10 @@ export default function renderTraitementEngagementPage() {
   const [idData, setIdData] = useState(null);
 
   const [showEngagementList, setShowEngagementList] = useState(false);
-  const dataExercice = async () => {
-    const data = await getAllExercice();
-    setExercices(data)
-  }
+       const dataExercice = async () => {
+          const data = await getAllExercice();
+          setExercices(data.filter(ex => ex.execution));
+        };
 
   const dataDevise = async () => {
     const data = await getAllDevise();

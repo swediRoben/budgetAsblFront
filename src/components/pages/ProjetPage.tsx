@@ -14,7 +14,7 @@ export default function renderProjetPage (){
     const [formData, setFormData] = useState({});
     const [modalType, setModalType] = useState("projet");
     const [showModal, setShowModal] = useState(false);
-
+const [dateDebutFilter, setDateDebutFilter] = useState(''); 
 
    // GET
     const dataProjet =async ()=>{
@@ -38,7 +38,27 @@ export default function renderProjetPage (){
 
   setProjets(pro);
 };
-   
+
+const filterByDateDebutEtFin = (dateFinFilter:any) => {
+  if (!dateDebutFilter && !dateFinFilter) {
+    setProjets(allProjets);
+    return;
+  }
+
+  const filtered = allProjets.filter(projet => {
+    const projetDebut = projet.dateDebut;
+    const projetFin = projet.dateFin;
+
+    // Intervalle filtre
+    const filtreDebut = dateDebutFilter || '0000-01-01'; // si vide, début très ancien
+    const filtreFin = dateFinFilter || '9999-12-31';      // si vide, fin très futur
+
+    // Intersection : projetFin >= filtreDebut && projetDebut <= filtreFin
+    return projetDebut >= filtreDebut && projetFin <= filtreFin;
+  });
+
+  setProjets(filtered);
+};
  
     const {
             register: registerProjet,
@@ -189,16 +209,20 @@ export default function renderProjetPage (){
           placeholder="Rechercher un projet..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"
         />
-        <p className="whitespace-nowrap">du</p>
-        <input 
-          type="date" 
-          className="border border-gray-300 rounded px-4 py-2"
-        />
-        <p className="whitespace-nowrap">au</p>
-        <input 
-          type="date" 
-          className="border border-gray-300 rounded px-4 py-2"
-        />
+       <p className="whitespace-nowrap">du</p>
+<input 
+  type="date" 
+  value={dateDebutFilter}
+  onChange={(e) => setDateDebutFilter(e.target.value)}
+  className="border border-gray-300 rounded px-4 py-2"
+/>
+
+<p className="whitespace-nowrap">au</p>
+<input 
+  type="date"  
+  onChange={(e) => filterByDateDebutEtFin(e.target.value)}
+  className="border border-gray-300 rounded px-4 py-2"
+/>
       </div>
       <hr className="my-4" />
       
