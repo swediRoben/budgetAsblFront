@@ -13,12 +13,16 @@ import {getAllDevise} from "../../../data/classification/devise";
 import toast from "react-hot-toast";
 
 
-const formatCurrency = (amount: number, currency: string) =>
-  new Intl.NumberFormat("fr-FR", {
-    style: "currency",
-    currency,
-  }).format(amount);
-
+const formatCurrency = (amount: number, currency: string) => {
+  try {
+    return new Intl.NumberFormat("fr-FR", {
+      style: "currency",
+      currency: currency || "BIF",
+    }).format(amount);
+  } catch {
+    return amount + " " + currency;
+  }
+};
  
 
 const renderTresorieCompteBancairePage: React.FC = () => {

@@ -287,6 +287,13 @@ const renderTresorieJournalPage: React.FC = () => {
         
             }, [Liquidations]);
         
+            useEffect(()=>{
+                const value=watch("deviseId") 
+                if (value) {
+                  showBanqueByDevise(Number(value));   
+                }
+            })
+
             const openList = () => {
                 setLiquidations([]);
                 setPlanfontprojets([]);
