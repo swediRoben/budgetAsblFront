@@ -7,6 +7,7 @@ import { getAllCategorie } from "../../data/classification/categorie";
 
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { all } from 'axios';
 
 export default function renderActivitePage() {
 
@@ -17,6 +18,7 @@ export default function renderActivitePage() {
 
   const [codeSelect, setCodeSelect] = useState();
   const [activites, setActivites] = useState([]);
+  const [allActivites, setAllActivites] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [formData, setFormData] = useState({});
   const [modalType, setModalType] = useState("activite");
@@ -24,8 +26,26 @@ export default function renderActivitePage() {
   const dataActivite = async (p: any, c: any) => {
     const data = await getAllActivite(p, c);
     setActivites(data)
+    setAllActivites(data)
   }
 
+    const getByNumbereOrLibelle = (titre: string) => {
+  const search = titre.trim().toLowerCase();
+
+  if (search === '') {
+    setActivites(allActivites);
+    return;
+  }
+
+  const act = allActivites.filter(d =>
+    d.code.replace(/\s+/g, '').toLowerCase().includes(search) ||
+    d.libelle.toLowerCase().includes(search)
+  );
+
+  setActivites(act);
+};
+   
+ 
 
   useEffect(() => {
     dataProjet()
@@ -87,6 +107,7 @@ export default function renderActivitePage() {
   const getActiviteByCategorie = async (e: any) => {
     const data = await getAllActivite(null, e);
     setActivites(data)
+    setAllActivites(data)
   }
 
   const getCategorieByProjet = async (e: any) => {
@@ -230,6 +251,7 @@ export default function renderActivitePage() {
       <div className="mb-4">
         <div className="flex flex-col md:flex-row gap-4">
           <input
+            onChange={(e)=>getByNumbereOrLibelle(e.target.value)}
             type="text"
             placeholder="Rechercher une activité..."
             className="flex-1 border border-gray-300 rounded px-4 py-2"

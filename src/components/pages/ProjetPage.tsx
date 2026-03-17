@@ -9,6 +9,7 @@ import toast from "react-hot-toast";
 export default function renderProjetPage (){ 
 
   const [projets, setProjets] = useState([]);
+  const [allProjets, setAllProjets] = useState([]);
   
     const [formData, setFormData] = useState({});
     const [modalType, setModalType] = useState("projet");
@@ -18,9 +19,26 @@ export default function renderProjetPage (){
    // GET
     const dataProjet =async ()=>{
       const data=await getAllProjet(); 
-      setProjets(data) 
+      setProjets(data);
+      setAllProjets(data);
     }
  
+   const getByNumbereOrLibelle = (titre: string) => {
+  const search = titre.trim().toLowerCase();
+
+  if (search === '') {
+    setProjets(allProjets);
+    return;
+  }
+
+  const pro = allProjets.filter(d =>
+    d.code.replace(/\s+/g, '').toLowerCase().includes(search) ||
+    d.libelle.toLowerCase().includes(search)
+  );
+
+  setProjets(pro);
+};
+   
  
     const {
             register: registerProjet,
@@ -166,6 +184,7 @@ export default function renderProjetPage (){
 
       <div className="mb-4 flex gap-4 items-center">
         <input 
+          onChange={(e)=>getByNumbereOrLibelle(e.target.value)}
           type="text" 
           placeholder="Rechercher un projet..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"

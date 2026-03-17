@@ -10,6 +10,7 @@ export default function renderCategoriePage() {
 
   const [projets, setProjets] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
   const [projetId, setProjetId] = useState();
   const [codeSelect, setCodeSelect] = useState();
 
@@ -27,14 +28,33 @@ export default function renderCategoriePage() {
 
   const dataCategorie = async (p: any) => {
     const data = await getAllCategorie(p);
-    setCategories(data)
+    setCategories(data);
+    setAllCategories(data);
   }
 
   const getCategorieByProjet = async (e: any) => {
     const data = await getAllCategorie(e);
     setProjetId(e)
     setCategories(data)
+    setAllCategories(data);
   }
+
+    const getByNumbereOrLibelle = (titre: string) => {
+  const search = titre.trim().toLowerCase();
+
+  if (search === '') {
+    setCategories(allCategories);
+    return;
+  }
+
+  const cat = allCategories.filter(d =>
+    d.code.replace(/\s+/g, '').toLowerCase().includes(search) ||
+    d.libelle.toLowerCase().includes(search)
+  );
+
+  setCategories(cat);
+};
+   
   // CREATED 
   const selectCodeById = (id: any) => {
     const projetId = Number(id);
@@ -199,6 +219,7 @@ export default function renderCategoriePage() {
 
       <div className="mb-4 flex gap-4 items-center">
         <input
+          onChange={(e)=>getByNumbereOrLibelle(e.target.value)}
           type="text"
           placeholder="Rechercher une catégorie..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"

@@ -10,6 +10,7 @@ import toast from "react-hot-toast";
 export default function renderBailleurPage (){ 
   const [typebailleurs, setTypebailleurs] = useState([]);
   const [bailleurs, setBailleurs] = useState([]);
+  const [allBailleurs, setAllBailleurs] = useState([]);
 
     const [formData, setFormData] = useState({});
     const [modalType, setModalType] = useState("activite");
@@ -25,7 +26,39 @@ export default function renderBailleurPage (){
        const dataBailleur =async ()=>{
         const data=await getAllBailleur(); 
         setBailleurs(data) 
+        setAllBailleurs(data) 
       } 
+
+        const getByNumbereOrLibelle = (titre: string) => {
+  const search = titre.trim().toLowerCase();
+
+  if (search === '') {
+    setBailleurs(allBailleurs);
+    return;
+  }
+
+  const bail = allBailleurs.filter(d =>
+    d.code.replace(/\s+/g, '').toLowerCase().includes(search) ||
+    d.libelle.toLowerCase().includes(search)
+  );
+
+  setBailleurs(bail);
+};
+   
+
+ const getByType = (type: any) => {
+  const search = Number(type);
+
+  if (search === 0 || isNaN(search)) {
+    setBailleurs(allBailleurs);
+    return;
+  }
+
+  const comptes = allBailleurs.filter(d =>
+    d.idTypeSourcefinancement===search
+  );
+  setBailleurs(comptes);
+};
     
       // SAVE  CREATED 
      
@@ -184,6 +217,7 @@ const renderModalForm = () => {
       <div className="mb-4 flex flex-col md:flex-row gap-4">
         <div className="flex-1">
           <input 
+           onChange={(e)=>getByNumbereOrLibelle(e.target.value)}
             type="text" 
             placeholder="Rechercher un bailleur..."
             className="w-full border border-gray-300 rounded px-4 py-2"
@@ -191,7 +225,8 @@ const renderModalForm = () => {
         </div>
         
         <div className="flex gap-4">
-          <select className="border border-gray-300 rounded px-4 py-2">
+          <select className="border border-gray-300 rounded px-4 py-2"
+           onChange={(e)=>getByType(e.target.value)}>
             <option value="">Tous les types de bailleur</option>
             {typebailleurs?.map((type:any) => (
               <option key={type.id} value={type.id}>

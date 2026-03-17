@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 
 export default function renderBeneficiairePage (){ 
    const [beneficieres, setBeneficieres] = useState([]);
+   const [allBeneficieres, setAllBeneficieres] = useState([]);
   
     const [formData, setFormData] = useState({});
     const [modalType, setModalType] = useState("activite");
@@ -18,7 +19,25 @@ export default function renderBeneficiairePage (){
        const dataBenefiere =async ()=>{
         const data=await getAllBeneficiere(); 
         setBeneficieres(data) 
+        setAllBeneficieres(data) 
       } 
+
+        const getByNumbereOrLibelle = (titre: string) => {
+  const search = titre.trim().toLowerCase();
+
+  if (search === '') {
+    setBeneficieres(allBeneficieres);
+    return;
+  }
+
+  const ben = allBeneficieres.filter(d =>
+    d.libelle.toLowerCase().includes(search)
+  );
+
+  setBeneficieres(ben);
+};
+   
+ 
   
          // CREATED 
            const {
@@ -149,6 +168,7 @@ export default function renderBeneficiairePage (){
 
       <div className="mb-4">
         <input 
+         onChange={(e)=>getByNumbereOrLibelle(e.target.value)}
           type="text" 
           placeholder="Rechercher un bénéficiaire..."
           className="w-full md:w-1/3 border border-gray-300 rounded px-4 py-2"

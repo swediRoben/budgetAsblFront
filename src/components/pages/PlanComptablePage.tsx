@@ -10,6 +10,7 @@ export default function renderPlanComptablePage (){
 
  const [classes, setClasses] = useState([]) 
   const [plancomptables, setPlancomptables] = useState([]);
+  const [allPlancomptables, setAllPlancomptables] = useState([]);
 
     const [formData, setFormData] = useState({});
     const [modalType, setModalType] = useState("planComptable");
@@ -24,9 +25,40 @@ export default function renderPlanComptablePage (){
    
     const dataPlancompte =async ()=>{
       const data=await getAllPlancompte(); 
-      setPlancomptables(data) 
+      setAllPlancomptables(data);
+      setPlancomptables(data);
     }
-    
+
+  const getByNumbereOrLibelle = (titre: string) => {
+  const search = titre.trim().toLowerCase();
+
+  if (search === '') {
+    setPlancomptables(allPlancomptables);
+    return;
+  }
+
+  const comptes = allPlancomptables.filter(d =>
+    d.numero.replace(/\s+/g, '').toLowerCase().includes(search) ||
+    d.libelle.toLowerCase().includes(search)
+  );
+
+  setPlancomptables(comptes);
+};
+   
+
+ const getByClasse = (classe: any) => {
+  const search = Number(classe);
+
+  if (search === 0 || isNaN(search)) {
+    setPlancomptables(allPlancomptables);
+    return;
+  }
+
+  const comptes = allPlancomptables.filter(d =>
+    d.classeId===search
+  );
+  setPlancomptables(comptes);
+};
          // CREATED 
            const {
             register: registerPlancompte,
@@ -187,11 +219,13 @@ export default function renderPlanComptablePage (){
 
       <div className="mb-4 flex gap-4">
         <input 
+        onChange={(e)=>getByNumbereOrLibelle(e.target.value)}
           type="text" 
           placeholder="Rechercher un compte..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"
         />
-        <select className="border border-gray-300 rounded px-4 py-2">
+        <select className="border border-gray-300 rounded px-4 py-2"
+        onChange={(e)=>getByClasse(e.target.value)}>
           <option value="">Toutes les classes</option>
           {classes?.map((classe:any) => (
             <option key={classe.id} value={classe.id}>
