@@ -293,6 +293,9 @@ useEffect(() => {
     },
   });
 
+  useEffect(() => {
+  setValue("tauxDevise", 1);
+}, []);
    
 const montantRestantFonction=(montantEngages:any)=>{ 
    return montantEngages;

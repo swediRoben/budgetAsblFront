@@ -51,9 +51,9 @@ export default function renderEngagementPage() {
     setFonctionnaires(data)
   }
 
-  const getSommeMontantEngages = async (exercice: any, ligne: any) => {
+  const getSommeMontantEngages = async (exercice: any, ligne: any,montantModifier:any) => {
     const montant = await getSommeMontantEngage(exercice, ligne);
-    setMontantEngage(montant);
+    setMontantEngage(montant-montantModifier);
   };
 
   useEffect(() => {
@@ -67,7 +67,9 @@ export default function renderEngagementPage() {
     setExerciceId(value)
   }
 
-
+useEffect(() => {
+  setValue("tauxDevise", 1);
+}, []);
 
   const getPlanfondByExercice = async (e: any) => {
     const value = e.target.value;
@@ -84,10 +86,10 @@ export default function renderEngagementPage() {
     setCategorie([])
     const data = await getAllCategorie(e);
     setProjetId(e)
-    setCategorie(data)
+    setCategorie(data);
   }
 
-  const getCategorieByProjet = async (e) => {
+  const getCategorieByProjet = async (e) => { 
     getCategoriesByProjet(e);
     setProjetId(e)
     setEngagements([]);
@@ -234,7 +236,13 @@ export default function renderEngagementPage() {
     setCategorie(data.categorie);
     setBeneficiaire(data.beneficiaire)
     setBailleurs(data.source)
-    getSommeMontantEngages(data.idExercice, data.id)
+    const id=watch("id");
+     if (id) {
+      const montant=watch("montant")*watch("tauxDevise") 
+    getSommeMontantEngages(data.idExercice, data.id,montant)
+     }else{ 
+    getSommeMontantEngages(data.idExercice, data.id,0)
+     }
   }
 
 
@@ -243,6 +251,7 @@ export default function renderEngagementPage() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
     watch,
   } = useForm({
     defaultValues: {
@@ -301,6 +310,7 @@ export default function renderEngagementPage() {
             observation: "",
           })
             setMontantVote(0)
+            setMontantEngage(0)
         } else {
           data.dataEnAttente = toOffsetDateTimeStart(data.dataEnAttente)
           updateEngagement(data.id, data)
@@ -361,13 +371,13 @@ export default function renderEngagementPage() {
 
   const hendleDelete = async (data: any) => {
     try {
-      setEngagements([])
-      deleteEngagement(data.id)
-      getCategorieByProjet(data.idProjet)
+       await deleteEngagement(data.id) 
+        //  setEngagements(prev => prev.filter(e => e.id !== data.id));
+            await getCategorieByProjet(data.idProjet);
       toast.success("Suppression avec succes");
     } catch (error) {
       toast.error("Echec de suppression");
-    }
+    } 
   }
 
   const openList = (status: string) => {
@@ -718,7 +728,7 @@ useEffect(() => {
     <p className="text-xs text-gray-500 uppercase">Montant restant</p>
     <p className="text-lg font-semibold text-green-700">
       {montantRestantFonction(
-        montantVote - ((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1)) + montantEngage)
+        montantVote - ((Number(watch("montant") || 0) * Number(watch("tauxDevise"))) + montantEngage)
       ).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
     </p>
   </div>
@@ -825,7 +835,7 @@ useEffect(() => {
               >
                 <option value="">Catégorie</option>
                 {
-                  categorie.map((element: any) => (
+                  categorie?.map((element: any) => (
                     <option value={element.id}>{element.libelle}</option>
                   ))
                 }

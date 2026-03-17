@@ -54,11 +54,10 @@ export default function renderTraitementEngagementPage() {
     setFonctionnaires(data)
   }
 
-  const getSommeMontantEngages = async (exercice: any, ligne: any) => {
-    const montant = await getSommeMontantEngage(exercice, ligne);
-    console.log(montant)
-    setMontantEngage(montant);
-  };
+  const getSommeMontantEngages = async (exercice: any, ligne: any,montantModifier:any) => {
+     const montant = await getSommeMontantEngage(exercice, ligne);
+     setMontantEngage(montant-montantModifier);
+   };
 
   useEffect(() => {
     dataExercice();
@@ -234,7 +233,8 @@ export default function renderTraitementEngagementPage() {
     setCategorie(data.categorie);
     setBeneficiaire(data.beneficiaire)
     setBailleurs(data.source)
-    getSommeMontantEngages(data.idExercice, data.id)
+    const montant=watch("montant")*watch("tauxDevise")
+    getSommeMontantEngages(data.idExercice, data.id,montant)
   }
 
 
@@ -243,6 +243,7 @@ export default function renderTraitementEngagementPage() {
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
     watch,
   } = useForm({
     defaultValues: {
@@ -261,8 +262,9 @@ export default function renderTraitementEngagementPage() {
     },
   });
 
-
-
+useEffect(() => {
+  setValue("tauxDevise", 1);
+}, []);
 
   const montantRestantFonction = (montantEngages: any) => {
     return montantEngages;
