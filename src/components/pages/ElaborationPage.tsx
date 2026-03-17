@@ -256,10 +256,18 @@ export default function renderElaborationPage() {
   useEffect(() => {
     getAllDataInTable();
   }, [])
+
+  useEffect(()=>{
+    if (classeplafond) {
+      console.log(classeplafond)
+      setPreviseValue("idClasse",classeplafond.id); 
+    }
+  })
   const {
     register: registerPrevision,
     handleSubmit: handleSubmitPrevision,
     control: controlPrevision,
+    setValue:setPreviseValue,
     reset: resetPrevision,
     formState: { errors: errorsPrevision },
   } = useForm({
