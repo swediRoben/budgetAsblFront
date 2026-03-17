@@ -1,43 +1,17 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
-import {createClasse,deleteClasse,getAllClasse,updateClasse} from "../../data/classification/classes";
-import {createPlancompte,deletePlancompte,getAllPlancompte,updatePlancompte} from "../../data/classification/planComptable";
-import {createProjet,deleteProjet,getAllProjet,updateProjet} from "../../data/classification/projet";
-import {createCategorie,deleteCategorie,getAllCategorie,updateCategorie,getAllCategorieByProgramme} from "../../data/classification/categorie";
-import {createTypebailleur,deleteTypebailleur,getAllTypebailleur,updateTypebailleur} from "../../data/classification/typebailleur";
-import {createBailleur,deleteBailleur,getAllBailleur,updateBailleur} from "../../data/classification/bailleur";
-import {createBeneficiere,deleteBeneficiere,getAllBeneficiere,updateBeneficiere} from "../../data/classification/beneficiere";
-import {createExercice,deleteExercice,getAllExercice,updateExercice} from "../../data/classification/exercice";
-import {createDevise,deleteDevise,getAllDevise,updateDevise} from "../../data/classification/devise";
-import {createPlanfontprojet,deletePlanfontprojet,getAllPlanfontprojet,updatePlanfontprojet} from "../../data/classification/planfontprojet";
-import {createPlanfontnature,deletePlanfontnature,getAllPlanfontnature,updatePlanfontnature} from "../../data/classification/planfontnature";
-import {createPrevision,deletePrevision,getAllPrevision,updatePrevision} from "../../data/classification/prevision";
-import {createActivite,deleteActivite,getAllActivite,updateActivite} from "../../data/classification/activite";
-
- import { useFieldArray, useForm } from "react-hook-form";
-import toast from "react-hot-toast"; 
+import {getAllExercice} from "../../data/classification/exercice";
+import {getPlanfontprojetById,getAllPlanfontprojet} from "../../data/classification/planfontprojet";
+ import {getAllPrevision} from "../../data/classification/prevision";
+ 
 
 export default function renderParActivitePage (){ 
-
-  const [classes, setClasses] = useState([]) 
-    const [plancomptables, setPlancomptables] = useState([]);
-    const [activites, setActivites] = useState([]);
-    const [projets, setProjets] = useState([]);
-    const [categories, setCategories] = useState([]);
-    const [projetId, setProjetId] = useState();
-    const [exerciceId, setExerciceId] = useState();
-    const [categorieId, setCategorieId] = useState();
-    const [typebailleurs, setTypebailleurs] = useState([]);
-    const [bailleurs, setBailleurs] = useState([]); 
-    const [beneficieres, setBeneficieres] = useState([]);
+ 
+    const [sources, setSources] = useState(); 
+    const [exerciceId, setExerciceId] = useState(); 
     
       const [planfondprojets, setPlanfontprojets] = useState([]);
-    const [exercices, setExercices] = useState([]);
-    const [devises, setDevises] = useState([]); 
-    const [planfontNatures, setPlanfontNature] = useState([]);
-    const [previsions, setPrevisions] = useState([]);
-    const [classeplafond, setClasseplafond] = useState();
-    const [montantplafond, setMontantplafond] = useState(0.0);
+    const [exercices, setExercices] = useState([]); 
+    const [previsions, setPrevisions] = useState([]); 
 
  
     
@@ -87,112 +61,23 @@ export default function renderParActivitePage (){
           0
         );
     
-      // GET
-   
+    
       
-      const dataProjet =async ()=>{
-        const data=await getAllProjet(); 
-        setProjets(data) 
-      }
- 
-    
-     const getCategorieByProjet=async (e:any)=>{ 
-        const data=await getAllCategorie(e); 
-        setProjetId(e)
-        setCategories(data) 
-      } 
-      
-      const  getPlanfondNatureByprogramme=async (e:any)=>{ 
-        
-        const value=e;
-        getCategorieByProjet(e)
-         if (value!=="") { 
-          const data=await getAllPlanfontnature(exerciceId,e); 
-          setPlanfontNature(data) 
-        }else{
-           setPlanfontNature([])
-        } 
-      } 
-    
-      const getPrevisionByCategorie=async (e:any)=>{ 
-        
-        const value=e; 
-         if (value!=="") { 
-          const data=await getAllPrevision(exerciceId,projetId,e); 
-          setPrevisions(data)
-           }else{
-              setPrevisions([])
-           }
-      } 
-    
       
      const getPrevisionParProjet=async (e:any)=>{
         const value=e; 
          if (value!=="") { 
           const data=await getAllPrevision(exerciceId,e,null); 
-          setPrevisions(data) 
+          setPrevisions(data)  
          }
       } 
+     
     
-    const getClasseInPlafondNatureByCaterie = (e: any) => { 
-    
-      const id = Number(e); 
-    
-      const data = planfontNatures.find(v => Number(v.idCategorie) === id); 
-    
-      if (data !== undefined) { 
-        setClasseplafond(data?.classe); 
-        setMontantplafond(data.montant); 
-        getActiviteByCategorie(data?.idCategorie) 
-        getBailleurs();
-        getBeneficiaires();
-      } else {
-        setClasseplafond(null);
-        setMontantplafond(0.0);
-      }
-    };
-    
-    
-    
-      const  getActiviteByCategorie=async (e:any)=>{ 
-        const data=await getAllActivite(null,e); 
-        setActivites(data) 
-      } 
-    
- 
-       const dataBailleur =async ()=>{
-        const data=await getAllBailleur(); 
-        setBailleurs(data) 
-      } 
-       const dataBenefiere =async ()=>{
-        const data=await getAllBeneficiere(); 
-        setBeneficieres(data) 
-      } 
-       const dataExercice =async ()=>{
+        const dataExercice =async ()=>{
         const data=await getAllExercice(); 
         setExercices(data)
-      } 
-    
-  
-    
-      const getAllDataInTable=(type:any)=>{  
-          dataExercice();
-          dataBailleur();
-          dataProjet(); 
-      }
-   
-   
-         const getProjets=()=>{
-          dataProjet()
-        }
-      
-        const getBailleurs=()=>{
-          dataBailleur()
-        } 
-
-        const getBeneficiaires=()=>{
-          dataBenefiere();
-        }
+      }  
+     
       
        
 
@@ -205,12 +90,16 @@ export default function renderParActivitePage (){
                        
                   }else{ 
                     setPlanfontprojets([])  
-                  } 
-                  setPlanfontNature([])
+                  }  
                   setPrevisions([])
                 }
-     
 
+            const getSourceByProjet=async (value)=>{
+               const data=await getPlanfontprojetById(value);
+              setSources(data.data?.sourceFinacement) 
+            }
+     
+ 
             // ETAT DE SORTIE
            
         return (
@@ -263,18 +152,30 @@ export default function renderParActivitePage (){
             Projet
           </label>
 
-          <select
-            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition
-                       focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
-            onChange={(e) => getPrevisionParProjet(e.target.value)}
-          >
-            <option value="">Sélectionner un projet</option>
-            {planfondprojets.map((element: any, index: number) => (
-              <option key={index} value={element.projet.id}>
-                {element.projet.libelle}
-              </option>
-            ))}
-          </select>
+         <select
+  className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-sm shadow-sm outline-none transition
+             focus:border-blue-500 focus:ring-4 focus:ring-blue-100"
+  onChange={(e) => {
+    const data = JSON.parse(e.target.value);
+
+    getPrevisionParProjet(data.projetId);
+    getSourceByProjet(data.elementId);
+  }}
+>
+  <option value="">Sélectionner un projet</option>
+
+  {planfondprojets.map((element: any, index: number) => (
+    <option
+      key={index}
+      value={JSON.stringify({
+        projetId: element.projet.id,
+        elementId: element.id,
+      })}
+    >
+      {element.projet.libelle}
+    </option>
+  ))}
+</select>
         </div>
       </div>
     </div>
@@ -294,7 +195,7 @@ export default function renderParActivitePage (){
             <th className="px-3 py-4 text-center text-[11px] font-bold uppercase tracking-wider">Qté</th>
             <th className="px-3 py-4 text-right text-[11px] font-bold uppercase tracking-wider">P.U.</th>
             <th className="px-4 py-4 text-right text-[11px] font-bold uppercase tracking-wider">Total</th>
-            <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-wider">Financement</th>
+            <th className="px-4 py-4 text-left text-[11px] font-bold uppercase tracking-wider">Src. Financement</th>
           </tr>
         </thead>
 
@@ -316,7 +217,11 @@ export default function renderParActivitePage (){
                   <td className="px-4 py-4 text-right font-black text-blue-900 text-base">
                     {totProj.toLocaleString()}
                   </td>
-                  <td className="px-4 py-4 text-gray-400 italic text-xs">Récapitulatif Projet</td>
+                  <td className="px-4 py-4 text-gray-400 italic text-xs">
+                     <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200 uppercase">
+                              {sources?.libelle || 'Fonds Propres'}
+                            </span>
+                      </td>
                 </tr>
 
                 {Object.entries(categories).map(([cid, catData], cIndex) => {
@@ -330,7 +235,7 @@ export default function renderParActivitePage (){
                           {String(cIndex + 1).padStart(3, "0")}
                         </td>
                         <td className="px-4 py-3 font-bold text-gray-700 italic" colSpan={4}>
-                          COMPOSANTE : {catData.categorie?.libelle}
+                          CATEGORIE : {catData.categorie?.libelle}
                         </td>
                         <td className="px-4 py-3 text-right font-bold text-gray-800 border-b border-orange-100">
                           {totCat.toLocaleString()}
@@ -342,10 +247,10 @@ export default function renderParActivitePage (){
                       {catData.acts.map((act, aIndex) => (
                         <tr key={aIndex} className="hover:bg-blue-50/30 transition-colors border-l-4 border-transparent hover:border-blue-200">
                           <td className="px-4 py-2 text-center font-mono text-xs text-gray-400 border-r border-gray-50">
-                            {act.ligne}
+                            {act.activite?.code}
                           </td>
                           <td className="px-4 py-2 text-gray-700 font-medium">
-                            {act.activite?.libelle}
+                             {act.activite?.libelle}
                           </td>
                           <td className="px-3 py-2 text-center text-[11px] text-gray-500 leading-tight">
                             <span className="block font-bold text-gray-700">{act.datebebut}</span>
