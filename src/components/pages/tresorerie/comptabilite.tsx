@@ -214,111 +214,475 @@ const ComptabilitePage = () => {
         </form>
 
       </div>
-      <div>
-        <h2 className="text-xl font-bold mb-2">Journal</h2>
-        <table className="w-full border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border px-2 py-1">Date</th>
-              <th className="border px-2 py-1">Objet</th>
-              <th className="border px-2 py-1">Type</th>
-              <th className="border px-2 py-1">Lignes (Débit / Crédit)</th>
+    <div className="p-4 bg-white shadow-md rounded-xl">
+  <h2 className="text-2xl font-semibold mb-4 text-gray-700">Journal</h2>
+
+  <div className="overflow-x-auto">
+    <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+      
+      <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+        <tr>
+          <th className="px-4 py-2 border">Date</th>
+          <th className="px-4 py-2 border">Objet</th>
+          <th className="px-4 py-2 border">Type</th>
+          <th className="px-4 py-2 border">Compte</th>
+          <th className="px-4 py-2 border text-right">Débit</th>
+          <th className="px-4 py-2 border text-right">Crédit</th>
+        </tr>
+      </thead>
+
+      <tbody className="text-gray-600">
+        {journal.map((ecriture) =>
+          ecriture?.lignes?.map((l) => (
+            <tr
+              key={l.id}
+              className="hover:bg-gray-50 transition duration-150"
+            >
+              <td className="px-4 py-2 border">
+                {new Date(ecriture.date).toLocaleDateString()}
+              </td>
+              <td className="px-4 py-2 border">{ecriture.objet}</td>
+              <td className="px-4 py-2 border">{ecriture.type}</td>
+              <td className="px-4 py-2 border">
+                {l.compte?.libelle || "Compte"}
+              </td>
+              <td className="px-4 py-2 border text-right text-green-600 font-medium">
+                {l.debit ? l.debit.toLocaleString() : "-"}
+              </td>
+              <td className="px-4 py-2 border text-right text-red-600 font-medium">
+                {l.credit ? l.credit.toLocaleString() : "-"}
+              </td>
             </tr>
-          </thead>
-          <tbody>
-            {journal.map((ecriture) => (
-              <tr key={ecriture.id}>
-                <td className="border px-2 py-1">
-                  {new Date(ecriture.date).toLocaleDateString()}
-                </td>
-                <td className="border px-2 py-1">{ecriture.objet}</td>
-                <td className="border px-2 py-1">{ecriture.type}</td>
-                <td className="border px-2 py-1">
-                  {ecriture?.lignes?.map((l) => (
-                    <div key={l.id}>
-                      {l.compte?.libelle || "Compte"} : Débit {l.debit || 0} / Crédit {l.credit || 0}
-                    </div>
-                  ))}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* ================= Grand Livre ================= */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Grand Livre</h2>
-        {Object.entries(grandLivre).map(([compte, lignes]) => (
-          <div key={compte} className="mb-4">
-            <h3 className="font-semibold">{compte}</h3>
-            <table className="w-full border border-gray-300">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="border px-2 py-1">Libellé</th>
-                  <th className="border px-2 py-1">Débit</th>
-                  <th className="border px-2 py-1">Crédit</th>
-                </tr>
-              </thead>
-              <tbody>
-                {lignes.map((l) => (
-                  <tr key={l.id}>
-                    <td className="border px-2 py-1">{l.libelle || "–"}</td>
-                    <td className="border px-2 py-1">{l.debit || 0}</td>
-                    <td className="border px-2 py-1">{l.credit || 0}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ))}
-      </div>
-
-      {/* ================= Balance ================= */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Balance</h2>
-        <table className="w-full border border-gray-300">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border px-2 py-1">Compte</th>
-              <th className="border px-2 py-1">Débit Total</th>
-              <th className="border px-2 py-1">Crédit Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {Object.entries(balance).map(([compte, bal]) => (
-              <tr key={compte}>
-                <td className="border px-2 py-1">{compte}</td>
-                <td className="border px-2 py-1">{bal.debit}</td>
-                <td className="border px-2 py-1">{bal.credit}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-
-      {/* ================= Compte de Résultat ================= */}
-      <div>
-        <h2 className="text-xl font-bold mb-2">Compte de Résultat</h2>
-        {compteResultat && (
-          <table className="w-full border border-gray-300">
-            <tbody>
-              <tr>
-                <td className="border px-2 py-1 font-semibold">Total Charges</td>
-                <td className="border px-2 py-1">{compteResultat.totalCharges}</td>
-              </tr>
-              <tr>
-                <td className="border px-2 py-1 font-semibold">Total Produits</td>
-                <td className="border px-2 py-1">{compteResultat.totalProduits}</td>
-              </tr>
-              <tr>
-                <td className="border px-2 py-1 font-semibold">Résultat Net</td>
-                <td className="border px-2 py-1">{compteResultat.resultat}</td>
-              </tr>
-            </tbody>
-          </table>
+          ))
         )}
+      </tbody>
+
+    </table>
+  </div>
+</div>
+
+    {/* ================= Grand Livre ================= */}
+<div className="p-4 bg-white shadow-md rounded-xl mt-6">
+  <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+    Grand Livre
+  </h2>
+
+  {Object.entries(grandLivre).map(([compte, lignes]) => {
+    const totalDebit = lignes.reduce((sum, l) => sum + (l.debit || 0), 0);
+    const totalCredit = lignes.reduce((sum, l) => sum + (l.credit || 0), 0);
+
+    return (
+      <div key={compte} className="mb-6 border rounded-lg overflow-hidden shadow-sm">
+        
+        {/* Header du compte */}
+        <div className="bg-gray-50 px-4 py-2 border-b">
+          <h3 className="font-semibold text-gray-700">{compte}</h3>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="min-w-full border-collapse">
+            
+            <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+              <tr>
+                <th className="px-4 py-2 border">Libellé</th>
+                <th className="px-4 py-2 border text-right">Débit</th>
+                <th className="px-4 py-2 border text-right">Crédit</th>
+              </tr>
+            </thead>
+
+            <tbody className="text-gray-600">
+              {lignes.map((l) => (
+                <tr
+                  key={l.id}
+                  className="hover:bg-gray-50 transition duration-150"
+                >
+                  <td className="px-4 py-2 border">
+                    {l.libelle || "–"}
+                  </td>
+                  <td className="px-4 py-2 border text-right text-green-600 font-medium">
+                    {l.debit ? l.debit.toLocaleString() : "-"}
+                  </td>
+                  <td className="px-4 py-2 border text-right text-red-600 font-medium">
+                    {l.credit ? l.credit.toLocaleString() : "-"}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+
+            {/* Totaux */}
+            <tfoot className="bg-gray-100 font-semibold">
+              <tr>
+                <td className="px-4 py-2 border text-right">Total</td>
+                <td className="px-4 py-2 border text-right text-green-700">
+                  {totalDebit.toLocaleString()}
+                </td>
+                <td className="px-4 py-2 border text-right text-red-700">
+                  {totalCredit.toLocaleString()}
+                </td>
+              </tr>
+            </tfoot>
+
+          </table>
+        </div>
       </div>
+    );
+  })}
+</div>
+
+    {/* ================= Balance ================= */}
+<div className="p-4 bg-white shadow-md rounded-xl mt-6">
+  <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+    Balance
+  </h2>
+
+  <div className="overflow-x-auto">
+    <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+      
+      <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+        <tr>
+          <th className="px-4 py-2 border">Compte</th>
+          <th className="px-4 py-2 border text-right">Débit Total</th>
+          <th className="px-4 py-2 border text-right">Crédit Total</th>
+          <th className="px-4 py-2 border text-right">Solde</th>
+        </tr>
+      </thead>
+
+      <tbody className="text-gray-600">
+        {Object.entries(balance).map(([compte, bal]) => {
+          const solde = (bal.debit || 0) - (bal.credit || 0);
+
+          return (
+            <tr
+              key={compte}
+              className="hover:bg-gray-50 transition duration-150"
+            >
+              <td className="px-4 py-2 border font-medium">
+                {compte}
+              </td>
+
+              <td className="px-4 py-2 border text-right text-green-600 font-medium">
+                {bal.debit ? bal.debit.toLocaleString() : "-"}
+              </td>
+
+              <td className="px-4 py-2 border text-right text-red-600 font-medium">
+                {bal.credit ? bal.credit.toLocaleString() : "-"}
+              </td>
+
+              <td
+                className={`px-4 py-2 border text-right font-semibold ${
+                  solde >= 0 ? "text-green-700" : "text-red-700"
+                }`}
+              >
+                {solde.toLocaleString()}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+
+      {/* Totaux globaux */}
+      <tfoot className="bg-gray-100 font-semibold">
+        <tr>
+          <td className="px-4 py-2 border text-right">Total</td>
+
+          <td className="px-4 py-2 border text-right text-green-700">
+            {Object.values(balance)
+              .reduce((sum, b) => sum + (b.debit || 0), 0)
+              .toLocaleString()}
+          </td>
+
+          <td className="px-4 py-2 border text-right text-red-700">
+            {Object.values(balance)
+              .reduce((sum, b) => sum + (b.credit || 0), 0)
+              .toLocaleString()}
+          </td>
+
+          <td className="px-4 py-2 border"></td>
+        </tr>
+      </tfoot>
+
+    </table>
+  </div>
+</div>
+
+ {/* ================= Compte de Résultat ================= */}
+<div className="p-4 bg-white shadow-md rounded-xl mt-6">
+  <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+    Compte de Résultat
+  </h2>
+
+  {compteResultat && (
+    <div className="overflow-x-auto">
+      <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+        
+        <thead className="bg-gray-100 text-gray-700 text-sm uppercase">
+          <tr>
+            <th className="px-4 py-2 border text-left">Libellé</th>
+            <th className="px-4 py-2 border text-right">Montant</th>
+          </tr>
+        </thead>
+
+        <tbody className="text-gray-600">
+          
+          {/* PRODUITS */}
+          <tr className="bg-green-50">
+            <td className="px-4 py-2 border font-semibold text-green-700">
+              Total Produits (Recettes)
+            </td>
+            <td className="px-4 py-2 border text-right text-green-700 font-semibold">
+              {compteResultat.totalProduits?.toLocaleString() || "0"}
+            </td>
+          </tr>
+
+          {/* CHARGES */}
+          <tr className="bg-red-50">
+            <td className="px-4 py-2 border font-semibold text-red-700">
+              Total Charges
+            </td>
+            <td className="px-4 py-2 border text-right text-red-700 font-semibold">
+              {compteResultat.totalCharges?.toLocaleString() || "0"}
+            </td>
+          </tr>
+
+          {/* RESULTAT */}
+          <tr className="bg-gray-100">
+            <td className="px-4 py-2 border font-bold text-gray-800">
+              Résultat Net (Solde)
+            </td>
+            <td
+              className={`px-4 py-2 border text-right font-bold ${
+                compteResultat.resultat >= 0
+                  ? "text-green-700"
+                  : "text-red-700"
+              }`}
+            >
+              {compteResultat.resultat?.toLocaleString() || "0"}
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+    </div>
+  )}
+</div>
+
+
+{/* ================= Bilan ================= */}
+{/* <div className="p-4 bg-white shadow-md rounded-xl mt-6">
+  <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+    Bilan
+  </h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    {/* ================= ACTIF ================= */}
+    {/* <div className="border rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-green-50 px-4 py-2 border-b">
+        <h3 className="font-semibold text-green-700">Actif</h3>
+      </div>
+
+      <table className="min-w-full">
+        <thead className="bg-gray-100 text-sm uppercase text-gray-700">
+          <tr>
+            <th className="px-4 py-2 border text-left">Libellé</th>
+            <th className="px-4 py-2 border text-right">Montant</th>
+          </tr>
+        </thead>
+
+        <tbody className="text-gray-600">
+          {bilan.actif.map((item) => (
+            <tr key={item.id} className="hover:bg-gray-50">
+              <td className="px-4 py-2 border">{item.libelle}</td>
+              <td className="px-4 py-2 border text-right text-green-600 font-medium">
+                {item.montant?.toLocaleString() || "0"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+
+        <tfoot className="bg-gray-100 font-semibold">
+          <tr>
+            <td className="px-4 py-2 border text-right">Total Actif</td>
+            <td className="px-4 py-2 border text-right text-green-700">
+              {bilan.actif
+                .reduce((sum, a) => sum + (a.montant || 0), 0)
+                .toLocaleString()}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div> */}
+
+    {/* ================= PASSIF ================= */}
+    {/* <div className="border rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-red-50 px-4 py-2 border-b">
+        <h3 className="font-semibold text-red-700">Passif</h3>
+      </div>
+
+      <table className="min-w-full">
+        <thead className="bg-gray-100 text-sm uppercase text-gray-700">
+          <tr>
+            <th className="px-4 py-2 border text-left">Libellé</th>
+            <th className="px-4 py-2 border text-right">Montant</th>
+          </tr>
+        </thead>
+
+        <tbody className="text-gray-600">
+          {bilan.passif.map((item) => (
+            <tr key={item.id} className="hover:bg-gray-50">
+              <td className="px-4 py-2 border">{item.libelle}</td>
+              <td className="px-4 py-2 border text-right text-red-600 font-medium">
+                {item.montant?.toLocaleString() || "0"}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+
+        <tfoot className="bg-gray-100 font-semibold">
+          <tr>
+            <td className="px-4 py-2 border text-right">Total Passif</td>
+            <td className="px-4 py-2 border text-right text-red-700">
+              {bilan.passif
+                .reduce((sum, p) => sum + (p.montant || 0), 0)
+                .toLocaleString()}
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div> */}
+
+  {/* ================= EQUILIBRE ================= */}
+  {/* <div className="mt-6 text-center">
+    {(() => {
+      const totalActif = bilan.actif.reduce((sum, a) => sum + (a.montant || 0), 0);
+      const totalPassif = bilan.passif.reduce((sum, p) => sum + (p.montant || 0), 0);
+      const isEquilibre = totalActif === totalPassif;
+
+      return (
+        <div
+          className={`inline-block px-6 py-3 rounded-lg font-semibold ${
+            isEquilibre
+              ? "bg-green-100 text-green-700"
+              : "bg-red-100 text-red-700"
+          }`}
+        >
+          {isEquilibre
+            ? "✔️ Bilan équilibré"
+            : "⚠️ Bilan non équilibré"}
+        </div>
+      );
+    })()}
+  </div> */}
+{/* </div>  */}
+
+{/* ================= Bilan ================= */}
+<div className="p-4 bg-white shadow-md rounded-xl mt-6">
+  <h2 className="text-2xl font-semibold mb-4 text-gray-700">
+    Bilan
+  </h2>
+
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+    
+    {/* ACTIF */}
+    <div className="border rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-green-50 px-4 py-2 border-b">
+        <h3 className="font-semibold text-green-700">Actif</h3>
+      </div>
+
+      <table className="min-w-full">
+        <thead className="bg-gray-100 text-sm uppercase text-gray-700">
+          <tr>
+            <th className="px-4 py-2 border text-left">Libellé</th>
+            <th className="px-4 py-2 border text-right">Montant</th>
+          </tr>
+        </thead>
+
+        <tbody className="text-gray-600">
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Banque</td>
+            <td className="px-4 py-2 border text-right text-green-600">1,200,000</td>
+          </tr>
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Caisse</td>
+            <td className="px-4 py-2 border text-right text-green-600">300,000</td>
+          </tr>
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Stocks</td>
+            <td className="px-4 py-2 border text-right text-green-600">450,000</td>
+          </tr>
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Immobilisations</td>
+            <td className="px-4 py-2 border text-right text-green-600">2,000,000</td>
+          </tr>
+        </tbody>
+
+        <tfoot className="bg-gray-100 font-semibold">
+          <tr>
+            <td className="px-4 py-2 border text-right">Total Actif</td>
+            <td className="px-4 py-2 border text-right text-green-700">
+              3,950,000
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+    {/* PASSIF */}
+    <div className="border rounded-lg overflow-hidden shadow-sm">
+      <div className="bg-red-50 px-4 py-2 border-b">
+        <h3 className="font-semibold text-red-700">Passif</h3>
+      </div>
+
+      <table className="min-w-full">
+        <thead className="bg-gray-100 text-sm uppercase text-gray-700">
+          <tr>
+            <th className="px-4 py-2 border text-left">Libellé</th>
+            <th className="px-4 py-2 border text-right">Montant</th>
+          </tr>
+        </thead>
+
+        <tbody className="text-gray-600">
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Capital</td>
+            <td className="px-4 py-2 border text-right text-red-600">2,500,000</td>
+          </tr>
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Réserves</td>
+            <td className="px-4 py-2 border text-right text-red-600">500,000</td>
+          </tr>
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Dettes fournisseurs</td>
+            <td className="px-4 py-2 border text-right text-red-600">600,000</td>
+          </tr>
+          <tr className="hover:bg-gray-50">
+            <td className="px-4 py-2 border">Emprunts</td>
+            <td className="px-4 py-2 border text-right text-red-600">350,000</td>
+          </tr>
+        </tbody>
+
+        <tfoot className="bg-gray-100 font-semibold">
+          <tr>
+            <td className="px-4 py-2 border text-right">Total Passif</td>
+            <td className="px-4 py-2 border text-right text-red-700">
+              3,950,000
+            </td>
+          </tr>
+        </tfoot>
+      </table>
+    </div>
+
+  </div>
+
+  {/* EQUILIBRE */}
+  <div className="mt-6 text-center">
+    <div className="inline-block px-6 py-3 rounded-lg font-semibold bg-green-100 text-green-700">
+      ✔️ Bilan équilibré
+    </div>
+  </div>
+</div>
     </div>
   );
 };
