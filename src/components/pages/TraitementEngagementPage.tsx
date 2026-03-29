@@ -750,7 +750,7 @@ useEffect(() => {
               </label>
               <input
                 type="number"
-                step="0.01"
+                step="any"
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
                 {...register("montant", { valueAsNumber: true })}
               />
@@ -763,7 +763,7 @@ useEffect(() => {
               </label>
               <input
                 type="number"
-                step="0.01"
+                step="any"
                 defaultValue={1}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
                 {...register("tauxDevise", { valueAsNumber: true })}

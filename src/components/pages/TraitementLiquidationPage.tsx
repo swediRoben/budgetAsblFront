@@ -809,7 +809,7 @@ return formatted;
       </label>
       <input
         type="number"
-        step="0.01"
+        step="any"
         className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
         {...register("montant")}
         disabled={true}
@@ -823,7 +823,7 @@ return formatted;
       </label>
       <input
         type="number"
-        step="0.01"
+        step="any"
         className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
         {...register("tauxDevise")}
         disabled={true}
