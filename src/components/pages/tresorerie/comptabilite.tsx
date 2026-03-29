@@ -674,7 +674,7 @@ const ComptabilitePage = () => {
       </table>
     </div>
 
-  </div>
+  </div> 
 
   {/* EQUILIBRE */}
   <div className="mt-6 text-center">
