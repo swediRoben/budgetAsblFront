@@ -47,7 +47,9 @@ import RenderTresorieJournalPage from "./components/pages/tresorerie/journal";
 import RenderTresorieRapprochementPage from "./components/pages/tresorerie/rapprochement";
 import JournalTresorerieForm from "./components/pages/tresorerie/decaissement";
 import ComptabilitePage from "./components/pages/tresorerie/comptabilite";
-
+import OperationComptablePage from "./components/pages/tresorerie/operation";
+import UserMenuPage from "./components/pages/users/menuPage";
+import RenderRolePage from "./components/pages/users/rolePage";
 
 type ExpandedMenusType = {
   [key: string]: boolean;
@@ -61,10 +63,8 @@ type MenuPage = {
 type SubMenuType = {
   id: string;
   name: string;
-  icon: React.ReactNode;
-  // si pages existe => submenu parent (on ouvre/ferme uniquement)
-  pages?: MenuPage[];
-  // si pages n'existe pas => submenu est une page directe
+  icon: React.ReactNode; 
+  pages?: MenuPage[]; 
 };
 
 type MenuType = {
@@ -105,6 +105,7 @@ const BudgetApp = () => {
     etatSortie: false,
   });
 
+
   // =========================
   // MENU STRUCTURE
   // =========================
@@ -121,6 +122,7 @@ const BudgetApp = () => {
           pages: [
             { id: "classe", name: "Classe" },
             { id: "planComptable", name: "Plan Comptable" },
+            { id: "operationComptable", name: "Operation Comptable" },
           ],
         },
         {
@@ -316,7 +318,17 @@ const BudgetApp = () => {
           icon: <FileText className="w-4 h-4" />,
         },
         {
-          id: "user",
+          id: "role",
+          name: "role",
+          icon: <BadgeDollarSign className="w-4 h-4" />,
+        },
+        {
+          id: "menu",
+          name: "Permission",
+          icon: <BadgeDollarSign className="w-4 h-4" />,
+        },
+        {
+          id: "uer",
           name: "User",
           icon: <BadgeDollarSign className="w-4 h-4" />,
         },
@@ -377,12 +389,14 @@ const BudgetApp = () => {
   // RENDER CONTENT
   // =========================
   const renderContent = () => {
-    switch (activePage) {
+    switch (activePage) { 
       // classification -> economique
       case "classe":
         return <RenderClassePage />;
       case "planComptable":
         return <RenderPlanComptablePage />;
+      case "operationComptable":
+        return <OperationComptablePage />;
 
       // classification -> programmatique
       case "projet":
@@ -460,8 +474,12 @@ const BudgetApp = () => {
         return <RenderDevisePage />;
 
       // utilisateur
-      case "fonctionnaire":
+      case "fonctionnaire":  
         return <RenderFonctionnairePage />;
+      case "role":
+        return <RenderRolePage />;
+      case "menu":
+        return <UserMenuPage />;
       case "user":
         return <RenderUserPage />;
 

@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
 
 import {getAllFonctionnaire} from "../../data/utilisateur/fonctionnaire";
-import {createUser,deleteUser,getAllUser,updateUser} from "../../data/utilisateur/user";
+import {create,deletes,getAllUser,update} from "../../data/utilisateur/user";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast"; 

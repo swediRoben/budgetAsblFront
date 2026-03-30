@@ -1,8 +1,8 @@
 import axios from "axios";
   
-const API_URL = "http://localhost:8080/budget/v1/api/users";
+const API_URL = "http://localhost:8080/budget/v1/api/roles";
 
-export const getAllUser = async () => {
+export const getAllRole = async () => {
   try {
     const response = await axios.get(API_URL);
     return response.data;
@@ -10,16 +10,7 @@ export const getAllUser = async () => {
     throw error;
   }
 };
-
-export const getById = async (id: number) => {
-  try {
-    const response = await axios.get(`${API_URL}/${id}`);
-    return response;
-  } catch (error) {
-    throw error;
-  }
-};
-
+ 
 export const create = async (data: any) => {
   try {
     const response = await axios.post(API_URL, data);
@@ -36,13 +27,4 @@ export const update = async (id: number, data: any) => {
   } catch (error) {
     throw error;
   }
-};
-
-export const deletes = async (id: number) => {
-  try {
-    const response = await axios.delete(`${API_URL}/${id}`);
-    return response.data;
-  } catch (error) {
-    throw error;
-  }
-};
+}; 
