@@ -39,7 +39,6 @@ import RenderLiquidationPage from "./components/pages/LiquidationPage";
 import RenderTraitementEngagementPage from "./components/pages/TraitementEngagementPage";
 import RenderTraitementLiquidationPage from "./components/pages/TraitementLiquidationPage";
 import RenderFonctionnairePage from "./components/pages/FonctionnairePage";
-import RenderUserPage from "./components/pages/UserPage";
 import RenderTresorieTableBorPage from "./components/pages/tresorerie/tableDebord";
 import RenderTresorieBanquePage from "./components/pages/tresorerie/banque";
 import RenderTresorieCompteBancairePage from "./components/pages/tresorerie/compteBancaire";
@@ -49,7 +48,8 @@ import JournalTresorerieForm from "./components/pages/tresorerie/decaissement";
 import ComptabilitePage from "./components/pages/tresorerie/comptabilite";
 import OperationComptablePage from "./components/pages/tresorerie/operation";
 import UserMenuPage from "./components/pages/users/menuPage";
-import RenderRolePage from "./components/pages/users/rolePage";
+import RenderRolePage from "./components/pages/users/RolePage";
+import RenderUserPage from "./components/pages/users/UserPage";
 
 type ExpandedMenusType = {
   [key: string]: boolean;
@@ -328,8 +328,8 @@ const BudgetApp = () => {
           icon: <BadgeDollarSign className="w-4 h-4" />,
         },
         {
-          id: "uer",
-          name: "User",
+          id: "user",
+          name: "Users",
           icon: <BadgeDollarSign className="w-4 h-4" />,
         },
       ],

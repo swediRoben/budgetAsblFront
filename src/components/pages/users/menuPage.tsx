@@ -49,10 +49,13 @@ const sousMenusMap: Record<string, string[]> = {
 };
 
 export default function RoleMenuPermission() {
-  const [checked, setChecked] = useState<Record<string, string[]>>({});
-  const [roles, setRoles] = useState([]);
+  // ✅ structure propre avec id
+  const [checked, setChecked] = useState<
+    Record<string, { id: number | null; sousmenu: string }[]>
+  >({});
+  const [roles, setRoles] = useState<any[]>([]);
 
-  const { register, handleSubmit, reset } = useForm();
+  const { register, handleSubmit, reset, setValue } = useForm();
 
   // ================= GET ROLES =================
   const dataRole = async () => {
@@ -65,18 +68,23 @@ export default function RoleMenuPermission() {
     try {
       const data = await getAllMenu(id);
 
-      // transformer backend -> checked
-      const formatted: Record<string, string[]> = {};
+      const formatted: Record<
+        string,
+        { id: number | null; sousmenu: string }[]
+      > = {};
 
       data.forEach((item: any) => {
-        formatted[item.menu] = item.sousMenus.map(
-          (sm: any) => sm.sousmenu
-        );
+        formatted[item.menu] = item.sousMenus.map((sm: any) => ({
+          id: sm.id,
+          sousmenu: sm.sousmenu
+        }));
       });
 
       setChecked(formatted);
+
+      // 👉 mode édition
+      setValue("id", id);
     } catch (e) {
-      // fallback si pas de backend
       setChecked({});
     }
   };
@@ -85,7 +93,7 @@ export default function RoleMenuPermission() {
     dataRole();
   }, []);
 
-  // ================= CHECK MENU =================
+  // ================= TOGGLE MENU =================
   const toggleMenu = (menu: string) => {
     setChecked((prev) => {
       const newState = { ...prev };
@@ -100,15 +108,20 @@ export default function RoleMenuPermission() {
     });
   };
 
-  // ================= CHECK SOUS MENU =================
+  // ================= TOGGLE SOUS MENU =================
   const toggleSousMenu = (menu: string, sm: string) => {
     setChecked((prev) => {
       const current = prev[menu] || [];
-      const exists = current.includes(sm);
 
-      const updated = exists
-        ? current.filter((i) => i !== sm)
-        : [...current, sm];
+      const exists = current.find((i) => i.sousmenu === sm);
+
+      let updated;
+
+      if (exists) {
+        updated = current.filter((i) => i.sousmenu !== sm);
+      } else {
+        updated = [...current, { id: null, sousmenu: sm }];
+      }
 
       return { ...prev, [menu]: updated };
     });
@@ -117,17 +130,19 @@ export default function RoleMenuPermission() {
   // ================= SUBMIT =================
   const onSubmit = async (formData: any) => {
     try {
-     const payload = Object.entries(checked).map(
-  ([menu, sousMenus]) => ({
-    id: formData.id ?? null,
-    idRole: Number(formData.idRole),
-    menu,
-    sousMenus: sousMenus.map((sm: any) => ({
-      id: isEdit ? sm.id : null,
-      sousmenu: sm.sousmenu
-    }))
-  })
-);
+      const isEdit = !!formData.id;
+
+      const payload = Object.entries(checked).map(
+        ([menu, sousMenus]) => ({
+          id:   null ,
+          idRole: Number(formData.idRole),
+          menu,
+          sousMenus: sousMenus.map((sm: any) => ({
+            id:  null,
+            sousmenu: sm.sousmenu
+          }))
+        })
+      );
 
       console.log("DATA ENVOYEE :", payload);
 
@@ -155,6 +170,9 @@ export default function RoleMenuPermission() {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* ✅ INPUT CACHÉ */}
+          <input {...register("id")} hidden />
+
           {/* SELECT ROLE */}
           <select
             className="border p-3 rounded-xl w-full"
@@ -163,7 +181,6 @@ export default function RoleMenuPermission() {
               handleRoleChange(Number(e.target.value))
             }
           >
-             <input {...register("id", { required: false })} readOnly hidden />
             <option value="">Choisir un rôle</option>
             {roles?.map((r: any) => (
               <option key={r.id} value={r.id}>
@@ -175,11 +192,7 @@ export default function RoleMenuPermission() {
           {/* MENUS */}
           <div className="space-y-4 mt-4">
             {menuss.map((menu) => (
-              <div
-                key={menu}
-                className="border rounded-xl p-4"
-              >
-                {/* MENU */}
+              <div key={menu} className="border rounded-xl p-4">
                 <label className="flex items-center gap-2 font-semibold">
                   <input
                     type="checkbox"
@@ -199,7 +212,9 @@ export default function RoleMenuPermission() {
                       >
                         <input
                           type="checkbox"
-                          checked={checked[menu]?.includes(sm)}
+                          checked={checked[menu]?.some(
+                            (s) => s.sousmenu === sm
+                          )}
                           onChange={() =>
                             toggleSousMenu(menu, sm)
                           }
