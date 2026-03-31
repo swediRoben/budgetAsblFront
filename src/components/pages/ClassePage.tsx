@@ -14,7 +14,7 @@ export default function renderClassePage (){
     const [modalType, setModalType] = useState("activite");
     const [showModal, setShowModal] = useState(false);
 
-
+ 
    // GET
     const dataClasse =async ()=>{
       const data=await getAllClasse(); 
@@ -103,8 +103,8 @@ export default function renderClassePage (){
               errorsClasse.type ? "border-red-500" : "border-gray-300"
           }`}>
             <option value="">Sélectionner un type</option>
-            <option value="Dépense">Dépense</option>
-            <option value="Recette">Recette</option>
+            <option value="DEPENSE">Dépense</option>
+            <option value="RECETTE">Recette</option>
           </select>
           {errorsClasse.type && <span>{"Type obligatoire"}</span>}
         </div>

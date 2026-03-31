@@ -1,7 +1,10 @@
- export { OperationForm };
- 
-import React, { useState } from 'react';
+export { OperationForm };
+
+import React, { useEffect, useState } from 'react';
 import { PlusCircle, Trash2, Save, X, Search, ChevronDown, CreditCard, DollarSign, FileText, Layers, ArrowRightLeft } from 'lucide-react';
+
+import { getAllClasse } from "../../../data/classification/classes";
+import { getAllPlancompte } from "../../../data/classification/planComptable";
 
 // Types based on your Java entities
 enum TypeClasse {
@@ -78,6 +81,8 @@ const OperationForm: React.FC<OperationFormProps> = ({
   onCancel,
   isSubmitting = false,
 }) => {
+
+
   const [formData, setFormData] = useState<OperationComptable>({
     libelle: initialData?.libelle || '',
     type: initialData?.type || TypeClasse.BILAN,
@@ -87,6 +92,25 @@ const OperationForm: React.FC<OperationFormProps> = ({
     ],
   });
 
+
+  const [plancomptables, setPlancomptables] = useState([]);
+  const [classes, setClasses] = useState([])
+
+  const dataClasse = async () => {
+    const data = await getAllClasse();
+    setClasses(data)
+  }
+
+  const dataPlancompte = async () => {
+    const data = await getAllPlancompte();
+    setPlancomptables(data);
+  }
+
+  useEffect(() => {
+    dataClasse();
+    dataPlancompte();
+  }, [])
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showDebitSearch, setShowDebitSearch] = useState<{ [key: number]: boolean }>({});
   const [showCreditSearch, setShowCreditSearch] = useState<{ [key: number]: boolean }>({});
@@ -94,9 +118,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
   const [creditSearchTerm, setCreditSearchTerm] = useState<{ [key: number]: string }>({});
 
   // Filter plan comptable based on selected class
-  const filteredPlanComptable = mockPlanComptable.filter(
-    (compte) => compte.classeId === formData.classeId
-  );
+  const filteredPlanComptable = dataPlancompte()
 
   // Get libellé for a compte
   const getCompteLibelle = (compte: PlanComptable | null) => {
@@ -135,7 +157,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
   // Handle main form changes
   const handleChange = (field: keyof OperationComptable, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    
+
     // Reset details if class changes because plan comptable options change
     if (field === 'classeId') {
       setFormData((prev) => ({
@@ -143,7 +165,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
         details: [{ debit: null, credit: null }],
       }));
     }
-    
+
     // Clear field error
     if (errors[field]) {
       setErrors((prev) => {
@@ -157,15 +179,15 @@ const OperationForm: React.FC<OperationFormProps> = ({
   // Validate form
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
-    
+
     if (!formData.libelle.trim()) {
       newErrors.libelle = 'Le libellé est requis';
     }
-    
+
     if (!formData.classeId) {
       newErrors.classeId = 'La classe est requise';
     }
-    
+
     let hasDetailError = false;
     formData.details.forEach((detail, index) => {
       if (!detail.debit && !detail.credit) {
@@ -173,11 +195,11 @@ const OperationForm: React.FC<OperationFormProps> = ({
         hasDetailError = true;
       }
     });
-    
+
     if (formData.details.length === 0) {
       newErrors.details = 'Au moins une ligne d\'écriture est requise';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -240,7 +262,7 @@ const OperationForm: React.FC<OperationFormProps> = ({
               <FileText className="w-5 h-5 text-indigo-600" />
               <h3 className="text-lg font-medium text-gray-900">Informations générales</h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               {/* Libelle */}
               <div className="col-span-2">
@@ -252,9 +274,8 @@ const OperationForm: React.FC<OperationFormProps> = ({
                   value={formData.libelle}
                   onChange={(e) => handleChange('libelle', e.target.value)}
                   placeholder="Ex: Achat de marchandises, Vente de produits, etc."
-                  className={`w-full px-4 py-2.5 rounded-lg border ${
-                    errors.libelle ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-300'
-                  } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all`}
+                  className={`w-full px-4 py-2.5 rounded-lg border ${errors.libelle ? 'border-red-300 ring-2 ring-red-100' : 'border-gray-300'
+                    } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all`}
                 />
                 {errors.libelle && (
                   <p className="mt-1 text-sm text-red-600">{errors.libelle}</p>
@@ -288,13 +309,12 @@ const OperationForm: React.FC<OperationFormProps> = ({
                   <select
                     value={formData.classeId}
                     onChange={(e) => handleChange('classeId', parseInt(e.target.value))}
-                    className={`w-full px-4 py-2.5 rounded-lg border ${
-                      errors.classeId ? 'border-red-300' : 'border-gray-300'
-                    } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white`}
+                    className={`w-full px-4 py-2.5 rounded-lg border ${errors.classeId ? 'border-red-300' : 'border-gray-300'
+                      } focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent appearance-none bg-white`}
                   >
-                    {mockClasses.map((classe) => (
+                    {classes.map((classe) => (
                       <option key={classe.id} value={classe.id}>
-                        {classe.code} - {classe.libelle}
+                        {classe.type} - {classe.libelle}
                       </option>
                     ))}
                   </select>
@@ -354,129 +374,77 @@ const OperationForm: React.FC<OperationFormProps> = ({
                       <td className="px-4 py-3 text-sm text-gray-500 font-mono">
                         {index + 1}
                       </td>
-                      
+
                       {/* Debit Column */}
                       <td className="px-4 py-3">
                         <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() => setShowDebitSearch({ ...showDebitSearch, [index]: !showDebitSearch[index] })}
-                            className="w-full text-left px-3 py-2 bg-white border border-gray-300 rounded-lg hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center justify-between transition-all"
-                          >
-                            <span className={detail.debit ? 'text-gray-900' : 'text-gray-400'}>
-                              {detail.debit ? getCompteLibelle(detail.debit) : 'Sélectionner un compte'}
-                            </span>
-                            <Search className="w-4 h-4 text-gray-400" />
-                          </button>
-                          
-                          {showDebitSearch[index] && (
+                         
                             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                               <div className="p-2 border-b">
-                                <input
-                                  type="text"
-                                  placeholder="Rechercher un compte..."
-                                  value={debitSearchTerm[index] || ''}
-                                  onChange={(e) => setDebitSearchTerm({ ...debitSearchTerm, [index]: e.target.value })}
-                                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
-                                  autoFocus
-                                />
-                              </div>
-                              {getFilteredComptes(debitSearchTerm[index] || '').map((compte) => (
-                                <button
-                                  key={compte.id}
-                                  type="button"
-                                  onClick={() => {
-                                    updateDetail(index, 'debit', compte);
-                                    setShowDebitSearch({ ...showDebitSearch, [index]: false });
-                                    setDebitSearchTerm({ ...debitSearchTerm, [index]: '' });
-                                  }}
-                                  className="w-full text-left px-3 py-2 hover:bg-indigo-50 text-sm transition-colors"
+
+                                <select className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
                                 >
-                                  <span className="font-mono text-indigo-600">{compte.numero}</span>
-                                  <span className="text-gray-600 ml-2">{compte.libelle}</span>
-                                </button>
-                              ))}
-                              {getFilteredComptes(debitSearchTerm[index] || '').length === 0 && (
-                                <div className="px-3 py-2 text-sm text-gray-500 text-center">
-                                  Aucun compte trouvé
-                                </div>
-                              )}
-                            </div>
-                          )}
+                                  <option value="">Sélectionner une classe</option>
+                                  {
+                                    classes?.map((element) => (
+                                      <option value={element.id}>{element.libelle}</option>
+                                    ))
+                                  }
+                                </select>
+                              </div>
+
+                            </div> 
                         </div>
                       </td>
-                      
+
                       {/* Credit Column */}
                       <td className="px-4 py-3">
                         <div className="relative">
-                          <button
-                            type="button"
-                            onClick={() => setShowCreditSearch({ ...showCreditSearch, [index]: !showCreditSearch[index] })}
-                            className="w-full text-left px-3 py-2 bg-white border border-gray-300 rounded-lg hover:border-indigo-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 flex items-center justify-between transition-all"
-                          >
-                            <span className={detail.credit ? 'text-gray-900' : 'text-gray-400'}>
-                              {detail.credit ? getCompteLibelle(detail.credit) : 'Sélectionner un compte'}
-                            </span>
-                            <Search className="w-4 h-4 text-gray-400" />
-                          </button>
                           
-                          {showCreditSearch[index] && (
                             <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                               <div className="p-2 border-b">
-                                <input
-                                  type="text"
-                                  placeholder="Rechercher un compte..."
-                                  value={creditSearchTerm[index] || ''}
-                                  onChange={(e) => setCreditSearchTerm({ ...creditSearchTerm, [index]: e.target.value })}
-                                  className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
-                                  autoFocus
-                                />
-                              </div>
-                              {getFilteredComptes(creditSearchTerm[index] || '').map((compte) => (
-                                <button
-                                  key={compte.id}
-                                  type="button"
-                                  onClick={() => {
-                                    updateDetail(index, 'credit', compte);
-                                    setShowCreditSearch({ ...showCreditSearch, [index]: false });
-                                    setCreditSearchTerm({ ...creditSearchTerm, [index]: '' });
-                                  }}
-                                  className="w-full text-left px-3 py-2 hover:bg-indigo-50 text-sm transition-colors"
+
+                                <select className="w-full px-3 py-1.5 border border-gray-300 rounded-lg text-sm"
                                 >
-                                  <span className="font-mono text-indigo-600">{compte.numero}</span>
-                                  <span className="text-gray-600 ml-2">{compte.libelle}</span>
-                                </button>
-                              ))}
-                              {getFilteredComptes(creditSearchTerm[index] || '').length === 0 && (
-                                <div className="px-3 py-2 text-sm text-gray-500 text-center">
-                                  Aucun compte trouvé
-                                </div>
-                              )}
-                            </div>
-                          )}
+                                  <option value="">Sélectionner une classe</option>
+                                  {
+                                    classes?.map((element) => (
+                                      <option value={element.id}>{element.libelle}</option>
+                                    ))
+                                  }
+                                </select>
+                              </div>
+                              </div>
+ 
                         </div>
                       </td>
-                      
+
                       <td className="px-4 py-3 text-center">
-                        <button
+                         <div className="relative">
+                         <div className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+                              <div className="p-2 border-b">
+ 
+                       <button
                           type="button"
                           onClick={() => removeDetailLine(index)}
                           disabled={formData.details.length === 1}
-                          className={`p-1.5 rounded-lg transition-colors ${
-                            formData.details.length === 1
+                          className={`p-1.5 rounded-lg transition-colors ${formData.details.length === 1
                               ? 'text-gray-300 cursor-not-allowed'
                               : 'text-red-500 hover:bg-red-50'
-                          }`}
+                            }`}
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
+                         </div>
+                          </div>
+                          </div>
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
-            
+
             {errors.details && (
               <div className="px-5 py-3 bg-red-50 border-t border-red-100">
                 <p className="text-sm text-red-600">{errors.details}</p>
