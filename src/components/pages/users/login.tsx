@@ -8,7 +8,7 @@ const Login = () => {
     username: "",
     password: "",
   });
-useNavigate
+ const navigate = useNavigate();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
    const [log, setLog] = useState(false);
@@ -39,7 +39,13 @@ useNavigate
       }
       setLog(true)
       const data = await response.json();
-      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("user", JSON.stringify(data)); 
+
+      // ✅ Stocker uniquement le token
+      localStorage.setItem("token", JSON.stringify(data));
+
+      // ✅ redirection sécurisée
+      navigate("/budget");
       // alert("Connexion réussie ✅");
     } catch (err: any) {
       setError(err.message);
@@ -48,9 +54,7 @@ useNavigate
     }
   };
 
-  return (
-    <>
-    {log?<Budget/>:
+  return ( 
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-700 via-indigo-800 to-slate-900">
      
       <div className="backdrop-blur-xl bg-white/10 border border-white/20 p-8 rounded-3xl shadow-2xl w-full max-w-md text-white">
@@ -125,9 +129,7 @@ useNavigate
           © 2026 - Votre Société
         </p>
       </div>
-    </div>
-    }
-    </>
+    </div> 
   );
 };
 

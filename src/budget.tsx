@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ChevronDown,
   ChevronRight,
@@ -63,8 +63,8 @@ type MenuPage = {
 type SubMenuType = {
   id: string;
   name: string;
-  icon: React.ReactNode; 
-  pages?: MenuPage[]; 
+  icon: React.ReactNode;
+  pages?: MenuPage[];
 };
 
 type MenuType = {
@@ -84,8 +84,10 @@ const BudgetApp = () => {
   const [activeMenu, setActiveMenu] = useState<string>("");
 
   // Pour coloration du submenu sélectionné
-  const [activeSubMenu, setActiveSubMenu] = useState<string>("");
-
+  const [activeSubMenu, setActiveSubMenu] = useState<string>(""); 
+  
+  const token = JSON.parse(localStorage.getItem("token"));
+  
   // menus ouverts
   const [expandedMenus, setExpandedMenus] = useState<ExpandedMenusType>({
     classification: false,
@@ -94,7 +96,7 @@ const BudgetApp = () => {
     tresorerie: false,
     parametre: false,
     utilisateur: false,
-    comptabilite:false,
+    comptabilite: false,
   });
 
   // submenus parents ouverts (ceux qui ont pages)
@@ -104,6 +106,39 @@ const BudgetApp = () => {
     srcFinancement: false,
     etatSortie: false,
   });
+
+  // A VERIFIER MENU
+  // const normalize = (v: string) =>
+  // v?.toLowerCase().replace(/\s/g, "");
+  // const menuStructureNouveau: MenuType[] = menuStructure
+  // .map((menu) => {
+  //   // toutes les permissions qui match ce menu
+  //   const permissionsForMenu = token?.permission?.filter(
+  //     (p) => normalize(p.menu) === normalize(menu.id)
+  //   );
+
+  //   if (!permissionsForMenu?.length) return null;
+
+  //   return {
+  //     ...menu,
+  //     subMenus: menu.subMenus
+  //       .map((sub) => {
+  //         // vérifier si AU MOINS une permission contient ce sous-menu
+  //         const allowed = permissionsForMenu.some((perm) =>
+  //           perm.sousMenus?.some(
+  //             (s) =>
+  //               normalize(s.sousmenu) === normalize(sub.id)
+  //           )
+  //         );
+
+  //         if (!allowed) return null;
+
+  //         return sub;
+  //       })
+  //       .filter(Boolean),
+  //   };
+  // })
+  // .filter(Boolean);
 
 
   // =========================
@@ -236,7 +271,7 @@ const BudgetApp = () => {
           name: "Banque",
           icon: <FileText className="w-4 h-4" />,
         },
-         {
+        {
           id: "compteBancaire",
           name: "Compte bancaire",
           icon: <FileText className="w-4 h-4" />,
@@ -246,29 +281,41 @@ const BudgetApp = () => {
           name: "Journal de tresorerie",
           icon: <FileText className="w-4 h-4" />,
         },
-         {
+        {
           id: "rapprochement",
           name: "Rapprochement",
           icon: <FileText className="w-4 h-4" />,
         },
-         {
+        {
           id: "situation",
           name: "Situation",
           icon: <FileText className="w-4 h-4" />,
-        }
+        },
+        {
+          id: "etatFinancier",
+          name: "Etas Financiers",
+          icon: <FileText className="w-4 h-4" />,
+          pages: [
+            { id: "bilanTresorerie", name: "bilan" },
+            { id: "ventilation", name: "Ventilation" },
+            { id: "compteResultat", name: "Compte de résultat" },
+            { id: "ventilationCharge", name: "Ventilation des charges" },
+            { id: "resourceEmplois", name: "Ressources et emplois" },
+          ],
+        },
       ],
     },
     {
       id: "comptabilite",
       name: "Comptabilite",
       icon: <CheckSquare className="w-5 h-5" />,
-      subMenus: [ 
+      subMenus: [
         {
           id: "JournalComptable",
           name: "Journal",
           icon: <FileText className="w-4 h-4" />,
         },
-         {
+        {
           id: "grandlivre",
           name: "Grand livre",
           icon: <FileText className="w-4 h-4" />,
@@ -278,12 +325,12 @@ const BudgetApp = () => {
           name: "Balance",
           icon: <FileText className="w-4 h-4" />,
         },
-         {
+        {
           id: "Bilan",
           name: "Billan",
           icon: <FileText className="w-4 h-4" />,
         },
-         {
+        {
           id: "compteesultat",
           name: "Compte de resultat",
           icon: <FileText className="w-4 h-4" />,
@@ -389,7 +436,7 @@ const BudgetApp = () => {
   // RENDER CONTENT
   // =========================
   const renderContent = () => {
-    switch (activePage) { 
+    switch (activePage) {
       // classification -> economique
       case "classe":
         return <RenderClassePage />;
@@ -438,7 +485,7 @@ const BudgetApp = () => {
       case "traitementengagment":
         return <RenderTraitementEngagementPage />;
       case "traitementliquidation":
-        return <RenderTraitementLiquidationPage />; 
+        return <RenderTraitementLiquidationPage />;
       case "rapportEngagement":
         return <RenderRapportEngagementPage />;
       case "rapportLiquidation":
@@ -458,13 +505,13 @@ const BudgetApp = () => {
       case "rapprochement":
         return <RenderTresorieRapprochementPage />;
       case "situation":
-        return <JournalTresorerieForm />; 
+        return <JournalTresorerieForm />;
 
       //comptabilite
       case "JournalComptable":
-        return <ComptabilitePage />; 
-      
-        
+        return <ComptabilitePage />;
+
+
 
 
       // parametre
@@ -474,7 +521,7 @@ const BudgetApp = () => {
         return <RenderDevisePage />;
 
       // utilisateur
-      case "fonctionnaire":  
+      case "fonctionnaire":
         return <RenderFonctionnairePage />;
       case "role":
         return <RenderRolePage />;
@@ -496,9 +543,8 @@ const BudgetApp = () => {
     <div className="flex h-screen bg-gray-100">
       {/* SIDEBAR */}
       <div
-        className={`${
-          sidebarOpen ? "w-64" : "w-0"
-        } bg-gray-800 text-white transition-all duration-300 overflow-hidden`}
+        className={`${sidebarOpen ? "w-64" : "w-0"
+          } bg-gray-800 text-white transition-all duration-300 overflow-hidden`}
       >
         <div className="p-4 border-b border-gray-700 flex items-center justify-between">
           <h1 className="text-xl font-bold">Budget Manager</h1>
@@ -507,7 +553,7 @@ const BudgetApp = () => {
           </button>
         </div>
 
-        <nav className="p-4">
+      <nav className="p-4 h-full overflow-y-auto custom-scroll">
           {menuStructure.map((menu) => (
             <div key={menu.id} className="mb-2">
               {/* MENU BUTTON */}
@@ -516,9 +562,8 @@ const BudgetApp = () => {
                   setActiveMenu(menu.id);
                   toggleMenu(menu.id);
                 }}
-                className={`w-full flex items-center justify-between p-3 rounded transition ${
-                  activeMenu === menu.id ? "bg-blue-600" : "hover:bg-gray-700"
-                }`}
+                className={`w-full flex items-center justify-between p-3 rounded transition ${activeMenu === menu.id ? "bg-blue-600" : "hover:bg-gray-700"
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   {menu.icon}
@@ -539,11 +584,10 @@ const BudgetApp = () => {
                     <div key={subMenu.id}>
                       <button
                         onClick={() => handleSubMenuClick(subMenu)}
-                        className={`w-full flex items-center justify-between p-2 rounded text-sm transition ${
-                          activeSubMenu === subMenu.id
+                        className={`w-full flex items-center justify-between p-2 rounded text-sm transition ${activeSubMenu === subMenu.id
                             ? "text-green-400"
                             : "hover:bg-gray-700"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center gap-2">
                           {subMenu.icon}
@@ -565,11 +609,10 @@ const BudgetApp = () => {
                             <button
                               key={page.id}
                               onClick={() => handlePageClick(page.id)}
-                              className={`w-full text-left p-2 rounded text-sm transition ${
-                                activePage === page.id
+                              className={`w-full text-left p-2 rounded text-sm transition ${activePage === page.id
                                   ? "bg-green-500 text-white"
                                   : "hover:bg-gray-700"
-                              }`}
+                                }`}
                             >
                               {page.name}
                             </button>
@@ -586,21 +629,55 @@ const BudgetApp = () => {
       </div>
 
       {/* MAIN */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="bg-white shadow-sm p-4 flex items-center gap-4">
-          <button
-            onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="p-2 hover:bg-gray-100 rounded"
-          >
-            <Menu className="w-6 h-6" />
-          </button>
-          <h2 className="text-xl font-semibold text-gray-800">
-            Gestion du Budget
-          </h2>
-        </header>
+<div className="flex-1 flex flex-col overflow-hidden">
+  <header className="bg-white shadow-sm px-6 py-4 flex items-center justify-between">
+    
+    {/* LEFT */}
+    <div className="flex items-center gap-4">
+      <button
+        onClick={() => setSidebarOpen(!sidebarOpen)}
+        className="p-2 hover:bg-gray-100 rounded"
+      >
+        <Menu className="w-6 h-6" />
+      </button>
 
-        <main className="flex-1 overflow-auto p-6">{renderContent()}</main>
+      <h2 className="text-xl font-semibold text-gray-800">
+        Gestion du Budget
+      </h2>
+    </div>
+
+    {/* RIGHT */}
+    <div className="flex items-center gap-6">
+      
+      {/* Select Exercice */}
+      <select
+        className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        defaultValue="2022"
+      >
+        <option value="2020">Exercice 2020</option>
+        <option value="2021">Exercice 2021</option>
+        <option value="2022">Exercice 2022</option>
+      </select>
+
+      {/* Utilisateur */}
+      <div className="flex items-center gap-2">
+        <div className="w-9 h-9 rounded-full bg-blue-500 text-white flex items-center justify-center font-semibold">
+          FAP
+        </div>
+        
+        <div className="text-sm">
+          <p className="font-medium text-gray-800">{token?.username}</p>
+          <p className="text-gray-500 text-xs">{token?.fonctionnaireNom}</p>
+        </div>
       </div>
+
+    </div>
+  </header>
+
+  <main className="flex-1 overflow-auto p-6">
+    {renderContent()}
+  </main>
+</div>
     </div>
   );
 };
