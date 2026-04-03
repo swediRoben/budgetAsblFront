@@ -15,6 +15,8 @@ import {
   BadgeDollarSign,
 } from "lucide-react";
 
+import { getAllExercice } from "./data/classification/exercice";
+
 import RenderActivitePage from "./components/pages/ActivitePage";
 import RenderTypeBailleurPage from "./components/pages/TypeBailleurPage";
 import RenderBailleurPage from "./components/pages/BailleurPage";
@@ -50,6 +52,10 @@ import OperationComptablePage from "./components/pages/tresorerie/operation";
 import UserMenuPage from "./components/pages/users/menuPage";
 import RenderRolePage from "./components/pages/users/RolePage";
 import RenderUserPage from "./components/pages/users/UserPage";
+import RenderEtatVentillationPage from "./components/pages/tresorerie/RapportVentillation";
+import RenderEtatRessourcePage from "./components/pages/tresorerie/RapportResources";
+import RenderEtatCompteresultatPage from "./components/pages/tresorerie/RapportCompteresultat";
+import RenderEtatVentillationChargePage from "./components/pages/tresorerie/RapportVentillationCharge";
 
 type ExpandedMenusType = {
   [key: string]: boolean;
@@ -407,6 +413,16 @@ const BudgetApp = () => {
   // CLICK HANDLERS
   // =========================
 
+    const [exercices, setExercices] = useState([]); 
+    
+  useEffect(() => { 
+    dataExercice();
+  }, []);
+
+  const dataExercice =async ()=>{
+       const data=await getAllExercice(); 
+       setExercices(data) 
+     } 
   /**
    * Click sur submenu
    * - Si submenu a des pages => ouvre/ferme seulement (NE CHANGE PAS LA PAGE)
@@ -511,8 +527,14 @@ const BudgetApp = () => {
       case "JournalComptable":
         return <ComptabilitePage />;
 
-
-
+       case "ventilation":
+        return <RenderEtatVentillationPage />;
+       case "compteResultat":
+        return <RenderEtatCompteresultatPage />;
+       case "ventilationCharge":
+        return <RenderEtatVentillationChargePage />;
+       case "resourceEmplois":
+        return <RenderEtatRessourcePage />;
 
       // parametre
       case "exercice":
@@ -654,9 +676,11 @@ const BudgetApp = () => {
         className="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
         defaultValue="2022"
       >
-        <option value="2020">Exercice 2020</option>
-        <option value="2021">Exercice 2021</option>
-        <option value="2022">Exercice 2022</option>
+         {exercices.map((e) => (
+                          <option key={e.id} value={e.id}>
+                            {e.libelle}
+                          </option>
+              ))}
       </select>
 
       {/* Utilisateur */}

@@ -822,8 +822,7 @@ return formatted;
         Taux devise
       </label>
       <input
-        type="number"
-        step="any"
+        type="text" 
         className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
         {...register("tauxDevise")}
         disabled={true}

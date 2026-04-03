@@ -329,7 +329,7 @@ export default function renderPlafonNaturePage() {
               <thead>
                 <tr className="bg-gray-50 text-gray-700">
                   <th className="px-4 py-3 text-left font-bold">Catégorie</th>
-                  <th className="px-4 py-3 text-left font-bold">Nature</th>
+                  <th className="px-4 py-3 text-left font-bold">Type Depense</th>
                   <th className="px-4 py-3 text-left font-bold">Montant</th>
                   <th className="px-4 py-3 text-center font-bold w-24">Action</th>
                 </tr>
@@ -360,14 +360,14 @@ export default function renderPlafonNaturePage() {
                     <td className="px-3 py-3">
                       <select
                         {...registerPlanfontNature(`details.${index}.idClasse`, {
-                          required: false,
+                          required: true,
                         })}
                         className="w-full rounded-lg border border-gray-200 px-3 py-2 shadow-sm
                       focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500 transition"
                       >
                         <option value="">Sélectionner la nature de dépense</option>
                         {classes.map((element) =>
-                          element.type === "Dépense" ? (
+                          element.type === "DEPENSE" ? (
                             <option key={element.id} value={element.id}>
                               {element.libelle}
                             </option>

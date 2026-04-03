@@ -107,14 +107,15 @@ export default function tresorerieBanquePage() {
           {errorsBanque.libelle && <span>{"Code obligatoire"}</span>}
         </div>
         <div className="mb-4 display-flex">
-          <label>Actif</label>
-          <input type='radio' value={"true"} {...registerBanque("actif")}
+          <label>Banque</label>
+          <input type='radio' value={"true"} {...registerBanque("actif",{required:true})}
             className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsBanque.actif ? "border-red-500" : "border-gray-300"
               }`} />
-          <input type='radio' value={"false"} {...registerBanque("actif")}
+              <label>Caisse</label>
+          <input type='radio' value={"false"} {...registerBanque("actif",{required:true})}
             className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsBanque.actif ? "border-red-500" : "border-gray-300"
               }`} />
-          {errorsBanque.actif && <span>{"actif obligatoire"}</span>}
+          {errorsBanque.actif && <span>{"type banque est obligatoire"}</span>}
         </div>
         <div className="mb-4">
           <label>Compte</label>

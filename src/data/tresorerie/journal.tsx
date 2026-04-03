@@ -22,6 +22,87 @@ export const getAllJournal = async (exerciceId:number,banqueId:number,numero:str
   }
 }
 
+export const getAllEtat = async (exercice:number,projet:number,debut:any,fin:any) => {
+  try {
+    
+    const response = await axios.get(`${API_URL}/etat`,{
+        params:{
+            exercice,
+            projet,
+            debut,
+            fin
+        }
+    });  
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+export const getAllvantilation = async (exercice:number,debut:any,fin:any) => {
+  try {
+    
+    const response = await axios.get(`${API_URL}/vantilation`,{
+        params:{
+            exercice, 
+            debut,
+            fin
+        }
+    });  
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+export const getAllEtatcompteresultat = async (exercice:number,debut:any,fin:any) => {
+  try {
+    
+    const response = await axios.get(`${API_URL}/compteresultat`,{
+        params:{
+            exercice, 
+            debut,
+            fin
+        }
+    });  
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+
+export const getAllEtatventilationcharge = async (exercice:number,debut:any,fin:any) => {
+  try {
+    
+    const response = await axios.get(`${API_URL}/ventilationcharge`,{
+        params:{
+            exercice, 
+            debut,
+            fin
+        }
+    });  
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
+
+export const getAllEtatressource = async (exercice:number,debut:any,fin:any) => {
+  try {
+    
+    const response = await axios.get(`${API_URL}/ressource`,{
+        params:{
+            exercice, 
+            debut,
+            fin
+        }
+    });  
+    return response.data;
+  } catch (error) {
+    return [];
+  }
+}
 
   export const getJournalById = async (id:number) => {
     try {

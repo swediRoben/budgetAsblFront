@@ -762,11 +762,10 @@ useEffect(() => {
                 Taux devise
               </label>
               <input
-                type="number"
-                step="any"
+                type="text" 
                 defaultValue={1}
                 className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm"
-                {...register("tauxDevise", { valueAsNumber: true })}
+                {...register("tauxDevise")}
               />
             </div>
           </div>

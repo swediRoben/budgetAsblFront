@@ -773,15 +773,13 @@ export default function renderLiquidationPage() {
               Taux devise
             </label>
             <input
-              type="number"
-              step="any"
+              type="text" 
               required
               className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                     focus:ring-2 focus:ring-blue-500"
               defaultValue={1} // valeur par défaut
               {...register("tauxDevise", {
-                required: "Taux devise obligatoire",
-                valueAsNumber: true
+                required: "Taux devise obligatoire"
               })}
             />
 
