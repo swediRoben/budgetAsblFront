@@ -60,8 +60,7 @@ const renderTresorieJournalPage: React.FC = () => {
   const [idDevise, setIdDevise] = useState(null);
   const [showBanque, setShowBanque] = useState(false);
 
-  const [banques, setBanques] = useState([]);
-  const [plansComptables, setPlansComptables] = useState([]);
+  const [banques, setBanques] = useState([]); 
   const [classes, setClasses] = useState([]);
   const [allProjets, setAllProjets] = useState([]); // Pour stocker tous les projets
 
@@ -102,25 +101,22 @@ const renderTresorieJournalPage: React.FC = () => {
     const data = await getAllBanque();
     setBanques(data)
   }
-  const dataPlancompte = async () => {
-    const data = await getAllPlancompte();
-    setPlansComptables(data)
-  }
+  
 
   const dataBailleur = async () => {
     const data = await getAllBailleur();
     setBailleurs(data)
   }
 
+   const dataClasses = async () => {
+    const data = await getAllClasse();
+    setClasses(data)
+  }
+
   const getCompteBancaireByBanque = (idBanque: number) => {
     dataComptebancaire(idBanque)
   }
-
-  const getClasseByCompteComptable = async (idCompte: number) => {
-    setClasses([])
-    const data = await getPlancompteById(idCompte);
-    setClasses(press => [...press, data.data?.classe]);
-  }
+ 
 
   // Fonction pour récupérer tous les projets
   const getAllProjets = async () => {
@@ -157,6 +153,7 @@ const renderTresorieJournalPage: React.FC = () => {
     dataDevise();
     dataFonctionnaires();
     getAllProjets();
+    dataClasses();
   }, []);
 
   const handleChangeExercice = async (e: any) => {
@@ -267,8 +264,7 @@ const renderTresorieJournalPage: React.FC = () => {
     setLiquidations([]);
     setBailleurs([]);
     setDevises([]);
-    setPrevisions([]);
-    setPlansComptables([]);
+    setPrevisions([]); 
     setClasses([]);
   }
 
@@ -277,9 +273,8 @@ const renderTresorieJournalPage: React.FC = () => {
     setLiquidations(prev => [...prev, data]);
     setBailleurs(prev => [...prev, data.planActivite.source]);
     setDevises(prev => [...prev, data?.devise]);
-    setPrevisions(prev => [...prev, data.planActivite]);
-    setPlansComptables(prev => [...prev, data.planActivite.planComptable]);
-    setClasses(prev => [...prev, data.planActivite.planComptable.classe]);
+    setPrevisions(prev => [...prev, data.planActivite]); 
+    setClasses(prev => [...prev, data.planActivite.classe]);
     setShowLiquidationList(false);
     setBudget(true)
   };
@@ -296,8 +291,7 @@ const renderTresorieJournalPage: React.FC = () => {
       setValue("projetId", Liquidations[0].idProjet);
       setValue("categorieId", Liquidations[0].planActivite?.categorie?.id);
       setValue("sourceFinacementId", Liquidations[0].planActivite?.source?.id);
-      setValue("reference", Liquidations[0].bonEngagment);
-      setValue("planComptableId", Liquidations[0].planActivite?.planComptable?.id);
+      setValue("reference", Liquidations[0].bonEngagment); 
       setValue("objet", Liquidations[0].objet);
     }
   }, [Liquidations]);
@@ -367,7 +361,6 @@ const renderTresorieJournalPage: React.FC = () => {
         projetId: null,
         categorieId: null,
         banqueId: null,
-        planComptableId: null,
         classeId: null,
         deviseId: null,
         compteBancaireId: null,
@@ -405,7 +398,6 @@ const renderTresorieJournalPage: React.FC = () => {
       projetId: null,
       categorieId: null,
       banqueId: null,
-      planComptableId: null,
       classeId: null,
       deviseId: null,
       compteBancaireId: null,
@@ -894,9 +886,7 @@ const renderTresorieJournalPage: React.FC = () => {
                         </select>
                       </div>
 
-                      {/* Plan Comptable */}
-                      {renderSelect("Plan Comptable", "planComptableId", plansComptables, true)}
-                      
+                       
                       {/* Classe */}
                       {renderSelect("Classe", "classeId", classes)}
                       
@@ -1078,8 +1068,7 @@ const renderTresorieJournalPage: React.FC = () => {
                   {typeMouvement === "CREDIT" && (
                     <>
                       {renderSelect("Liquidation", "liquidationId", Liquidations)}
-                      {renderSelect("Plan Activité", "idPlanFondActivite", previsions)}
-                      {renderSelect("Plan Comptable", "planComptableId", plansComptables, true)}
+                      {renderSelect("Plan Activité", "idPlanFondActivite", previsions)} 
                       {renderSelect("Classe", "classeId", classes)}
                       {renderSelect("Bailleur", "sourceFinacementId", bailleurs)}
                     </>
