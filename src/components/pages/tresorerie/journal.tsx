@@ -146,7 +146,6 @@ const renderTresorieJournalPage: React.FC = () => {
   }
 
   useEffect(() => {
-    dataPlancompte();
     dataBanque();
     dataExercice();
     dataBailleur();
@@ -507,8 +506,8 @@ const renderTresorieJournalPage: React.FC = () => {
   useEffect(() => {
     dataBanque();
     dataDevise();
-    dataBailleur();
-    dataPlancompte();
+    dataBailleur(); 
+    dataClasses();
   }, [])
 
   const toDateNormal = (dates: string) => {
