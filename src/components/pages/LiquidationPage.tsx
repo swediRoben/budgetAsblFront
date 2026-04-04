@@ -40,9 +40,10 @@ export default function renderLiquidationPage() {
   const [totalPages, setTotalPages] = useState(1);
   const [status, setStatus] = useState("");
   const [showaction, setShowaction] = useState(true);
-
+  const [selectedPrevisionId, setSelectedPrevisionId] = useState(null);
 
   const [showLiquidationList, setShowLiquidationList] = useState(false);
+  
   const dataExercice = async () => {
     const data = await getAllExercice();
     setExercices(data.filter(ex => ex.execution));
@@ -54,8 +55,19 @@ export default function renderLiquidationPage() {
   }
 
   const dataEngagement = async (exercice: any, projet: any, ligne: any) => {
-    const data = await getAllEngagementValiderLiquider(exercice, projet, ligne);
-    setEngagements(data)
+    if (exercice && projet && ligne) {
+      const data = await getAllEngagementValiderLiquider(exercice, projet, ligne);
+      setEngagements(data);
+      // Réinitialiser la sélection d'engagement
+      setValue("idEngagement", "");
+      setBonEngagment("");
+      setMontantEngage(0);
+      setTauxdeviseengagement(0);
+      setMontantLiquide(0);
+      setDevise(null);
+    } else {
+      setEngagements([]);
+    }
   }
 
   const dataMontant = async (data: any) => {
@@ -88,8 +100,6 @@ export default function renderLiquidationPage() {
     setExerciceId(value)
   }
 
-
-
   const getPlanfondByExercice = async (e: any) => {
     const value = e.target.value;
     if (value !== "") {
@@ -100,6 +110,7 @@ export default function renderLiquidationPage() {
       setPlanfontprojets([])
     }
     setPrevisions([])
+    setEngagements([]) // Réinitialiser les engagements
   }
 
   const getCategoriesByProjet = async (e: any) => {
@@ -225,8 +236,8 @@ export default function renderLiquidationPage() {
       setLiquidations(data);
     }
   }
+  
   const getPrevisionByCategorie = async (e: any) => {
-
     const value = e;
     if (value !== "") {
       const data = await getAllPrevision(exerciceId, projetId, e);
@@ -236,24 +247,30 @@ export default function renderLiquidationPage() {
     }
   }
 
-
   const getPrevisionParProjet = async (e: any) => {
     const value = e;
     if (value !== "") {
       setProjetId(e)
       const data = await getAllPrevision(exerciceId, e, null);
       setPrevisions(data)
+      setEngagements([]) // Réinitialiser les engagements quand le projet change
+      setValue("idEngagement", ""); // Réinitialiser la sélection d'engagement
+      setSelectedPrevisionId(null);
     }
   }
+  
   const getLignes = async (idProjet: number) => {
     const data = await getAllPrevision(exerciceId, idProjet, null);
     setPrevisions(data)
   }
-  const handleAffichePrevisionData = (data: any) => {
+  
+  const handleAffichePrevisionData = async (data: any) => {
     setCategorie(data.categorie);
     setBeneficiaire(data.beneficiaire)
     setBailleurs(data.source)
-    dataEngagement(exerciceId, data.idProjet, data.id);
+    setSelectedPrevisionId(data.id);
+    // Charger les engagements pour cette ligne budgétaire
+    await dataEngagement(exerciceId, data.idProjet, data.id);
   }
 
   const handleAfficheEngagementData = (data: any) => {
@@ -320,14 +337,13 @@ export default function renderLiquidationPage() {
       }
 
       if (montantRestants < 0) {
-        toast.error("Impossibe de montant restant est negatif ")
+        toast.error("Impossible le montant restant est négatif")
       } else {
-
         data.bonEngagment = bonEngagment
         if (!data.id) {
           data.dataEnAttente = toOffsetDateTimeStart(data.dataEnAttente)
-          createLiquidation(data)
-          toast.success("Liquidation enregistré avec succes!");
+          await createLiquidation(data)
+          toast.success("Liquidation enregistrée avec succès!");
           reset({
             id: null,
             idExercice: null,
@@ -348,10 +364,12 @@ export default function renderLiquidationPage() {
           setMontantEngage(0);
           setTauxdeviseengagement(0);
           setDevise(null);
+          setEngagements([]);
+          setSelectedPrevisionId(null);
         } else {
           data.dataEnAttente = toOffsetDateTimeStart(data.dataEnAttente)
-          updateLiquidation(data, data.id)
-          toast.success("Liquidation modifié avec succes!");
+          await updateLiquidation(data, data.id)
+          toast.success("Liquidation modifiée avec succès!");
           reset({
             id: null,
             idExercice: null,
@@ -372,26 +390,26 @@ export default function renderLiquidationPage() {
           setMontantEngage(0);
           setTauxdeviseengagement(0);
           setDevise(null);
+          setEngagements([]);
+          setSelectedPrevisionId(null);
         }
       }
-
     } catch (error) {
       console.error("SAVE ERROR:", error);
       toast.error("Erreur lors de l'enregistrement !");
     }
   };
 
+  // Effet pour charger les engagements quand la ligne budgétaire change
   useEffect(() => {
-    const id = watch("idPlanFondActivite");
-    if (id && previsions.length > 0) {
-      const selected = previsions.find((p: any) => p.id.toString() === id);
-      if (selected) handleAffichePrevisionData(selected);
+    const idPlanFondActivite = watch("idPlanFondActivite");
+    if (idPlanFondActivite && idPlanFondActivite !== selectedPrevisionId) {
+      const selected = previsions.find((p: any) => p.id.toString() === idPlanFondActivite);
+      if (selected) {
+        handleAffichePrevisionData(selected);
+      }
     }
-  }, [previsions, watch("idPlanFondActivite")]);
-
-  const formatDate = (dateString: string) => {
-    return dateString ? dateString.split("T")[0] : null;
-  };
+  }, [watch("idPlanFondActivite"), previsions]);
 
   useEffect(() => {
     const id = watch("idEngagement");
@@ -401,9 +419,7 @@ export default function renderLiquidationPage() {
       if (selected) handleAfficheEngagementData(selected);
     }
     setEngagementid(id);
-
   });
-
 
   useEffect(() => {
     if (engagementid && engagements.length > 0) {
@@ -413,7 +429,7 @@ export default function renderLiquidationPage() {
 
   const hendleUpdata = async (data: any) => {
     await getLignes(data.idProjet);
-
+    
     const id = data.idPlanFondActivite?.toString();
     const idEnga = data.idEngagement?.toString();
 
@@ -424,25 +440,27 @@ export default function renderLiquidationPage() {
       idEngagement: idEnga
     });
 
-    // 🔥 chercher la ligne sélectionnée et déclencher l'affichage
-    const selected = previsions.find((p: any) => p.id.toString() === id);
-    if (selected) handleAffichePrevisionData(selected);
+    // Charger les engagements pour cette ligne
+    if (id) {
+      const selected = previsions.find((p: any) => p.id.toString() === id);
+      if (selected) {
+        await handleAffichePrevisionData(selected);
+        setSelectedPrevisionId(selected.id);
+      }
+    }
 
     setShowLiquidationList(false);
   };
 
-
   const hendleDelete = async (data: any) => {
     try { 
-     await deleteLiquidation(data.id)
-     await getCategorieByProjet(data.idProjet)
-      toast.success("Suppression avec succes");
+      await deleteLiquidation(data.id)
+      await getCategorieByProjet(data.idProjet)
+      toast.success("Suppression avec succès");
     } catch (error) {
-      toast.error("Echec de suppression");
+      toast.error("Échec de suppression");
     }
   }
-
-    
 
   useEffect(() => {
     const hasAction = Liquidations.some(
@@ -450,7 +468,6 @@ export default function renderLiquidationPage() {
     );
     setShowaction(hasAction);
   }, [Liquidations]);
-
 
   const openList = (status: string) => {
     setLiquidations([]);
@@ -464,6 +481,9 @@ export default function renderLiquidationPage() {
     setShowLiquidationList(true);
   }
 
+  const formatDate = (dateString: string) => {
+    return dateString ? dateString.split("T")[0] : null;
+  };
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
@@ -524,7 +544,6 @@ export default function renderLiquidationPage() {
             Réceptionné <strong>6</strong>
           </span>
         </p>
-
       </div>
 
       {/* Formulaire */}
@@ -555,7 +574,7 @@ export default function renderLiquidationPage() {
               <option value="">Sélectionner</option>
               {
                 exercices.map((element: any) => (
-                  <option value={element.id}>{element.libelle}</option>
+                  <option key={element.id} value={element.id}>{element.libelle}</option>
                 ))
               }
             </select>
@@ -568,7 +587,7 @@ export default function renderLiquidationPage() {
           {/* Date */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date d’Liquidation
+              Date de Liquidation
             </label>
             <input
               type="date"
@@ -598,7 +617,7 @@ export default function renderLiquidationPage() {
               <option value="">Sélectionner un projet</option>
               {
                 planfondprojets.map((element: any) => (
-                  <option value={element.projet.id}>{element.projet.libelle}</option>
+                  <option key={element.projet.id} value={element.projet.id}>{element.projet.libelle}</option>
                 ))
               }
             </select>
@@ -618,39 +637,32 @@ export default function renderLiquidationPage() {
               className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                     focus:ring-2 focus:ring-blue-500"
               {...register("idPlanFondActivite", { required: "Ligne budgétaire obligatoire" })}
-              onChange={(e) => {
-                const selected = previsions.find((p: any) => p.id.toString() === e.target.value);
-                if (selected) handleAffichePrevisionData(selected);
-              }}
             >
               <option value="">Sélectionner une ligne</option>
               {previsions?.map((element: any) => (
                 <option key={element.id} value={element.id}>
-                  {element.activite.libelle}
+                  {element.activite?.libelle || "Sans libellé"}
                 </option>
               ))}
             </select>
-
 
             {errors.idPlanFondActivite && (
               <p className="text-red-600 text-xs mt-1">{errors.idPlanFondActivite.message}</p>
             )}
           </div>
 
-
           {/* Categorie */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              Categorie
+              Catégorie
             </label>
             <input
               type="text"
               readOnly
               className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-              value={categorie.libelle}
+              value={categorie?.libelle || ""}
             />
           </div>
-
 
           {/* bailleur */}
           <div>
@@ -661,9 +673,10 @@ export default function renderLiquidationPage() {
               type="text"
               readOnly
               className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-              value={bailleurs.libelle}
+              value={bailleurs?.libelle || ""}
             />
           </div>
+          
           {/* Bénéficiaire */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -673,7 +686,7 @@ export default function renderLiquidationPage() {
               type="text"
               readOnly
               className="w-full rounded-md border border-gray-300 bg-gray-100 px-4 py-2 text-sm"
-              value={beneficiaire.libelle}
+              value={beneficiaire?.libelle || ""}
             />
           </div>
 
@@ -690,13 +703,13 @@ export default function renderLiquidationPage() {
               <option value="">Sélectionner</option>
               {
                 fonctionnaires.map((element: any) => (
-                  <option value={element.id}>{element.nom} {element.prenom}</option>
+                  <option key={element.id} value={element.id}>{element.nom} {element.prenom}</option>
                 ))
               }
             </select>
           </div>
 
-          {/* engament */}
+          {/* engagement */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Engagement
@@ -705,22 +718,19 @@ export default function renderLiquidationPage() {
               className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                    focus:ring-2 focus:ring-blue-500"
               {...register("idEngagement")}
-              onChange={(e) => {
-                e.preventDefault(); // sécurité
-                const selected = engagements.find(
-                  (p: any) => p.id.toString() === e.target.value
-                );
-                if (selected) handleAfficheEngagementData(selected);
-              }}
             >
-              <option value="">Engagement</option>
+              <option value="">Sélectionner un engagement</option>
               {
                 engagements.map((element: any) => (
-                  <option value={element.id}>{element.bonEngagement}</option>
+                  <option key={element.id} value={element.id}>{element.bonEngagement}</option>
                 ))
               }
             </select>
+            {engagements.length === 0 && selectedPrevisionId && (
+              <p className="text-yellow-600 text-xs mt-1">Aucun engagement disponible pour cette ligne</p>
+            )}
           </div>
+          
           {/* Devise */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -773,16 +783,17 @@ export default function renderLiquidationPage() {
               Taux devise
             </label>
             <input
-              type="text" 
+              type="number" 
+              step="0.0001"
               required
               className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                     focus:ring-2 focus:ring-blue-500"
-              defaultValue={1} // valeur par défaut
+              defaultValue={1}
               {...register("tauxDevise", {
-                required: "Taux devise obligatoire"
+                required: "Taux devise obligatoire",
+                valueAsNumber: true
               })}
             />
-
 
             {errors.tauxDevise && (
               <p className="text-red-600 text-xs mt-1">{errors.tauxDevise.message}</p>
@@ -792,7 +803,7 @@ export default function renderLiquidationPage() {
           {/* piece */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
-              pièces justificative
+              Pièces justificative
             </label>
             <input
               type="text"
@@ -803,17 +814,14 @@ export default function renderLiquidationPage() {
               })}
             />
 
-
             {errors.piece && (
               <p className="text-red-600 text-xs mt-1">{errors.piece.message}</p>
             )}
           </div>
-
         </div>
+        
         {/* Bloc récapitulatif visuel */}
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-6 shadow-sm">
-
           {/* Montant engagé */}
           <div className="flex flex-col gap-1">
             <p className="text-xs text-gray-500 uppercase">Montant engagé</p>
@@ -838,18 +846,15 @@ export default function renderLiquidationPage() {
           <div className="flex flex-col gap-1">
             <p className="text-xs text-gray-500 uppercase">Montant restant</p>
             <p className="text-lg font-semibold text-green-700">
-              {montantRestantFonction(
-                montantEngage > montantLiquide ? montantEngage - ((Number(watch("montant") || 0) * Number(watch("tauxDevise") || 1))) + montantLiquide : montantLiquide - montantEngage
-              ).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+              {(montantEngage - montantLiquide).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
             </p>
           </div>
-
         </div>
 
         {/* Objet */}
-        <div className="md:col-span-2">
+        <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">
-            Objet de l’Liquidation
+            Objet de la Liquidation
           </label>
           <input
             type="text"
@@ -891,8 +896,7 @@ export default function renderLiquidationPage() {
         </div>
       </form>
 
-
-      {/* Liste */}
+      {/* Liste des liquidations */}
       {showLiquidationList && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white w-[95%] max-w-7xl rounded-xl shadow-xl">
@@ -921,11 +925,10 @@ export default function renderLiquidationPage() {
                 <option value="">Exercice</option>
                 {
                   exercices.map((element: any) => (
-                    <option value={element.id}>{element.libelle}</option>
+                    <option key={element.id} value={element.id}>{element.libelle}</option>
                   ))
                 }
               </select>
-
 
               <select
                 className="border border-gray-300 rounded px-3 py-2"
@@ -934,11 +937,10 @@ export default function renderLiquidationPage() {
                 <option value="">Projet</option>
                 {
                   planfondprojets.map((element: any) => (
-                    <option value={element.projet.id}>{element.projet.libelle}</option>
+                    <option key={element.projet.id} value={element.projet.id}>{element.projet.libelle}</option>
                   ))
                 }
               </select>
-
 
               <select
                 className="border border-gray-300 rounded px-3 py-2"
@@ -947,7 +949,7 @@ export default function renderLiquidationPage() {
                 <option value="">Catégorie</option>
                 {
                   categorie.map((element: any) => (
-                    <option value={element.id}>{element.libelle}</option>
+                    <option key={element.id} value={element.id}>{element.libelle}</option>
                   ))
                 }
               </select>
@@ -975,7 +977,7 @@ export default function renderLiquidationPage() {
                     <tr>
                       <th className="px-4 py-3 text-left">N° Bon</th>
                       <th className="px-4 py-3 text-left">Date Engagé</th>
-                      <th className="px-4 py-3 text-left">Ligne budgetaire</th>
+                      <th className="px-4 py-3 text-left">Ligne budgétaire</th>
                       <th className="px-4 py-3 text-right">Montant</th>
                       <th className="px-4 py-3 text-left">Devise</th>
                       <th className="px-4 py-3 text-center">Statut</th>
@@ -994,8 +996,8 @@ export default function renderLiquidationPage() {
                         <td className="px-4 py-2">{eng.bonEngagment}</td>
                         <td className="px-4 py-2">{toDateNormal(eng.dataEnAttente)}</td>
                         <td className="px-4 py-2">
-                          {eng.planActivite?.activite.code}-
-                          {eng.planActivite?.activite.libelle}
+                          {eng.planActivite?.activite?.code}-
+                          {eng.planActivite?.activite?.libelle}
                         </td>
                         <td className="px-4 py-2 text-right font-medium">
                           {eng.montant.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
@@ -1038,20 +1040,19 @@ export default function renderLiquidationPage() {
                                     : eng.dataEnAttente
                           )}
                         </td>
-
                         {(eng.retourner || eng.enAttente) && (
                           <td className="px-4 py-2 text-center space-x-2">
                             <button
                               onClick={() => hendleUpdata(eng)}
                               className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100"
                             >
-                              update
+                              Modifier
                             </button>
                             <button
                               onClick={() => hendleDelete(eng)}
                               className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
                             >
-                              del
+                              Supprimer
                             </button>
                           </td>
                         )}
@@ -1069,7 +1070,7 @@ export default function renderLiquidationPage() {
                 disabled={page === 0}
                 onClick={paginationPreview}
               >
-                Prev
+                Précédent
               </button>
               <span>
                 Page {page + 1} / {totalPages}
@@ -1078,14 +1079,12 @@ export default function renderLiquidationPage() {
                 className="px-4 py-2 text-sm rounded-md bg-gray-200 hover:bg-gray-300"
                 onClick={paginationNext}
               >
-                Next
+                Suivant
               </button>
             </div>
           </div>
         </div>
       )}
-
     </div>
-
   );
 }

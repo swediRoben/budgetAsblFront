@@ -13,11 +13,11 @@ export default function renderCategoriePage() {
   const [allCategories, setAllCategories] = useState([]);
   const [projetId, setProjetId] = useState();
   const [codeSelect, setCodeSelect] = useState();
+  const [isEditing, setIsEditing] = useState(false);
 
   const [formData, setFormData] = useState({});
   const [modalType, setModalType] = useState("categorie");
   const [showModal, setShowModal] = useState(false);
-
 
   // GET
 
@@ -39,37 +39,65 @@ export default function renderCategoriePage() {
     setAllCategories(data);
   }
 
-    const getByNumbereOrLibelle = (titre: string) => {
-  const search = titre.trim().toLowerCase();
+  const getByNumbereOrLibelle = (titre: string) => {
+    const search = titre.trim().toLowerCase();
 
-  if (search === '') {
-    setCategories(allCategories);
-    return;
-  }
+    if (search === '') {
+      setCategories(allCategories);
+      return;
+    }
 
-  const cat = allCategories.filter(d =>
-    d.code.replace(/\s+/g, '').toLowerCase().includes(search) ||
-    d.libelle.toLowerCase().includes(search)
-  );
+    const cat = allCategories.filter(d =>
+      d.code.replace(/\s+/g, '').toLowerCase().includes(search) ||
+      d.libelle.toLowerCase().includes(search)
+    );
 
-  setCategories(cat);
-};
-   
+    setCategories(cat);
+  };
+
   // CREATED 
   const selectCodeById = (id: any) => {
-    const projetId = Number(id);
-
+    const projetIdValue = Number(id);
     // Cherche l'objet correspondant
-    const projet = projets.find(p => p.id === projetId);
-    setCodeSelect(projet?.code)
+    const projet = projets.find(p => p.id === projetIdValue);
+    if (projet) {
+      setCodeSelect(projet?.code);
+      // Mettre à jour la valeur du champ code dans le formulaire
+      const codeField = document.querySelector('input[name="code"]') as HTMLInputElement;
+      if (codeField && !isEditing) {
+        codeField.value = projet.code || "";
+      }
+    }
   }
+
   const {
     register: registerCategorie,
     handleSubmit: handleSubmitCategorie,
     reset: resetCategorie,
+    setValue: setValueCategorie,
+    watch: watchCategorie,
     formState: { errors: errorsCategorie },
-  } = useForm();
+  } = useForm({
+    defaultValues: {
+      id: null,
+      code: "",
+      libelle: "",
+      projetId: ""
+    }
+  });
 
+  const watchedProjetId = watchCategorie("projetId");
+
+  // Surveiller le changement de projet pour mettre à jour le code
+  useEffect(() => {
+    if (watchedProjetId && !isEditing) {
+      const projet = projets.find(p => p.id === parseInt(watchedProjetId));
+      if (projet) {
+        setCodeSelect(projet.code);
+        setValueCategorie("code", projet.code || "");
+      }
+    }
+  }, [watchedProjetId, projets, isEditing, setValueCategorie]);
 
   const onSubmitCategorie = async (data: any) => {
     try {
@@ -88,14 +116,11 @@ export default function renderCategoriePage() {
     }
   };
 
-
-
   const hendleDelete = (id: number, type: string) => {
     try {
       deleteCategorie(id);
       dataCategorie(projetId);
       toast.success("Supression effectuée avec succès !");
-
     } catch (error) {
       toast.error("Erreur lors de l'operation'.", { style: { backgroundColor: "red", color: "white" } });
       dataCategorie(projetId);
@@ -103,8 +128,21 @@ export default function renderCategoriePage() {
   }
 
   const hendleUpdata = (data: any, type: string) => {
-    resetCategorie(data);
-    openModal('categorie')
+    setIsEditing(true);
+    
+    // Réinitialiser le formulaire avec les données de la catégorie
+    resetCategorie({
+      id: data.id,
+      code: data.code || "",
+      libelle: data.libelle || "",
+      projetId: data.projet?.id?.toString() || data.projetId?.toString() || ""
+    });
+    
+    // Définir le code sélectionné
+    setCodeSelect(data.code || "");
+    
+    // Ouvrir le modal
+    openModal('categorie');
   }
 
   // MODAL
@@ -115,58 +153,63 @@ export default function renderCategoriePage() {
   };
 
   const closeModal = () => {
-    resetCategorie({ id: null, code: null, libelle: null, projetId: null })
+    resetCategorie({ id: null, code: "", libelle: "", projetId: "" });
+    setCodeSelect("");
+    setIsEditing(false);
     setShowModal(false);
   };
+  
   useEffect(() => {
     dataProjet()
     dataCategorie(projetId);
   }, [])
 
-
-  // SHOW MODALL 
+  // SHOW MODAL 
   const renderModalForm = () => {
     return (
       <form onSubmit={handleSubmitCategorie(onSubmitCategorie)} className='p-6'>
-
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-          <select {...registerCategorie("projetId", { required: "Projet obligatoire" })}
-            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsCategorie.projet ? "border-red-500" : "border-gray-300"
-              }`}
+          <select 
+            {...registerCategorie("projetId", { required: "Projet obligatoire" })}
+            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsCategorie.projetId ? "border-red-500" : "border-gray-300"}`}
             onChange={(e) => selectCodeById(e.target.value)}
           >
             <option value="">Sélectionner un projet</option>
-            {
-              projets?.map((element) => (
-                <option value={element.id}>{element.libelle}</option>
-              ))
-            }
+            {projets?.map((element) => (
+              <option key={element.id} value={element.id}>{element.libelle}</option>
+            ))}
           </select>
-          {errorsCategorie.projet && <span>{errorsCategorie.projet.message}</span>}
+          {errorsCategorie.projetId && <span className="text-red-500 text-sm">{errorsCategorie.projetId.message}</span>}
         </div>
+        
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Code</label>
-          <input {...registerCategorie("id", { required: false })} readOnly hidden />
+          <input {...registerCategorie("id")} type="hidden" />
           <input
-            {...registerCategorie("code", { required: "Code obligatoire" })}
-            defaultValue={codeSelect}
-            onChange={(e) => {
-              if (!e.target.value.startsWith(codeSelect)) {
-                e.target.value = "01" + e.target.value.replace(/^codeSelect/, "");
+            {...registerCategorie("code", { 
+              required: "Code obligatoire",
+              pattern: {
+                value: /^[A-Za-z0-9\-_]+$/,
+                message: "Code invalide"
               }
-            }}
-            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsCategorie.code ? "border-red-500" : "border-gray-300"
-              }`}
-          />  {errorsCategorie.code && <span>{errorsCategorie.code.message}</span>}
+            })}
+            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsCategorie.code ? "border-red-500" : "border-gray-300"}`}
+            placeholder="Entrez le code"
+          />
+          {errorsCategorie.code && <span className="text-red-500 text-sm">{errorsCategorie.code.message}</span>}
         </div>
+        
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input {...registerCategorie("libelle", { required: "Intitulé obligatoire" })}
-            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsCategorie.libelle ? "border-red-500" : "border-gray-300"
-              }`} />
-          {errorsCategorie.libelle && <span>{errorsCategorie.libelle.message}</span>}
+          <input 
+            {...registerCategorie("libelle", { required: "Intitulé obligatoire" })}
+            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsCategorie.libelle ? "border-red-500" : "border-gray-300"}`}
+            placeholder="Entrez l'intitulé"
+          />
+          {errorsCategorie.libelle && <span className="text-red-500 text-sm">{errorsCategorie.libelle.message}</span>}
         </div>
+        
         <div className="flex gap-4 mt-6">
           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
             Annuler
@@ -175,7 +218,7 @@ export default function renderCategoriePage() {
             type="submit"
             className="flex-1 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
           >
-            Enregistrer
+            {isEditing ? "Modifier" : "Enregistrer"}
           </button>
         </div>
       </form>
@@ -189,9 +232,7 @@ export default function renderCategoriePage() {
           <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-4">
             <div className="flex items-center justify-between p-6 border-b border-gray-200">
               <h3 className="text-xl font-bold text-gray-800">
-                {modalType === 'classe' ? 'Ajouter une Classe' :
-                  modalType === 'planComptable' ? 'Ajouter un Compte' :
-                    'Ajouter un Élément'}
+                {isEditing ? 'Modifier la Catégorie' : 'Ajouter une Catégorie'}
               </h3>
               <button
                 onClick={closeModal}
@@ -206,6 +247,7 @@ export default function renderCategoriePage() {
           </div>
         </div>
       )}
+      
       <h2 className="text-2xl font-bold mb-6 text-gray-800">Gestion des Catégories</h2>
 
       <div className="mb-6">
@@ -219,14 +261,15 @@ export default function renderCategoriePage() {
 
       <div className="mb-4 flex gap-4 items-center">
         <input
-          onChange={(e)=>getByNumbereOrLibelle(e.target.value)}
+          onChange={(e) => getByNumbereOrLibelle(e.target.value)}
           type="text"
           placeholder="Rechercher une catégorie..."
           className="flex-1 border border-gray-300 rounded px-4 py-2"
         />
-        <select className="border border-gray-300 rounded px-4 py-2"
+        <select 
+          className="border border-gray-300 rounded px-4 py-2"
           onChange={(e) => { getCategorieByProjet(e.target.value) }}
-          onClick={dataProjet}>
+        >
           <option value="">Tous les projets</option>
           {projets?.map((projet: any) => (
             <option key={projet.id} value={projet.id}>
@@ -278,7 +321,4 @@ export default function renderCategoriePage() {
       </div>
     </div>
   );
-
-
-
 }
