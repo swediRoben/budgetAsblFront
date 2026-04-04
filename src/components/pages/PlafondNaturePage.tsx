@@ -15,12 +15,9 @@ export default function renderPlafonNaturePage() {
   const [categories, setCategories] = useState([]);
   const [projetId, setProjetId] = useState();
   const [exerciceId, setExerciceId] = useState();
-  const [categorieId, setCategorieId] = useState();
   const [planfondprojets, setPlanfontprojets] = useState([]);
   const [exercices, setExercices] = useState([]);
   const [planfontNatures, setPlanfontNature] = useState([]);
-  const [classeplafond, setClasseplafond] = useState();
-  const [montantplafond, setMontantplafond] = useState(0.0);
 
 
 
@@ -41,10 +38,6 @@ export default function renderPlafonNaturePage() {
     setProjets(data)
   }
 
-  const dataCategorie = async () => {
-    const data = await getAllCategorie();
-    setCategories(data)
-  }
 
   const getCategorieByProjet = async (e: any) => {
     const data = await getAllCategorie(e);
@@ -92,25 +85,6 @@ export default function renderPlafonNaturePage() {
     }
   }
 
-
-  const getClasseInPlafondNatureByCaterie = (e: any) => {
-
-    const id = Number(e);
-
-    const data = planfontNatures.find(v => Number(v.idCategorie) === id);
-
-    if (data !== undefined) {
-      setClasseplafond(data?.classe);
-      setMontantplafond(data.montant);
-      getActiviteByCategorie(data?.idCategorie)
-      getPlancomptables();
-      getBailleurs();
-      getBeneficiaires();
-    } else {
-      setClasseplafond(null);
-      setMontantplafond(0.0);
-    }
-  }
 
 
 
@@ -183,25 +157,8 @@ export default function renderPlafonNaturePage() {
     setPrevisions([])
   }
 
-  const hendleDeletePlanfondProjet = (id: number, exercice: any) => {
-    try {
-      deletePlanfontprojet(id);
-      getPlanfondByExercice(exercice)
-      toast.success("Supression effectuée avec succès !");
 
-    } catch (error) {
-      toast.error("Erreur lors de l'operation'.", { style: { backgroundColor: "red", color: "white" } });
-      dataClasse();
-    }
-  }
-
-  const [showModal, setShowModal] = useState(false);
-  const [modalType, setModalType] = useState('');
-  const [formData, setFormData] = useState({});
   const [detailLines, setDetailLines] = useState([{ id: 1, compte: '', montant: '' }]);
-  const [showPreview, setShowPreview] = useState(false);
-  const [showEngagementList, setShowEngagementList] = useState(false);
-  const [showLiquidationList, setShowLiquidationList] = useState(false);
 
 
 

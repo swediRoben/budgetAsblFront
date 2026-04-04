@@ -15,7 +15,6 @@ export default function renderPlafondPage() {
   const [bailleurs, setBailleurs] = useState([]);
   const [exercices, setExercices] = useState([]);
   const [planfondprojets, setPlanfontprojets] = useState([]);
-  const [montantplafond, setMontantplafond] = useState(0.0);
 
   const dataProjet = async () => {
     const data = await getAllProjet();
