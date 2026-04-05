@@ -514,7 +514,8 @@ const renderTresorieJournalPage: React.FC = () => {
   const hendleDelete = (id: number) => {
     try {
       deleteJournal(id);
-      dataJournal(exerciceId, null, null, null, null)
+      setExerciceId(null)
+      setJournanls([])
       toast.success("Supression effectuée avec succès !");
     } catch (error) {
       toast.error("Erreur lors de l'operation'.", { style: { backgroundColor: "red", color: "white" } });
