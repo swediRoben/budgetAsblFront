@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { X } from 'lucide-react';
 
 import { getAllFonctionnaire } from "../../data/utilisateur/fonctionnaire";
-import { receptionEngagement, rejeterEngagement, retournerEngagement, validerEngagement, getAllValider, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantEngage } from "../../data/execution/engagement";
+import { receptionEngagement, rejeterEngagement,getCountEngage, retournerEngagement, validerEngagement, getAllValider, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantEngage } from "../../data/execution/engagement";
 import { getAllCategorie } from "../../data/classification/categorie";
 import { getAllPlanfontprojet } from "../../data/classification/planfontprojet";
 import { getAllExercice } from "../../data/classification/exercice";
@@ -37,12 +37,36 @@ export default function renderTraitementEngagementPage() {
   const [buttonName, setButtonName] = useState("");
   const [showaction, setShowaction] = useState(true);
   const [idData, setIdData] = useState(null);
+    const [count, setCount] = useState({
+      enAttente: 0,
+      reception: 0,
+      valider: 0,
+      rejet: 0,
+      retourner: 0
+    });
 
   const [showEngagementList, setShowEngagementList] = useState(false);
        const dataExercice = async () => {
           const data = await getAllExercice();
           setExercices(data.filter(ex => ex.execution));
         };
+
+   const loadCounts = async (exercice: any, projet: any) => {
+      const enAttente = await getCountEngage(exercice, projet, true, false, false, false, false);
+      const reception = await getCountEngage(exercice, projet, false, true, false, false, false);
+      const valider = await getCountEngage(exercice, projet, false, false, true, false, false);
+      const rejet = await getCountEngage(exercice, projet, false, false, false, true, false);
+      const retourner = await getCountEngage(exercice, projet, false, false, false, false, true);
+  
+      setCount({
+        enAttente,
+        reception,
+        valider,
+        rejet,
+        retourner
+      });
+    };
+  
 
   const dataDevise = async () => {
     const data = await getAllDevise();
@@ -87,8 +111,9 @@ export default function renderTraitementEngagementPage() {
   const getCategoriesByProjet = async (e: any) => {
     setCategorie([])
     const data = await getAllCategorie(e);
-    setProjetId(e)
-    setCategorie(data)
+    setProjetId(e);
+    setCategorie(data);
+    loadCounts(exerciceId, e);
   }
 
   const getCategorieByProjet = async (e) => {
@@ -223,6 +248,7 @@ export default function renderTraitementEngagementPage() {
     const value = e;
     if (value !== "") {
       setProjetId(e)
+      loadCounts(exerciceId, e)
       const data = await getAllPrevision(exerciceId, e, null);
       setPrevisions(data)
     }
@@ -531,7 +557,7 @@ useEffect(() => {
                      border border-green-200
                      hover:bg-green-100 hover:shadow-sm transition"
           >
-            Validé <strong>3</strong>
+            Validé <strong>{count.valider}</strong>
           </span>
 
           <span
@@ -541,7 +567,7 @@ useEffect(() => {
                      border border-green-200
                      hover:bg-green-100 hover:shadow-sm transition"
           >
-            en attente <strong>3</strong>
+            en attente <strong>{count.enAttente}</strong>
           </span>
           <span
             onClick={() => openList('RETOURNE')}
@@ -550,7 +576,7 @@ useEffect(() => {
                      border border-yellow-200
                      hover:bg-yellow-100 hover:shadow-sm transition"
           >
-            Retourné <strong>4</strong>
+            Retourné <strong>{count.retourner}</strong>
           </span>
 
           <span
@@ -560,7 +586,7 @@ useEffect(() => {
                      border border-red-200
                      hover:bg-red-100 hover:shadow-sm transition"
           >
-            Rejeté <strong>5</strong>
+            Rejeté <strong>{count.rejet}</strong>
           </span>
           <span
             onClick={() => openList('RECEPTIONNE')}
@@ -569,7 +595,7 @@ useEffect(() => {
                      border border-blue-200
                      hover:bg-blue-100 hover:shadow-sm transition"
           >
-            Réceptionné <strong>6</strong>
+            Réceptionné <strong>{count.reception}</strong>
           </span>
         </p>
 
