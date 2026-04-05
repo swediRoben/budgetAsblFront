@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign } from 'lucide-react';
+import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign,Settings2,BadgeDollarSign, Printer } from 'lucide-react';
 import {createExercice,deleteExercice,getAllExercice,updateExercice} from "../../data/classification/exercice";
 import {createPlanfontprojet,deletePlanfontprojet,getAllPlanfontprojet,updatePlanfontprojet} from "../../data/classification/planfontprojet";
  
@@ -49,6 +49,17 @@ export default function renderParProjetPage (){
 
   {/* FILTRE EXERCICE */}
   <div className="mb-6 rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
+       <div className="mb-4 flex items-center justify-between">
+            <h3 className="text-base font-bold text-gray-800">Filtres</h3>
+                <button
+                      type="button"
+                      className="inline-flex items-center gap-2 rounded-xl bg-gray-800 text-white px-6 py-2.5
+                        font-semibold shadow-md hover:bg-gray-700 transition-all duration-200"
+                    >
+                      <Printer className="w-4 h-4" />
+                      Imprimer
+                    </button>
+          </div>
     <label className="mb-2 block text-sm font-semibold text-gray-700">
       Exercice Budgétaire
     </label>

@@ -400,14 +400,7 @@ export default function renderPlafonNaturePage() {
             {/* Actions */}
             <div className="px-6 py-5 bg-white border-t border-gray-100">
               <div className="flex flex-col md:flex-row justify-end gap-3">
-                <button
-                  type="button"
-                  className="inline-flex items-center gap-2 rounded-xl bg-gray-800 text-white px-6 py-2.5
-                    font-semibold shadow-md hover:bg-gray-700 transition-all duration-200"
-                >
-                  <Printer className="w-4 h-4" />
-                  Imprimer
-                </button>
+            
                 <button
                   type="submit"
                   className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 text-white px-8 py-2.5

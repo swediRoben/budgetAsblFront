@@ -4,6 +4,7 @@ import {getAllProjet} from "../../data/classification/projet";
 import {getAllCategorie} from "../../data/classification/categorie";
 import {getAllExercice} from "../../data/classification/exercice";
 import {getAllPlanfontnature} from "../../data/classification/planfontnature";
+import { Printer } from 'lucide-react';
 
 export default function renderParCategoriePage (){ 
 
@@ -139,12 +140,17 @@ export default function renderParCategoriePage (){
   {/* FILTRES */}
   <div className="px-6 py-6">
     <div className="rounded-2xl border border-gray-200 bg-white p-5 shadow-sm">
-      <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-base font-bold text-gray-800">Filtres</h3>
-        <span className="rounded-full bg-indigo-50 px-3 py-1 text-xs font-semibold text-indigo-700">
-          Sélection des paramètres
-        </span>
-      </div>
+         <div className="mb-4 flex items-center justify-between">
+              <h3 className="text-base font-bold text-gray-800">Filtres</h3>
+                  <button
+                        type="button"
+                        className="inline-flex items-center gap-2 rounded-xl bg-gray-800 text-white px-6 py-2.5
+                          font-semibold shadow-md hover:bg-gray-700 transition-all duration-200"
+                      >
+                        <Printer className="w-4 h-4" />
+                        Imprimer
+                      </button>
+            </div>
 
       <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
         {/* Exercice */}
