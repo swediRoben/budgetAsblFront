@@ -141,7 +141,7 @@ export default function renderActivitePage() {
 
   const hendleUpdata = async (data: any, type: string) => {
     setIsEditing(true);
-    
+
     // Réinitialiser le formulaire avec les données de l'activité
     resetActivite({
       id: data.id,
@@ -150,10 +150,10 @@ export default function renderActivitePage() {
       projetId: data.categorie?.projet?.id?.toString() || data.projetId?.toString() || "",
       categorieId: data.categorie?.id?.toString() || data.categorieId?.toString() || ""
     });
-    
+
     setCodeSelect(data.code || "");
     setSelectedCategorieCode(data.categorie?.code || "");
-    
+
     // Charger les catégories du projet sélectionné
     const projetIdValue = data.categorie?.projet?.id || data.projetId;
     if (projetIdValue) {
@@ -161,7 +161,7 @@ export default function renderActivitePage() {
       setCategories(categoriesData);
       setProjetId(projetIdValue);
     }
-    
+
     openModal('activite');
   }
 
@@ -226,10 +226,13 @@ export default function renderActivitePage() {
       <form onSubmit={handleSubmitActivite(onSubmitActivite)} className='p-6'>
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Projet</label>
-          <select 
-            {...registerActivite("projetId", { required: "Projet obligatoire" })} 
-            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsActivite.projetId ? "border-red-500" : "border-gray-300"}`} 
-            onChange={(e) => getCategorieByProjet(e)}
+          <select
+            {...registerActivite("projetId", { required: true })}
+            className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsActivite.projetId ? "border-red-500" : "border-gray-300"}`}
+            onChange={(e) => {
+              registerActivite("projetId").onChange(e);
+              getCategorieByProjet(e);
+            }}
           >
             <option value="">Sélectionner un projet</option>
             {projets?.map((element) => (
@@ -238,11 +241,11 @@ export default function renderActivitePage() {
           </select>
           {errorsActivite.projetId && <span className="text-red-500 text-sm">{errorsActivite.projetId.message}</span>}
         </div>
-        
+
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Catégorie</label>
-          <select 
-            {...registerActivite("categorieId", { required: "Catégorie obligatoire" })} 
+          <select
+            {...registerActivite("categorieId", { required: true })}
             className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsActivite.categorieId ? "border-red-500" : "border-gray-300"}`}
             onChange={(e) => selectCodeById(e.target.value)}
             disabled={!watchedProjetId}
@@ -254,12 +257,12 @@ export default function renderActivitePage() {
           </select>
           {errorsActivite.categorieId && <span className="text-red-500 text-sm">{errorsActivite.categorieId.message}</span>}
         </div>
-        
+
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Code</label>
           <input {...registerActivite("id")} type="hidden" />
           <input
-            {...registerActivite("code", { 
+            {...registerActivite("code", {
               required: "Code obligatoire",
               pattern: {
                 value: /^[A-Za-z0-9\-_]+$/,
@@ -271,17 +274,17 @@ export default function renderActivitePage() {
           />
           {errorsActivite.code && <span className="text-red-500 text-sm">{errorsActivite.code.message}</span>}
         </div>
-        
+
         <div className="mb-4">
           <label className="block text-gray-700 font-semibold mb-2">Intitulé</label>
-          <input 
-            {...registerActivite("libelle", { required: "Intitulé obligatoire" })} 
+          <input
+            {...registerActivite("libelle", { required: "Intitulé obligatoire" })}
             className={`w-full border px-4 py-2 rounded focus:outline-none focus:border-blue-500 ${errorsActivite.libelle ? "border-red-500" : "border-gray-300"}`}
             placeholder="Entrez l'intitulé"
           />
           {errorsActivite.libelle && <span className="text-red-500 text-sm">{errorsActivite.libelle.message}</span>}
         </div>
-        
+
         <div className="flex gap-4 mt-6">
           <button type="button" onClick={closeModal} className="flex-1 bg-gray-300 text-gray-700 px-4 py-2 rounded hover:bg-gray-400 transition">
             Annuler
@@ -328,7 +331,7 @@ export default function renderActivitePage() {
             placeholder="Rechercher une activité..."
             className="flex-1 border border-gray-300 rounded px-4 py-2"
           />
-          <select 
+          <select
             className="border border-gray-300 rounded px-3 py-2"
             onChange={(e) => { getCategorieByProjet(e); }}
           >
@@ -339,7 +342,7 @@ export default function renderActivitePage() {
               </option>
             ))}
           </select>
-          <select 
+          <select
             className="border border-gray-300 rounded px-3 py-2"
             onChange={(e) => { getActiviteByCategorie(e.target.value) }}
           >
