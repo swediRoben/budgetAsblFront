@@ -198,7 +198,9 @@ export default function renderExercicePage() {
             </div>
 
             {/* STATUS SWITCHES */}
-            <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
+            {
+              watch("id")!=null &&(
+              <div className="rounded-2xl border border-gray-200 bg-gray-50 p-5">
               <h3 className="text-sm font-bold text-gray-800 mb-4">
                 Statut de l’exercice
               </h3>
@@ -262,7 +264,9 @@ export default function renderExercicePage() {
                 </label>
               </div>
             </div>
+             )}
           </div>
+
 
           {/* FOOTER BUTTONS */}
           <div className="px-6 py-4 border-t border-gray-100 bg-white flex flex-col sm:flex-row gap-3">

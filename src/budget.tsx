@@ -56,6 +56,8 @@ import RenderEtatVentillationPage from "./components/pages/tresorerie/RapportVen
 import RenderEtatRessourcePage from "./components/pages/tresorerie/RapportResources";
 import RenderEtatCompteresultatPage from "./components/pages/tresorerie/RapportCompteresultat";
 import RenderEtatVentillationChargePage from "./components/pages/tresorerie/RapportVentillationCharge";
+import ExcelImportPage from "./components/pages/importPlanComptable"
+
 
 type ExpandedMenusType = {
   [key: string]: boolean;
@@ -164,6 +166,7 @@ const BudgetApp = () => {
             { id: "classe", name: "Classe" },
             { id: "planComptable", name: "Plan Comptable" },
             { id: "operationComptable", name: "Operation Comptable" },
+            { id: "importExcel", name: "Importer Plan Comptable" },
           ],
         },
         {
@@ -460,7 +463,9 @@ const BudgetApp = () => {
         return <RenderPlanComptablePage />;
       case "operationComptable":
         return <OperationComptablePage />;
-
+      case "importExcel":
+        return <ExcelImportPage />;
+ 
       // classification -> programmatique
       case "projet":
         return <RenderProjetPage />;

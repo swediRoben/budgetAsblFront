@@ -1,31 +1,27 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { ChevronDown, ChevronRight, Menu, X, PieChart, TrendingUp, CheckSquare, Layers, BookOpen, FileText, DollarSign, Settings2, BadgeDollarSign } from 'lucide-react';
-import { createClasse, deleteClasse, getAllClasse, updateClasse } from "../../data/classification/classes";
-import { createPlancompte, deletePlancompte, getAllPlancompte, updatePlancompte } from "../../data/classification/planComptable";
-import { createProjet, deleteProjet, getAllProjet, updateProjet } from "../../data/classification/projet";
-import { createCategorie, deleteCategorie, getAllCategorie, updateCategorie, getAllCategorieByProgramme } from "../../data/classification/categorie";
-import { createBailleur, deleteBailleur, getAllBailleur, updateBailleur } from "../../data/classification/bailleur";
-import { createBeneficiere, deleteBeneficiere, getAllBeneficiere, updateBeneficiere } from "../../data/classification/beneficiere";
-import { createExercice, deleteExercice, getAllExercice, updateExercice } from "../../data/classification/exercice";
-import { createPlanfontprojet, deletePlanfontprojet, getAllPlanfontprojet, updatePlanfontprojet } from "../../data/classification/planfontprojet";
-import { createPlanfontnature, deletePlanfontnature, getAllPlanfontnature, updatePlanfontnature } from "../../data/classification/planfontnature";
-import { createPrevision, deletePrevision, getAllPrevision, updatePrevision } from "../../data/classification/prevision";
-import { createActivite, deleteActivite, getAllActivite, updateActivite } from "../../data/classification/activite";
+import {getAllClasse } from "../../data/classification/classes";
+import { getAllProjet } from "../../data/classification/projet";
+import {getAllCategorie} from "../../data/classification/categorie";
+import { getAllBailleur } from "../../data/classification/bailleur";
+import {getAllBeneficiere } from "../../data/classification/beneficiere";
+import { getAllExercice } from "../../data/classification/exercice";
+import {  deletePlanfontprojet, getAllPlanfontprojet } from "../../data/classification/planfontprojet";
+import { getAllPlanfontnature } from "../../data/classification/planfontnature";
+import { createPrevision, getAllPrevision, updatePrevision } from "../../data/classification/prevision";
+import {  getAllActivite } from "../../data/classification/activite";
 
 import { useFieldArray, useForm } from "react-hook-form";
 import toast from "react-hot-toast";
 
 export default function renderElaborationPage() {
 
-  const [classes, setClasses] = useState([])
-  const [plancomptables, setPlancomptables] = useState([]);
+  const [classes, setClasses] = useState([]) 
   const [activites, setActivites] = useState([]);
   const [projets, setProjets] = useState([]);
   const [categories, setCategories] = useState([]);
   const [projetId, setProjetId] = useState();
-  const [exerciceId, setExerciceId] = useState();
-  const [categorieId, setCategorieId] = useState();
-  const [typebailleurs, setTypebailleurs] = useState([]);
+  const [exerciceId, setExerciceId] = useState(); 
   const [planfondprojets, setPlanfontprojets] = useState([]);
   const [bailleurs, setBailleurs] = useState([]);
   const [beneficieres, setBeneficieres] = useState([]);
@@ -90,11 +86,6 @@ export default function renderElaborationPage() {
     setClasses(data)
   }
 
-  const dataPlancompte = async () => {
-    const data = await getAllPlancompte();
-    setPlancomptables(data)
-  }
-
   const dataProjet = async () => {
     const data = await getAllProjet();
     setProjets(data)
@@ -122,8 +113,7 @@ export default function renderElaborationPage() {
     if (data !== undefined) {
       setClasseplafond(data?.classe);
       setMontantplafond(data.montant);
-      getActiviteByCategorie(data?.idCategorie)
-      getPlancomptables();
+      getActiviteByCategorie(data?.idCategorie) 
       getBailleurs();
       getBeneficiaires();
     } else {
@@ -173,8 +163,7 @@ export default function renderElaborationPage() {
             {
               id: p.id,
               idActivite: p.idActivite,
-              idSource: p.idSource,
-              idPlanComptable: p.idPlanComptable,
+              idSource: p.idSource, 
               idBeneficiaire: p.idBeneficiaire,
               quantite: p.quantite,
               prixUnitaire: p.prixUnitaire,
@@ -192,8 +181,7 @@ export default function renderElaborationPage() {
             {
               id: null,
               idActivite: null,
-              idSource: null,
-              idPlanComptable: null,
+              idSource: null, 
               idBeneficiaire: null,
               quantite: null,
               prixUnitaire: null,
@@ -212,8 +200,7 @@ export default function renderElaborationPage() {
           {
             id: null,
             idActivite: null,
-            idSource: null,
-            idPlanComptable: null,
+            idSource: null, 
             idBeneficiaire: null,
             quantite: null,
             prixUnitaire: null,
@@ -277,7 +264,7 @@ export default function renderElaborationPage() {
       idCategorie: null,
       idClasse: null,
       details: [
-        { id: null, idPlanComptable: null, idSource: null, idBeneficiaire: null, idActivite: null, prixUnitaire: null, quantite: null, montant: "", exercice: null }
+        { id: null, idSource: null, idBeneficiaire: null, idActivite: null, prixUnitaire: null, quantite: null, montant: "", exercice: null }
       ]
     }
   });
@@ -296,8 +283,7 @@ export default function renderElaborationPage() {
         element.idProjet = parseInt(idProjet);
         element.idClasse = parseInt(idClasse);
         element.idSource = parseInt(element.idSource);
-        element.idActivite = parseInt(element.idActivite);
-        element.idPlanComptable = parseInt(element.idPlanComptable);
+        element.idActivite = parseInt(element.idActivite); 
         element.idBeneficiaire = parseInt(element.idBeneficiaire);
         element.quantite = parseFloat(element.quantite);
         element.prixUnitaire = parseFloat(element.prixUnitaire);
@@ -342,9 +328,6 @@ export default function renderElaborationPage() {
     dataBailleur()
   }
 
-  const getPlancomptables = () => {
-    dataPlancompte();
-  }
 
   const getBeneficiaires = () => {
     dataBenefiere();
@@ -365,7 +348,7 @@ export default function renderElaborationPage() {
   }
 
   const addDetailLinePlanfontPrevision = () => {
-    appendPrevision({ id: null, idPlanComptable: null, idSource: null, idBeneficiaire: null, idActivite: null, prixUnitaire: null, quantite: null, montant: "", exercice: null });
+    appendPrevision({ id: null, idSource: null, idBeneficiaire: null, idActivite: null, prixUnitaire: null, quantite: null, montant: "", exercice: null });
   };
 
   const { fields: fieldsPrevision, append: appendPrevision, remove: removePrevision } = useFieldArray({
@@ -507,8 +490,7 @@ export default function renderElaborationPage() {
               type="button"
               onClick={() =>
                 addDetailLinePlanfontPrevision({
-                  id: null,
-                  idPlanComptable: null,
+                  id: null, 
                   idSource: null,
                   idBeneficiaire: null,
                   idActivite: null,
@@ -527,7 +509,6 @@ export default function renderElaborationPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-gray-50 text-gray-700">
-                  <th className="px-4 py-3 text-left font-bold">Compte</th>
                   <th className="px-4 py-3 text-left font-bold">Bailleur</th>
                   <th className="px-4 py-3 text-left font-bold">Bénéficiaire</th>
                   <th className="px-4 py-3 text-left font-bold">Ligne Budgétaire</th>
@@ -548,22 +529,7 @@ export default function renderElaborationPage() {
                         {...registerPrevision(`details.${index}.id`, { required: false })}
                       />
                     </td>
-
-                    {/* Compte */}
-                    <td className="px-3 py-3">
-                      <select
-                        {...registerPrevision(`details.${index}.idPlanComptable`, { required: true })}
-                        className="w-full rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-200 focus:border-blue-500"
-                      >
-                        <option value="">Compte comptable</option>
-                        {plancomptables.map((element) => (
-                          <option key={element.id} value={element.id}>
-                            {element.numero} - {element.libelle}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-
+ 
                     {/* Bailleur */}
                     <td className="px-3 py-3">
                       <select
