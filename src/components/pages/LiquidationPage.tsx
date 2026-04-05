@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { getAllFonctionnaire } from "../../data/utilisateur/fonctionnaire";
-import { createLiquidation, deleteLiquidation, getAllLiquidation, updateLiquidation, getAllValiderLiqidation, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantLiquide, getLiquidationvaliderByIdExercice, getLiquidationretournerByIdExercice, getLiquidationrejeterByIdExercice, getLiquidationreceptionerByIdExercice } from "../../data/execution/liquidation";
+import { createLiquidation, deleteLiquidation, getCountEngage, updateLiquidation, getAllValiderLiqidation, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantLiquide, getLiquidationvaliderByIdExercice, getLiquidationretournerByIdExercice, getLiquidationrejeterByIdExercice, getLiquidationreceptionerByIdExercice } from "../../data/execution/liquidation";
 import { getAllEngagementValiderLiquider } from "../../data/execution/engagement";
 import { getAllCategorie, getAllCategorieByProgramme } from "../../data/classification/categorie";
 import { getAllPlanfontprojet } from "../../data/classification/planfontprojet";
@@ -34,6 +34,15 @@ export default function renderLiquidationPage() {
   const [devise, setDevise] = useState(null);
   const [engagementid, setEngagementid] = useState(null);
   const [debut, setDebut] = useState("");
+    const [count, setCount] = useState({
+      enAttente:0,
+      reception:0,
+      valider:0,
+      rejet:0,
+      retourner:0
+    });
+    
+
   const [fin, setFin] = useState("");
   const [page, setPage] = useState(0);
   const [size] = useState(10);
@@ -44,6 +53,22 @@ export default function renderLiquidationPage() {
 
   const [showLiquidationList, setShowLiquidationList] = useState(false);
   
+   const loadCounts = async (exercice: any, projet: any) => {
+      const enAttente = await getCountEngage(exercice, projet, true, false, false, false, false);
+      const reception = await getCountEngage(exercice, projet, false, true, false, false, false);
+      const valider = await getCountEngage(exercice, projet, false, false, true, false, false);
+      const rejet = await getCountEngage(exercice, projet, false, false, false, true, false);
+      const retourner = await getCountEngage(exercice, projet, false, false, false, false, true);
+  
+      setCount({
+        enAttente,
+        reception,
+        valider,
+        rejet,
+        retourner
+      });
+    };
+
   const dataExercice = async () => {
     const data = await getAllExercice();
     setExercices(data.filter(ex => ex.execution));
@@ -116,8 +141,9 @@ export default function renderLiquidationPage() {
   const getCategoriesByProjet = async (e: any) => {
     setCategorie([])
     const data = await getAllCategorie(e);
-    setProjetId(e)
-    setCategorie(data)
+    setProjetId(e);
+    loadCounts(exerciceId,e);
+    setCategorie(data);
   }
 
   const getCategorieByProjet = async (e) => {
@@ -253,6 +279,7 @@ export default function renderLiquidationPage() {
       setProjetId(e)
       const data = await getAllPrevision(exerciceId, e, null);
       setPrevisions(data)
+      loadCounts(exerciceId, e);
       setEngagements([]) // Réinitialiser les engagements quand le projet change
       setValue("idEngagement", ""); // Réinitialiser la sélection d'engagement
       setSelectedPrevisionId(null);
@@ -503,7 +530,7 @@ export default function renderLiquidationPage() {
                      border border-green-200
                      hover:bg-green-100 hover:shadow-sm transition"
           >
-            Validé <strong>3</strong>
+            Validé <strong>{count.valider}</strong>
           </span>
 
           <span
@@ -513,7 +540,7 @@ export default function renderLiquidationPage() {
                      border border-green-200
                      hover:bg-green-100 hover:shadow-sm transition"
           >
-            en attente <strong>3</strong>
+            en attente <strong>{count.enAttente}</strong>
           </span>
           <span
             onClick={() => openList('RETOURNE')}
@@ -522,7 +549,7 @@ export default function renderLiquidationPage() {
                      border border-yellow-200
                      hover:bg-yellow-100 hover:shadow-sm transition"
           >
-            Retourné <strong>4</strong>
+            Retourné <strong>{count.retourner}</strong>
           </span>
 
           <span
@@ -532,7 +559,7 @@ export default function renderLiquidationPage() {
                      border border-red-200
                      hover:bg-red-100 hover:shadow-sm transition"
           >
-            Rejeté <strong>5</strong>
+            Rejeté <strong>{count.rejet}</strong>
           </span>
           <span
             onClick={() => openList('RECEPTIONNE')}
@@ -541,7 +568,7 @@ export default function renderLiquidationPage() {
                      border border-blue-200
                      hover:bg-blue-100 hover:shadow-sm transition"
           >
-            Réceptionné <strong>6</strong>
+            Réceptionné <strong>{count.reception}</strong>
           </span>
         </p>
       </div>

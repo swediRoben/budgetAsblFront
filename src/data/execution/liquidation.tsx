@@ -253,3 +253,42 @@ export const receptionLiquidation = async (id: number) => {
   }
 }; 
 
+export const getCountEngage = async (
+  exercice?: number,
+  projet?: number,
+  enAttente?: boolean,
+  reception?: boolean,
+  valide?: boolean,
+  rejet?: boolean,
+  retourne?: boolean
+): Promise<number> => {
+  try {
+    const response = await axios.get(`${API_URL}/count`, {
+      params: {
+        exercice,
+        projet,
+        enAttente,
+        reception,
+        valide,
+        rejet,
+        retourne,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Erreur countEngagement :", error);
+    return 0;
+  }
+};
+
+export const getMontantEngage = async (engagement: any,montant: any): Promise<number> => {
+  try {
+    const response = await axios.get(`${API_URL}/montantdepense`, {
+      params: { engagement: engagement,montant: montant }
+    });  
+    return response.data;
+  } catch (error) {
+    return 0;
+  }
+};

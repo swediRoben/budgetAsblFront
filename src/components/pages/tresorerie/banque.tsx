@@ -188,7 +188,7 @@ export default function tresorerieBanquePage() {
               <th className="border border-gray-300 px-4 py-2 text-left">Code</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Libellé</th>
               <th className="border border-gray-300 px-4 py-2 text-left">Cmpte</th>
-              <th className="border border-gray-300 px-4 py-2 text-left">Actif</th>
+              <th className="border border-gray-300 px-4 py-2 text-left">Type</th>
               <th className="border border-gray-300 px-4 py-2 text-center">Actions</th>
             </tr>
           </thead>
@@ -201,7 +201,7 @@ export default function tresorerieBanquePage() {
                 {plancomptables.filter(element => element.id === datas.idCompteComptable)
                   .map((element) => (
                     <td className="border border-gray-300 px-4 py-2"> {element.numero} - {element.libelle}</td>))}
-                <td className="border border-gray-300 px-4 py-2">{datas.actif ? "activé" : "bloqué"}</td>
+                <td className="border border-gray-300 px-4 py-2">{datas.actif ? "banque" : "caisse"}</td>
                 <td className="border border-gray-300 px-4 py-2 text-center">
                   <button className="text-blue-600 hover:text-blue-800 mr-2" onClick={() => hendleUpdata(datas, '')}>Modifier</button>
                   <button className="text-red-600 hover:text-red-800" onClick={() => hendleDelete(datas.id, '')}>Supprimer</button>

@@ -270,11 +270,11 @@ const BudgetApp = () => {
       name: "Trésorerie",
       icon: <CheckSquare className="w-5 h-5" />,
       subMenus: [
-        {
-          id: "tableBord",
-          name: "Table de bord",
-          icon: <FileText className="w-4 h-4" />,
-        },
+        // {
+        //   id: "tableBord",
+        //   name: "Table de bord",
+        //   icon: <FileText className="w-4 h-4" />,
+        // },
         {
           id: "banque",
           name: "Banque",
@@ -295,11 +295,11 @@ const BudgetApp = () => {
           name: "Rapprochement",
           icon: <FileText className="w-4 h-4" />,
         },
-        {
-          id: "situation",
-          name: "Situation",
-          icon: <FileText className="w-4 h-4" />,
-        },
+        // {
+        //   id: "situation",
+        //   name: "Situation",
+        //   icon: <FileText className="w-4 h-4" />,
+        // },
         {
           id: "etatFinancier",
           name: "Etas Financiers",
@@ -515,8 +515,8 @@ const BudgetApp = () => {
         return <RenderRapportExecutionPage />;
 
       //Tresorerie
-      case "tableBord":
-        return <RenderTresorieTableBorPage />;
+      // case "tableBord":
+      //   return <RenderTresorieTableBorPage />;
       case "banque":
         return <RenderTresorieBanquePage />;
       case "compteBancaire":
@@ -525,8 +525,8 @@ const BudgetApp = () => {
         return <RenderTresorieJournalPage />;
       case "rapprochement":
         return <RenderTresorieRapprochementPage />;
-      case "situation":
-        return <JournalTresorerieForm />;
+      // case "situation":
+      //   return <JournalTresorerieForm />;
 
       //comptabilite
       case "JournalComptable":

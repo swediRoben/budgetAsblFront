@@ -267,6 +267,47 @@ export const getSommeMontantEngage = async (idExercice: any, ligne: any): Promis
     return 0;
   }
 };
+ 
+
+export const getCountEngage = async (
+  exercice?: number,
+  projet?: number,
+  enAttente?: boolean,
+  reception?: boolean,
+  valide?: boolean,
+  rejet?: boolean,
+  retourne?: boolean
+): Promise<number> => {
+  try {
+    const response = await axios.get(`${API_URL}/count`, {
+      params: {
+        exercice,
+        projet,
+        enAttente,
+        reception,
+        valide,
+        rejet,
+        retourne,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error("Erreur countEngagement :", error);
+    return 0;
+  }
+};
+
+export const getMontantEngage = async (ligne: any,montant: any): Promise<number> => {
+  try {
+    const response = await axios.get(`${API_URL}/montantdepense`, {
+      params: { ligne: ligne,montant: montant }
+    });  
+    return response.data;
+  } catch (error) {
+    return 0;
+  }
+};
 
 
 export const getRapportGobal = async (exercice:any,projet:any,categorie:any) => {

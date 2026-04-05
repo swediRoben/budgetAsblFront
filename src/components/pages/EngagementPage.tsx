@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 
 import { getAllFonctionnaire } from "../../data/utilisateur/fonctionnaire";
-import { createEngagement, deleteEngagement, getAllEngagement, updateEngagement, getAllValider, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantEngage, getEngagementvaliderByIdExercice, getEngagementretournerByIdExercice, getEngagementrejeterByIdExercice, getEngagementreceptionerByIdExercice } from "../../data/execution/engagement";
+import { createEngagement, deleteEngagement, getCountEngage, getMontantEngage, updateEngagement, getAllValider, getAllReceptionner, getAllRejeter, getAllRetourne, getAllEnAttente, getSommeMontantEngage, getEngagementvaliderByIdExercice, getEngagementretournerByIdExercice, getEngagementrejeterByIdExercice, getEngagementreceptionerByIdExercice } from "../../data/execution/engagement";
 import { getAllCategorie, getAllCategorieByProgramme } from "../../data/classification/categorie";
 import { getAllPlanfontprojet } from "../../data/classification/planfontprojet";
 import { getAllExercice } from "../../data/classification/exercice";
@@ -27,6 +27,14 @@ export default function renderEngagementPage() {
   const [montantVote, setMontantVote] = useState(0.0);
   const [montantEngage, setMontantEngage] = useState(0);
   const [debut, setDebut] = useState("");
+  const [count, setCount] = useState({
+    enAttente: 0,
+    reception: 0,
+    valider: 0,
+    rejet: 0,
+    retourner: 0
+  });
+
   const [fin, setFin] = useState("");
   const [page, setPage] = useState(0);
   const [size] = useState(10);
@@ -36,10 +44,26 @@ export default function renderEngagementPage() {
 
 
   const [showEngagementList, setShowEngagementList] = useState(false);
-      const dataExercice = async () => {
-         const data = await getAllExercice();
-         setExercices(data.filter(ex => ex.execution));
-       };
+  const dataExercice = async () => {
+    const data = await getAllExercice();
+    setExercices(data.filter(ex => ex.execution));
+  };
+
+  const loadCounts = async (exercice: any, projet: any) => {
+    const enAttente = await getCountEngage(exercice, projet, true, false, false, false, false);
+    const reception = await getCountEngage(exercice, projet, false, true, false, false, false);
+    const valider = await getCountEngage(exercice, projet, false, false, true, false, false);
+    const rejet = await getCountEngage(exercice, projet, false, false, false, true, false);
+    const retourner = await getCountEngage(exercice, projet, false, false, false, false, true);
+
+    setCount({
+      enAttente,
+      reception,
+      valider,
+      rejet,
+      retourner
+    });
+  };
 
   const dataDevise = async () => {
     const data = await getAllDevise();
@@ -51,9 +75,9 @@ export default function renderEngagementPage() {
     setFonctionnaires(data)
   }
 
-  const getSommeMontantEngages = async (exercice: any, ligne: any,montantModifier:any) => {
+  const getSommeMontantEngages = async (exercice: any, ligne: any, montantModifier: any) => {
     const montant = await getSommeMontantEngage(exercice, ligne);
-    setMontantEngage(montant-montantModifier);
+    setMontantEngage(montant - montantModifier);
   };
 
   useEffect(() => {
@@ -67,13 +91,13 @@ export default function renderEngagementPage() {
     setExerciceId(value)
   }
 
-useEffect(() => {
-  setValue("tauxDevise", 1);
-}, []);
+  useEffect(() => {
+    setValue("tauxDevise", 1);
+  }, []);
 
   const getPlanfondByExercice = async (e: any) => {
     const value = e.target.value;
-    if (value !== "") { 
+    if (value !== "") {
       const data = await getAllPlanfontprojet(e.target.value);
       setPlanfontprojets(data)
     } else {
@@ -87,9 +111,10 @@ useEffect(() => {
     const data = await getAllCategorie(e);
     setProjetId(e)
     setCategorie(data);
+    loadCounts(exerciceId, e);
   }
 
-  const getCategorieByProjet = async (e) => { 
+  const getCategorieByProjet = async (e) => {
     getCategoriesByProjet(e);
     setProjetId(e)
     setEngagements([]);
@@ -99,7 +124,7 @@ useEffect(() => {
     if (status === 'RECEPTIONNE') {
       const data = await getAllReceptionner(exerciceId, e);
       console.log(data)
-      setEngagements(data); 
+      setEngagements(data);
     } else if (status === 'REJETE') {
       const data = await getAllRejeter(exerciceId, e);
       setEngagements(data);
@@ -226,6 +251,7 @@ useEffect(() => {
   const getPrevisionParProjet = async (e: any) => {
     const value = e;
     if (value !== "") {
+      loadCounts(exerciceId, e)
       setProjetId(e)
       getLignes(e)
     }
@@ -236,13 +262,13 @@ useEffect(() => {
     setCategorie(data.categorie);
     setBeneficiaire(data.beneficiaire)
     setBailleurs(data.source)
-    const id=watch("id");
-     if (id) {
-      const montant=watch("montant")*watch("tauxDevise") 
-    getSommeMontantEngages(data.idExercice, data.id,montant)
-     }else{ 
-    getSommeMontantEngages(data.idExercice, data.id,0)
-     }
+    const id = watch("id");
+    if (id) {
+      const montant = watch("montant") * watch("tauxDevise")
+      getSommeMontantEngages(data.idExercice, data.id, montant)
+    } else {
+      getSommeMontantEngages(data.idExercice, data.id, 0)
+    }
   }
 
 
@@ -309,8 +335,8 @@ useEffect(() => {
             dataEnAttente: null,
             observation: "",
           })
-            setMontantVote(0)
-            setMontantEngage(0)
+          setMontantVote(0)
+          setMontantEngage(0)
         } else {
           data.dataEnAttente = toOffsetDateTimeStart(data.dataEnAttente)
           updateEngagement(data.id, data)
@@ -328,7 +354,7 @@ useEffect(() => {
             dataEnAttente: null,
             observation: "",
           })
-            setMontantVote(0)
+          setMontantVote(0)
         }
       }
 
@@ -371,13 +397,13 @@ useEffect(() => {
 
   const hendleDelete = async (data: any) => {
     try {
-       await deleteEngagement(data.id) 
-        //  setEngagements(prev => prev.filter(e => e.id !== data.id));
-            await getCategorieByProjet(data.idProjet);
+      await deleteEngagement(data.id)
+      //  setEngagements(prev => prev.filter(e => e.id !== data.id));
+      await getCategorieByProjet(data.idProjet);
       toast.success("Suppression avec succes");
     } catch (error) {
       toast.error("Echec de suppression");
-    } 
+    }
   }
 
   const openList = (status: string) => {
@@ -392,12 +418,12 @@ useEffect(() => {
     setShowEngagementList(true);
   }
 
-useEffect(() => {
-  const hasAction = engagements.some(
-    (eng: any) => eng.retourner || eng.enAttente
-  );
-  setShowaction(hasAction);
-}, [engagements]);
+  useEffect(() => {
+    const hasAction = engagements.some(
+      (eng: any) => eng.retourner || eng.enAttente
+    );
+    setShowaction(hasAction);
+  }, [engagements]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg border border-gray-200 p-8">
@@ -417,7 +443,7 @@ useEffect(() => {
                      border border-green-200
                      hover:bg-green-100 hover:shadow-sm transition"
           >
-            Validé <strong>3</strong>
+            Validé <strong>{count.valider}</strong>
           </span>
 
           <span
@@ -427,7 +453,7 @@ useEffect(() => {
                      border border-green-200
                      hover:bg-green-100 hover:shadow-sm transition"
           >
-            en attente <strong>3</strong>
+            en attente <strong>{count.enAttente}</strong>
           </span>
           <span
             onClick={() => openList('RETOURNE')}
@@ -436,7 +462,7 @@ useEffect(() => {
                      border border-yellow-200
                      hover:bg-yellow-100 hover:shadow-sm transition"
           >
-            Retourné <strong>4</strong>
+            Retourné <strong>{count.retourner}</strong>
           </span>
 
           <span
@@ -446,7 +472,7 @@ useEffect(() => {
                      border border-red-200
                      hover:bg-red-100 hover:shadow-sm transition"
           >
-            Rejeté <strong>5</strong>
+            Rejeté <strong>{count.rejet}</strong>
           </span>
           <span
             onClick={() => openList('RECEPTIONNE')}
@@ -455,7 +481,7 @@ useEffect(() => {
                      border border-blue-200
                      hover:bg-blue-100 hover:shadow-sm transition"
           >
-            Réceptionné <strong>6</strong>
+            Réceptionné <strong>{count.reception}</strong>
           </span>
         </p>
 
@@ -684,7 +710,7 @@ useEffect(() => {
               Taux devise
             </label>
             <input
-              type="text" 
+              type="text"
               required
               className="w-full rounded-md border border-gray-300 px-4 py-2 text-sm
                     focus:ring-2 focus:ring-blue-500"
@@ -703,35 +729,35 @@ useEffect(() => {
           {/* Bloc récapitulatif visuel */}
         </div>
 
-       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-6 shadow-sm">
-  
-  {/* Montant engagé */}
-  <div className="flex flex-col gap-1">
-    <p className="text-xs text-gray-500 uppercase">Montant engagé</p>
-    <p className="text-lg font-semibold text-gray-800">
-      {montantEngage.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
-    </p>
-  </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border rounded-lg bg-gray-50 p-6 shadow-sm">
 
-  {/* Montant alloué */}
-  <div className="flex flex-col gap-1">
-    <p className="text-xs text-gray-500 uppercase">Montant alloué</p>
-    <p className="text-lg font-semibold text-blue-700">
-      {montantVote.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
-    </p>
-  </div>
+          {/* Montant engagé */}
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-gray-500 uppercase">Montant engagé</p>
+            <p className="text-lg font-semibold text-gray-800">
+              {montantEngage.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+            </p>
+          </div>
 
-  {/* Montant restant */}
-  <div className="flex flex-col gap-1">
-    <p className="text-xs text-gray-500 uppercase">Montant restant</p>
-    <p className="text-lg font-semibold text-green-700">
-      {montantRestantFonction(
-        montantVote - ((Number(watch("montant") || 0) * Number(watch("tauxDevise"))) + montantEngage)
-      ).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
-    </p>
-  </div>
+          {/* Montant alloué */}
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-gray-500 uppercase">Montant alloué</p>
+            <p className="text-lg font-semibold text-blue-700">
+              {montantVote.toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+            </p>
+          </div>
 
-</div>
+          {/* Montant restant */}
+          <div className="flex flex-col gap-1">
+            <p className="text-xs text-gray-500 uppercase">Montant restant</p>
+            <p className="text-lg font-semibold text-green-700">
+              {montantRestantFonction(
+                montantVote - ((Number(watch("montant") || 0) * Number(watch("tauxDevise"))) + montantEngage)
+              ).toLocaleString("fr-FR", { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+
+        </div>
 
         {/* Objet */}
         <div className="md:col-span-2">
@@ -868,9 +894,9 @@ useEffect(() => {
                       <th className="px-4 py-3 text-center">Statut</th>
                       <th className="px-4 py-3 text-center">Date statut</th>
                       {
-                        showaction?( 
-                      <th className="px-4 py-3 text-center">Actions</th>
-                        ):null
+                        showaction ? (
+                          <th className="px-4 py-3 text-center">Actions</th>
+                        ) : null
                       }
                     </tr>
                   </thead>
@@ -891,14 +917,14 @@ useEffect(() => {
                         <td className="px-4 py-2 text-center">
                           <span
                             className={`px-3 py-1 rounded-full text-xs font-semibold ${eng.rejet
-                                ? "bg-red-100 text-red-700"
-                                : eng.retourner
-                                  ? "bg-violet-100 text-violet-700"
-                                  : eng.reception
-                                    ? "bg-blue-100 text-blue-700"
-                                    : eng.validation
-                                      ? "bg-green-100 text-green-700"
-                                      : "bg-yellow-100 text-yellow-700"
+                              ? "bg-red-100 text-red-700"
+                              : eng.retourner
+                                ? "bg-violet-100 text-violet-700"
+                                : eng.reception
+                                  ? "bg-blue-100 text-blue-700"
+                                  : eng.validation
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {eng.rejet
@@ -926,22 +952,22 @@ useEffect(() => {
                           )}
                         </td>
 
-                       {(eng.retourner || eng.enAttente) && (
-                            <td className="px-4 py-2 text-center space-x-2">
-                              <button
-                                onClick={() => hendleUpdata(eng)}
-                                className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100"
-                              >
-                                update
-                              </button>
-                              <button
-                                onClick={() => hendleDelete(eng)}
-                                className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
-                              >
-                                del
-                              </button>
-                            </td>
-                          )}
+                        {(eng.retourner || eng.enAttente) && (
+                          <td className="px-4 py-2 text-center space-x-2">
+                            <button
+                              onClick={() => hendleUpdata(eng)}
+                              className="px-3 py-1 text-xs rounded-md bg-green-50 text-green-600 hover:bg-green-100"
+                            >
+                              update
+                            </button>
+                            <button
+                              onClick={() => hendleDelete(eng)}
+                              className="px-3 py-1 text-xs rounded-md bg-blue-50 text-blue-600 hover:bg-blue-100"
+                            >
+                              del
+                            </button>
+                          </td>
+                        )}
 
                       </tr>
                     ))}

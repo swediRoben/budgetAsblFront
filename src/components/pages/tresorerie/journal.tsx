@@ -32,8 +32,7 @@ const renderTresorieJournalPage: React.FC = () => {
   const [size, setSize] = useState(10);
 
   const [Liquidations, setLiquidations] = useState([]);
-  const [engagements, setEngagements] = useState([]);
-  const [beneficiaire, setBeneficiaire] = useState([]);
+  const [engagements, setEngagements] = useState([]); 
   const [categorie, setCategorie] = useState([]);
   const [planfondprojets, setPlanfontprojets] = useState([]);
   const [exerciceId, setExerciceId] = useState();
@@ -44,14 +43,9 @@ const renderTresorieJournalPage: React.FC = () => {
   const [fonctionnaires, setFonctionnaires] = useState([]);
   const [devises, setDevises] = useState([]);
   const [engagementid, setEngagementid] = useState(null);
-  const [previsions, setPrevisions] = useState([]);
-  const [montantEngage, setMontantEngage] = useState(0.0);
+  const [previsions, setPrevisions] = useState([]); 
   const [montantLiquide, setMontantLiquide] = useState(0);
-  const [bonEngagment, setBonEngagment] = useState("");
-  const [showModal, setShowModal] = useState(false);
-  const [buttonName, setButtonName] = useState("");
-  const [tauxdeviseengagement, setTauxdeviseengagement] = useState(0);
-  const [devise, setDevise] = useState(null);
+  const [bonEngagment, setBonEngagment] = useState("");  
   const [budget, setBudget] = useState(false)
   const [debut, setDebut] = useState("");
   const [fin, setFin] = useState("");
@@ -77,8 +71,8 @@ const renderTresorieJournalPage: React.FC = () => {
     try {
       const compte = comptesBancaires.find(c => c.id === compteId);
       if (compte) {
-        setSoldeBancaire(compte.solde || 0);
-        return compte.solde || 0;
+        setSoldeBancaire(compte.montant || 0);
+        return compte.montant || 0;
       }
       return 0;
     } catch (error) {
@@ -428,7 +422,7 @@ const renderTresorieJournalPage: React.FC = () => {
       } else if (label === "Compte Bancaire") {
         return options?.map((o) => (
           <option key={o?.id} value={o?.id}>
-            {o?.numero} - Solde: {o?.solde?.toLocaleString("fr-FR") || 0} FCFA
+            {o?.numero} - Solde: {o?.montant?.toLocaleString("fr-FR") || 0} FCFA
           </option>
         ));
       } else {
