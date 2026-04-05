@@ -57,6 +57,7 @@ import RenderEtatRessourcePage from "./components/pages/tresorerie/RapportResour
 import RenderEtatCompteresultatPage from "./components/pages/tresorerie/RapportCompteresultat";
 import RenderEtatVentillationChargePage from "./components/pages/tresorerie/RapportVentillationCharge";
 import ExcelImportPage from "./components/pages/importPlanComptable"
+import RenderStructirePage from "./components/pages/parametre/structurePage"
 
 
 type ExpandedMenusType = {
@@ -360,6 +361,10 @@ const BudgetApp = () => {
           id: "devise",
           name: "Devise",
           icon: <BadgeDollarSign className="w-4 h-4" />,
+        },{
+          id: "structure",
+          name: "Structure administrative",
+          icon: <BadgeDollarSign className="w-4 h-4" />,
         },
       ],
     },
@@ -546,6 +551,8 @@ const BudgetApp = () => {
         return <RenderExercicePage />;
       case "devise":
         return <RenderDevisePage />;
+      case "structure":
+        return <RenderStructirePage />;
 
       // utilisateur
       case "fonctionnaire":
