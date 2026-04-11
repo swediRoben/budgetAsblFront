@@ -11,7 +11,7 @@ import { getAllPlanfontnature } from "../../data/classification/planfontnature";
 import { createPrevision, getAllPrevision, updatePrevision } from "../../data/classification/prevision";
 import { getAllActivite } from "../../data/classification/activite";
 import { useFieldArray, useForm } from "react-hook-form";
-import { getAllPlancompte } from "../../../data/classification/planComptable";
+import { getAllPlancompte } from "../../data/classification/planComptable";
 import toast from "react-hot-toast";
 
 export default function renderElaborationPage() {
@@ -94,8 +94,9 @@ export default function renderElaborationPage() {
   
     
     const dataPlancompteClasse = (idclasse:any) => {
-       const data = plancomptables.filter(p=>p.classeId===idclasse);
-        setPlancomptablesCharge(data);
+        const classeId = typeof idclasse === 'string' ? parseInt(idclasse) : idclasse; 
+        const data = plancomptables.filter(p => p.classeId === classeId); 
+        setPlancomptablesCharge(data); 
     };
 
   const dataPlanfontprojet = async (e: any) => { const data = await getAllPlanfontprojet(e); setPlanfontprojets(data) }

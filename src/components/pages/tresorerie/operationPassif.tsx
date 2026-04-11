@@ -20,6 +20,7 @@ const OperationPassifForm = () => {
 
   const [plancomptables, setPlancomptables] = useState([]);
   const [plancomptablescharge, setPlancomptablesCharge] = useState([]);
+  const [plancomptablesPassif, setPlancomptablesPassif] = useState([]);
   const [classes, setClasses] = useState([]);
   const [operations, setOperations] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -65,9 +66,12 @@ const OperationPassifForm = () => {
 
   
   const dataPlancompteClasse = (idclasse:any) => {
-     const data = plancomptables.filter(p=>p.classeId===idclasse);
-      setPlancomptablesCharge(data);
-  };
+      const classeId = typeof idclasse === 'string' ? parseInt(idclasse) : idclasse; 
+    const data = plancomptables.filter(p => p.classeId === classeId); 
+    setPlancomptablesCharge(data); 
+     const comptePassif = plancomptables.filter(p => p.sens === "PASSIF"); 
+        setPlancomptablesPassif(data); 
+  }; 
 
   useEffect(() => {
     dataClasse();
@@ -367,19 +371,20 @@ const OperationPassifForm = () => {
                         className="bg-white rounded-lg p-4 border border-gray-200"
                       >
                         
-                <div  className="grid grid-cols-12 gap-3 items-center">
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <div  className=" w-full  items-center">
+                  <label className="block text-xs font-semibold text-gray-600 mb-1">
                     Type d'opération <span className="text-red-500">*</span>
                   </label>
                   <select
                     {...register(`detailsPassif.${index}.typeOperation`, { required: "Le type est requis" })}
-                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
-                  >
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                             >
                     <option value="">Sélectionner un type</option>
-                    <option value="DETTE">💰 DETTE</option>
+                    <option value="DETTE"> DETTE</option>
                     <option value="PRODUIT_CONSTATE">PRODUIT CONSTANTE D'AVANCE</option>
                   </select>
                 </div>
+                <br />
                         <div className="grid grid-cols-12 gap-3 items-center">
                           <div className="col-span-5">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">
@@ -438,7 +443,7 @@ const OperationPassifForm = () => {
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                             >
                               <option value="">Sélectionner un compte passif</option>
-                              {plancomptables.map((p) => (
+                              {plancomptablesPassif.map((p) => (
                                 <option key={p.id} value={p.id}>
                                   {p?.numero} - {p.libelle}
                                 </option>
