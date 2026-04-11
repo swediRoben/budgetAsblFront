@@ -7,18 +7,19 @@ import { create, update, getAll } from "../../../data/classification/operationCo
 import { Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 
-const OperationForm = () => {
+const OperationPassifForm = () => {
   const { register, control, handleSubmit, reset, watch, setValue,
     formState: { errors } } = useForm({
       defaultValues: {
         id: null,
         type: "",
         classeid: null,
-        detailsActif: [{ id: null, debitid: null, creditid: null }],
+        detailsPassif: [{ id: null, typeOperation:null, debitid: null, creditid: null }],
       },
     });
 
   const [plancomptables, setPlancomptables] = useState([]);
+  const [plancomptablescharge, setPlancomptablesCharge] = useState([]);
   const [classes, setClasses] = useState([]);
   const [operations, setOperations] = useState([]);
   const [showModal, setShowModal] = useState(false);
@@ -26,7 +27,7 @@ const OperationForm = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const watchDetailsActif = watch("detailsActif");
+  const watchDetailsPassif = watch("detailsPassif");
   const watchType = watch("type");
 
   useEffect(() => {
@@ -62,6 +63,12 @@ const OperationForm = () => {
     }
   };
 
+  
+  const dataPlancompteClasse = (idclasse:any) => {
+     const data = plancomptables.filter(p=>p.classeId===idclasse);
+      setPlancomptablesCharge(data);
+  };
+
   useEffect(() => {
     dataClasse();
     dataPlancompte();
@@ -72,21 +79,21 @@ const OperationForm = () => {
 
   const { fields, append, remove } = useFieldArray({
     control,
-    name: "detailsActif",
+    name: "detailsPassif",
   });
 
   // Obtenir tous les comptes disponibles pour le débit
   const getAvailableDebitComptes = (index) => {
-    const currentDebitId = watchDetailsActif[index]?.debitid;
-    const currentCreditId = watchDetailsActif[index]?.creditid;
+    const currentDebitId = watchDetailsPassif[index]?.debitid;
+    const currentCreditId = watchDetailsPassif[index]?.creditid;
 
     const usedCompteIds = [];
 
     // Récupérer les comptes utilisés dans les AUTRES lignes
-    for (let i = 0; i < watchDetailsActif.length; i++) {
+    for (let i = 0; i < watchDetailsPassif.length; i++) {
       if (i !== index) {
-        if (watchDetailsActif[i]?.debitid) usedCompteIds.push(watchDetailsActif[i].debitid);
-        if (watchDetailsActif[i]?.creditid) usedCompteIds.push(watchDetailsActif[i].creditid);
+        if (watchDetailsPassif[i]?.debitid) usedCompteIds.push(watchDetailsPassif[i].debitid);
+        if (watchDetailsPassif[i]?.creditid) usedCompteIds.push(watchDetailsPassif[i].creditid);
       }
     }
 
@@ -104,16 +111,16 @@ const OperationForm = () => {
 
   // Obtenir tous les comptes disponibles pour le crédit
   const getAvailableCreditComptes = (index) => {
-    const currentDebitId = watchDetailsActif[index]?.debitid;
-    const currentCreditId = watchDetailsActif[index]?.creditid;
+    const currentDebitId = watchDetailsPassif[index]?.debitid;
+    const currentCreditId = watchDetailsPassif[index]?.creditid;
 
     const usedCompteIds = [];
 
     // Récupérer les comptes utilisés dans les AUTRES lignes
-    for (let i = 0; i < watchDetailsActif.length; i++) {
+    for (let i = 0; i < watchDetailsPassif.length; i++) {
       if (i !== index) {
-        if (watchDetailsActif[i]?.debitid) usedCompteIds.push(watchDetailsActif[i].debitid);
-        if (watchDetailsActif[i]?.creditid) usedCompteIds.push(watchDetailsActif[i].creditid);
+        if (watchDetailsPassif[i]?.debitid) usedCompteIds.push(watchDetailsPassif[i].debitid);
+        if (watchDetailsPassif[i]?.creditid) usedCompteIds.push(watchDetailsPassif[i].creditid);
       }
     }
 
@@ -130,39 +137,39 @@ const OperationForm = () => {
   };
 
   const handleDebitChange = (index, value) => {
-    const currentCreditId = watchDetailsActif[index]?.creditid;
+    const currentCreditId = watchDetailsPassif[index]?.creditid;
     const debitId = value ? parseInt(value) : null;
 
     // Vérifier si débit et crédit sont identiques
     if (debitId && currentCreditId && debitId === currentCreditId) {
       toast.error("Le compte débit ne peut pas être identique au compte crédit !");
-      setValue(`detailsActif.${index}.debitid`, null);
+      setValue(`detailsPassif.${index}.debitid`, null);
       return;
     }
 
-    setValue(`detailsActif.${index}.debitid`, debitId);
+    setValue(`detailsPassif.${index}.debitid`, debitId);
   };
 
   const handleCreditChange = (index, value) => {
-    const currentDebitId = watchDetailsActif[index]?.debitid;
+    const currentDebitId = watchDetailsPassif[index]?.debitid;
     const creditId = value ? parseInt(value) : null;
 
     // Vérifier si débit et crédit sont identiques
     if (creditId && currentDebitId && creditId === currentDebitId) {
       toast.error("Le compte crédit ne peut pas être identique au compte débit !");
-      setValue(`detailsActif.${index}.creditid`, null);
+      setValue(`detailsPassif.${index}.creditid`, null);
       return;
     }
 
-    setValue(`detailsActif.${index}.creditid`, creditId);
+    setValue(`detailsPassif.${index}.creditid`, creditId);
   };
 
   const submitForm = async (data) => {
-    for (let i = 0; i < data.detailsActif.length; i++) {
-      const detail = data.detailsActif[i];
+    for (let i = 0; i < data.detailsPassif.length; i++) {
+      const detail = data.detailsPassif[i];
 
-      for (let i = 0; i < data.detailsActif.length; i++) {
-        const detail = data.detailsActif[i];
+      for (let i = 0; i < data.detailsPassif.length; i++) {
+        const detail = data.detailsPassif[i];
 
         // ✅ ERREUR UNIQUEMENT SI LES DEUX SONT VIDES
         if (!detail.debitid && !detail.creditid) {
@@ -171,14 +178,14 @@ const OperationForm = () => {
         }
       }
 
-      //   for (let j = i + 1; j < data.detailsActif.length; j++) {
-      //     const otherDetail = data.detailsActif[j];
-      //     if (detail.debitid === otherDetail.debitid || detail.debitid === otherDetail.creditid ||
-      //         detail.creditid === otherDetail.debitid || detail.creditid === otherDetail.creditid) {
-      //       toast.error(`Ligne ${i + 1} et ${j + 1}: Un compte ne peut pas être utilisé plusieurs fois`);
-      //       return;
-      //     }
-      //   }
+        for (let j = i + 1; j < data.detailsPassif.length; j++) {
+          const otherDetail = data.detailsPassif[j];
+          if (detail.debitid === otherDetail.debitid || detail.debitid === otherDetail.creditid ||
+              detail.creditid === otherDetail.debitid || detail.creditid === otherDetail.creditid) {
+            toast.error(`Ligne ${i + 1} et ${j + 1}: Un compte ne peut pas être utilisé plusieurs fois`);
+            return;
+          }
+        }
       }
 
       setLoading(true);
@@ -196,7 +203,7 @@ const OperationForm = () => {
           id: null,
           type: "",
           classeid: null,
-          detailsActif: [{ id: null, debitid: null, creditid: null }]
+          detailsPassif: [{ id: null, typeOperation: null, debitid: null, creditid: null }]
         });
         setType("");
 
@@ -238,13 +245,14 @@ const OperationForm = () => {
         id: operationData.id,
         type: operationData.type,
         classeid: operationData.classeid,
-        detailsActif: operationData.detailsActif && operationData.detailsActif.length > 0
-          ? operationData.detailsActif.map(detail => ({
+        detailsPassif: operationData.detailsPassif && operationData.detailsPassif.length > 0
+          ? operationData.detailsPassif.map(detail => ({
             id: detail.id,
+            typeOperation: detail.typeOperation,
             debitid: detail.debitid,
             creditid: detail.creditid
           }))
-          : [{ id: null, debitid: null, creditid: null }]
+          : [{ id: null,typeOperation:null,debitid: null, creditid: null }]
       };
 
       reset(resetData);
@@ -256,7 +264,7 @@ const OperationForm = () => {
         id: null,
         type: "",
         classeid: null,
-        detailsActif: [{ id: null, debitid: null, creditid: null }]
+        detailsPassif: [{ id: null, typeOperation: null, debitid: null, creditid: null }]
       });
       setType("");
       setIsEditing(false);
@@ -304,15 +312,14 @@ const OperationForm = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-semibold text-gray-700 mb-2">
-                    Type d'opération <span className="text-red-500">*</span>
+                    Type  <span className="text-red-500">*</span>
                   </label>
                   <select
                     {...register("type", { required: "Le type est requis" })}
                     className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                   >
                     <option value="">Sélectionner un type</option>
-                    <option value="DEPENSE">💰 Dépense</option>
-                    <option value="RECETTE">📈 Recette</option>
+                    <option value="DEPENSE" selected={true}>💰 Dépense</option> 
                   </select>
                 </div>
 
@@ -322,6 +329,7 @@ const OperationForm = () => {
                   </label>
                   <select
                     {...register("classeid", { required: "La classe est requise" })}
+                    onClick={(e)=>dataPlancompteClasse(e.target.value)}
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-300 focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                   >
                     <option value="">Sélectionner une classe</option>
@@ -338,7 +346,7 @@ const OperationForm = () => {
 
               <div className="bg-gray-50 rounded-xl p-5 border border-gray-200">
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="font-bold text-gray-800">Lignes comptables</h2>
+                  <h2 className="font-bold text-gray-800">Les compte Passif</h2>
                   <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded-full">
                     {fields.length} ligne(s)
                   </span>
@@ -346,8 +354,8 @@ const OperationForm = () => {
 
                 <div className="space-y-3">
                   {fields.map((field, index) => {
-                    const currentDebitId = watchDetailsActif[index]?.debitid;
-                    const currentCreditId = watchDetailsActif[index]?.creditid;
+                    const currentDebitId = watchDetailsPassif[index]?.debitid;
+                    const currentCreditId = watchDetailsPassif[index]?.creditid;
 
                     // Récupérer les comptes disponibles
                     const availableDebits = getAvailableDebitComptes(index);
@@ -358,10 +366,24 @@ const OperationForm = () => {
                         key={field.id}
                         className="bg-white rounded-lg p-4 border border-gray-200"
                       >
+                        
+                <div  className="grid grid-cols-12 gap-3 items-center">
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">
+                    Type d'opération <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    {...register(`detailsPassif.${index}.typeOperation`, { required: "Le type est requis" })}
+                    className="w-full border border-gray-300 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
+                  >
+                    <option value="">Sélectionner un type</option>
+                    <option value="DETTE">💰 DETTE</option>
+                    <option value="PRODUIT_CONSTATE">PRODUIT CONSTANTE D'AVANCE</option>
+                  </select>
+                </div>
                         <div className="grid grid-cols-12 gap-3 items-center">
                           <div className="col-span-5">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">
-                              Compte Débit
+                              Compte Charge
                             </label>
                             {/* <select
                             value={currentDebitId || ""}
@@ -377,13 +399,14 @@ const OperationForm = () => {
                           </select> */}
 
                             <select
-                              {...register(`detailsActif.${index}.debitid`)}
+                              {...register(`detailsPassif.${index}.debitid`)}
                                   value={currentDebitId || ""}
                                    onChange={(e) => handleDebitChange(index, e.target.value)}
+                                  disabled={watch(`detailsPassif.${index}.typeOperation`) === "PRODUIT_CONSTATE"}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                             >
-                              <option value="">Sélectionner un compte</option>
-                              {plancomptables.map((p) => (
+                              <option value="">Sélectionner un compte charge</option>
+                              {plancomptablescharge.map((p) => (
                                 <option key={p.id} value={p.id}>
                                   {p?.numero} - {p.libelle}
                                 </option>
@@ -393,7 +416,7 @@ const OperationForm = () => {
 
                           <div className="col-span-5">
                             <label className="block text-xs font-semibold text-gray-600 mb-1">
-                              Compte Crédit
+                              Compte Passif
                             </label>
                             {/* <select
                             value={currentCreditId || ""}
@@ -410,11 +433,11 @@ const OperationForm = () => {
 
                             <select
                                  value={currentCreditId || ""}
-                              {...register(`detailsActif.${index}.creditid`)}
+                              {...register(`detailsPassif.${index}.creditid`)}
                                  onChange={(e) => handleCreditChange(index, e.target.value)}
                               className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-indigo-500 outline-none bg-white"
                             >
-                              <option value="">Sélectionner un compte</option>
+                              <option value="">Sélectionner un compte passif</option>
                               {plancomptables.map((p) => (
                                 <option key={p.id} value={p.id}>
                                   {p?.numero} - {p.libelle}
@@ -469,7 +492,7 @@ const OperationForm = () => {
               onClick={getgetData}
               className="mt-6 w-full bg-gray-800 text-white py-3 rounded-xl hover:bg-gray-900 font-medium"
             >
-              Voir toutes les opérations
+              List comptes passif
             </button>
           </div>
 
@@ -487,8 +510,8 @@ const OperationForm = () => {
                       </svg>
                     </div>
                     <div>
-                      <h2 className="text-xl font-bold text-white">Liste des opérations comptables</h2>
-                      <p className="text-indigo-100 text-sm mt-0.5">Gérez toutes vos transactions</p>
+                      <h2 className="text-xl font-bold text-white">Liste des compte passif</h2>
+                      <p className="text-indigo-100 text-sm mt-0.5">Gérez toutes vos compte passif selon les differents charges</p>
                     </div>
                   </div>
                   <button
@@ -546,7 +569,7 @@ const OperationForm = () => {
                                 Classe
                               </th>
                               <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider">
-                                Détails comptables
+                                Détails passif
                               </th>
                               <th className="px-6 py-4 text-center text-xs font-semibold text-gray-600 uppercase tracking-wider">
                                 Actions
@@ -561,8 +584,8 @@ const OperationForm = () => {
                                     <svg className="w-16 h-16 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                     </svg>
-                                    <p className="text-gray-500 text-lg font-medium">Aucune opération trouvée</p>
-                                    <p className="text-gray-400 text-sm mt-1">Créez votre première opération comptable</p>
+                                    <p className="text-gray-500 text-lg font-medium">Aucune compte passif trouvé</p>
+                                    <p className="text-gray-400 text-sm mt-1">Créez votre première compte passif</p>
                                   </div>
                                 </td>
                               </tr>
@@ -604,11 +627,11 @@ const OperationForm = () => {
                                   </td>
                                   <td className="px-6 py-4">
                                     <div className="space-y-2 max-w-md">
-                                      {op.detailsActif?.map((d, i) => (
+                                      {op.detailsPassif?.map((d, i) => (
                                         <div key={i} className="flex items-center justify-between text-xs bg-gray-50 rounded-lg p-2 border border-gray-100">
                                           <div className="flex items-center space-x-3">
                                             <div className="flex items-center space-x-1">
-                                              <span className="font-semibold text-indigo-600">D:</span>
+                                              <span className="font-semibold text-indigo-600">CREDIT:</span>
                                               <span className="text-gray-700 truncate max-w-[150px]">
                                                 {d?.debit?.numero} - {d?.debit?.libelle?.substring(0, 30)}
                                               </span>
@@ -617,7 +640,7 @@ const OperationForm = () => {
                                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
                                             </svg>
                                             <div className="flex items-center space-x-1">
-                                              <span className="font-semibold text-red-600">C:</span>
+                                              <span className="font-semibold text-red-600">PASSIF:</span>
                                               <span className="text-gray-700 truncate max-w-[150px]">
                                                 {d?.credit?.numero} - {d?.credit?.libelle?.substring(0, 30)}
                                               </span>
@@ -625,7 +648,7 @@ const OperationForm = () => {
                                           </div>
                                         </div>
                                       ))}
-                                      {(!op.detailsActif || op.detailsActif.length === 0) && (
+                                      {(!op.detailsPassif || op.detailsPassif.length === 0) && (
                                         <div className="text-xs text-gray-400 italic">Aucun détail</div>
                                       )}
                                     </div>
@@ -696,4 +719,4 @@ const OperationForm = () => {
     );
   };
 
-  export default OperationForm;
+  export default OperationPassifForm;

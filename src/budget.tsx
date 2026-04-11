@@ -41,12 +41,13 @@ import RenderLiquidationPage from "./components/pages/LiquidationPage";
 import RenderTraitementEngagementPage from "./components/pages/TraitementEngagementPage";
 import RenderTraitementLiquidationPage from "./components/pages/TraitementLiquidationPage";
 import RenderFonctionnairePage from "./components/pages/FonctionnairePage";
-import RenderTresorieTableBorPage from "./components/pages/tresorerie/tableDebord";
+import RaprochementPage from "./components/pages/tresorerie/rapprochement";
+import ExcelImportRelevePage from "./components/pages/tresorerie/releveBancaire"; 
 import RenderTresorieBanquePage from "./components/pages/tresorerie/banque";
 import RenderTresorieCompteBancairePage from "./components/pages/tresorerie/compteBancaire";
 import RenderTresorieJournalPage from "./components/pages/tresorerie/journal";
 import RenderTresorieRapprochementPage from "./components/pages/tresorerie/rapprochement";
-import JournalTresorerieForm from "./components/pages/tresorerie/decaissement";
+import OperationPassifPage from "./components/pages/tresorerie/operationPassif";
 import ComptabilitePage from "./components/pages/tresorerie/comptabilite";
 import OperationComptablePage from "./components/pages/tresorerie/operation";
 import UserMenuPage from "./components/pages/users/menuPage";
@@ -117,44 +118,14 @@ const BudgetApp = () => {
   });
 
   // A VERIFIER MENU
-  // const normalize = (v: string) =>
-  // v?.toLowerCase().replace(/\s/g, "");
-  // const menuStructureNouveau: MenuType[] = menuStructure
-  // .map((menu) => {
-  //   // toutes les permissions qui match ce menu
-  //   const permissionsForMenu = token?.permission?.filter(
-  //     (p) => normalize(p.menu) === normalize(menu.id)
-  //   );
 
-  //   if (!permissionsForMenu?.length) return null;
-
-  //   return {
-  //     ...menu,
-  //     subMenus: menu.subMenus
-  //       .map((sub) => {
-  //         // vérifier si AU MOINS une permission contient ce sous-menu
-  //         const allowed = permissionsForMenu.some((perm) =>
-  //           perm.sousMenus?.some(
-  //             (s) =>
-  //               normalize(s.sousmenu) === normalize(sub.id)
-  //           )
-  //         );
-
-  //         if (!allowed) return null;
-
-  //         return sub;
-  //       })
-  //       .filter(Boolean),
-  //   };
-  // })
-  // .filter(Boolean);
 
 
   // =========================
-  // MENU STRUCTURE
+  // MENU STRUCTURE 
   // =========================
   const menuStructure: MenuType[] = [
-    {
+    { 
       id: "classification",
       name: "Classification",
       icon: <Layers className="w-5 h-5" />,
@@ -166,7 +137,8 @@ const BudgetApp = () => {
           pages: [
             { id: "classe", name: "Classe" },
             { id: "planComptable", name: "Plan Comptable" },
-            { id: "operationComptable", name: "Operation Comptable" },
+            { id: "operationComptable", name: "Parametre Ecriture" },
+            { id: "comptePassif", name: "Parametre compte passif" },
             { id: "importExcel", name: "Importer Plan Comptable" },
           ],
         },
@@ -191,6 +163,7 @@ const BudgetApp = () => {
           ],
         },
       ],
+
     },
     {
       id: "prevision",
@@ -294,6 +267,11 @@ const BudgetApp = () => {
         {
           id: "rapprochement",
           name: "Rapprochement",
+          icon: <FileText className="w-4 h-4" />,
+        },
+        {
+          id: "excelImportRelevePage",
+          name: "Importer Releve bancaire",
           icon: <FileText className="w-4 h-4" />,
         },
         // {
@@ -468,6 +446,8 @@ const BudgetApp = () => {
         return <RenderPlanComptablePage />;
       case "operationComptable":
         return <OperationComptablePage />;
+      case "comptePassif":
+        return <OperationPassifPage />;
       case "importExcel":
         return <ExcelImportPage />;
  
@@ -529,7 +509,9 @@ const BudgetApp = () => {
       case "journal":
         return <RenderTresorieJournalPage />;
       case "rapprochement":
-        return <RenderTresorieRapprochementPage />;
+        return <RaprochementPage />;
+      case "excelImportRelevePage":
+        return <ExcelImportRelevePage />;
       // case "situation":
       //   return <JournalTresorerieForm />;
 

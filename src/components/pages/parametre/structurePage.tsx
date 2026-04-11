@@ -144,7 +144,7 @@ const StructureForm = () => {
             value={form.reseausocial}
             onChange={handleChange}
             className="w-full border rounded-lg p-2"
-            placeholder="Facebook / LinkedIn / Instagram"
+            placeholder="Nom de l'organisation"
           />
         </div>
 
