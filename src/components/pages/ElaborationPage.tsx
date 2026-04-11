@@ -11,6 +11,7 @@ import { getAllPlanfontnature } from "../../data/classification/planfontnature";
 import { createPrevision, getAllPrevision, updatePrevision } from "../../data/classification/prevision";
 import { getAllActivite } from "../../data/classification/activite";
 import { useFieldArray, useForm } from "react-hook-form";
+import { getAllPlancompte } from "../../../data/classification/planComptable";
 import toast from "react-hot-toast";
 
 export default function renderElaborationPage() {
@@ -30,6 +31,8 @@ export default function renderElaborationPage() {
   const [previsions, setPrevisions] = useState([]);
   const [classeplafond, setClasseplafond] = useState();
   const [montantplafond, setMontantplafond] = useState(0.0);
+    const [plancomptables, setPlancomptables] = useState([]);
+    const [plancomptablescharge, setPlancomptablesCharge] = useState([]);
 
   // ETAT DE SORTIE ACTIVITE
   const grouped = useMemo(() => {
@@ -75,6 +78,26 @@ export default function renderElaborationPage() {
     }
   };
 
+
+      const dataPlancompte = async () => {
+      try {
+        const data = await getAllPlancompte();
+        setPlancomptables(data);
+      } catch (error) {
+        console.error("Erreur chargement plan comptable:", error);
+      }
+    };
+
+    useEffect(()=>{
+       dataPlancompte();
+    },[])
+  
+    
+    const dataPlancompteClasse = (idclasse:any) => {
+       const data = plancomptables.filter(p=>p.classeId===idclasse);
+        setPlancomptablesCharge(data);
+    };
+
   const dataPlanfontprojet = async (e: any) => { const data = await getAllPlanfontprojet(e); setPlanfontprojets(data) }
   const getCategorieByProjet = async (e: any) => { const data = await getAllCategorie(e); setProjetId(e); setCategories(data) }
 
@@ -92,18 +115,18 @@ export default function renderElaborationPage() {
       if (data.length > 0) {
         resetPrevision({
           idExercice: data[0].idExercice, idProjet: data[0].idProjet, idCategorie: data[0].idCategorie, idClasse: data[0].idClasse,
-          details: data.map((p: any) => ({ id: p.id, idActivite: p.idActivite, idSource: p.idSource, idBeneficiaire: p.idBeneficiaire, quantite: p.quantite, prixUnitaire: p.prixUnitaire, montant: p.montant }))
+          details: data.map((p: any) => ({ id: p.id, idActivite: p.idActivite, idSource: p.idSource, idPlancomptable: p.idPlancomptable, idBeneficiaire: p.idBeneficiaire, quantite: p.quantite, prixUnitaire: p.prixUnitaire, montant: p.montant }))
         });
       } else {
         resetPrevision({
           idExercice: exerciceId, idProjet: projetId, idCategorie: value, idClasse: null,
-          details: [{ id: null, idActivite: null, idSource: null, idBeneficiaire: null, quantite: null, prixUnitaire: null, montant: null }]
+          details: [{ id: null,  idSource: null, idBeneficiaire: null,idActivite: null, idPlancomptable: null, quantite: null, prixUnitaire: null, montant: null }]
         });
       }
     } else {
       resetPrevision({
         idExercice: exerciceId, idProjet: projetId, idCategorie: null, idClasse: null,
-        details: [{ id: null, idActivite: null, idSource: null, idBeneficiaire: null, quantite: null, prixUnitaire: null, montant: null }]
+        details: [{  id: null,  idSource: null, idBeneficiaire: null,idActivite: null, idPlancomptable: null, quantite: null, prixUnitaire: null, montant: null }]
       });
     }
   }
@@ -131,7 +154,7 @@ export default function renderElaborationPage() {
   } = useForm({
     defaultValues: {
       idExercice: null, idProjet: null, idCategorie: null, idClasse: null,
-      details: [{ id: null, idSource: null, idBeneficiaire: null, idActivite: null, prixUnitaire: null, quantite: null, montant: "" }]
+      details: [{ id: null, idSource: null, idBeneficiaire: null, idActivite: null,idPlancomptable:null, prixUnitaire: null, quantite: null, montant: "" }]
     }
   });
 
@@ -165,6 +188,7 @@ export default function renderElaborationPage() {
         element.idClasse = parseInt(idClasse);
         element.idSource = parseInt(element.idSource);
         element.idActivite = parseInt(element.idActivite);
+        element.idPlancomptable = parseInt(element.idPlancomptable);
         element.idBeneficiaire = parseInt(element.idBeneficiaire);
         element.quantite = parseFloat(element.quantite);
         element.prixUnitaire = parseFloat(element.prixUnitaire);
@@ -206,7 +230,7 @@ export default function renderElaborationPage() {
   }
 
   const addDetailLinePlanfontPrevision = () => {
-    appendPrevision({ id: null, idSource: null, idBeneficiaire: null, idActivite: null, prixUnitaire: null, quantite: null, montant: "" });
+    appendPrevision({ id: null, idSource: null, idBeneficiaire: null, idActivite: null,idPlancomptable:null, prixUnitaire: null, quantite: null, montant: "" });
   };
 
   const { fields: fieldsPrevision, append: appendPrevision, remove: removePrevision } = useFieldArray({
@@ -308,7 +332,7 @@ export default function renderElaborationPage() {
                   Nature de dépense <span className="text-red-500">*</span>
                 </label>
                 <div className="relative">
-                  <select {...registerPrevision("idClasse", { required: true })} className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium cursor-not-allowed">
+                  <select onClick={(e)=>dataPlancompteClasse(e.target.value)} {...registerPrevision("idClasse", { required: true })} className="w-full rounded-xl border-2 border-gray-200 bg-gray-50 px-4 py-3 text-sm font-medium cursor-not-allowed">
                     <option value={classeplafond?.id}>{classeplafond?.libelle || "Sélectionnez une catégorie d'abord"}</option>
                   </select>
                 </div>
@@ -365,6 +389,7 @@ export default function renderElaborationPage() {
                     <th className="px-5 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Bailleur</th>
                     <th className="px-5 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Bénéficiaire</th>
                     <th className="px-5 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Activité</th>
+                    <th className="px-5 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Compte</th>
                     <th className="px-5 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Prix Unitaire</th>
                     <th className="px-5 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Quantité</th>
                     <th className="px-5 py-4 text-left text-xs font-bold text-gray-600 uppercase tracking-wider">Montant (€)</th>
@@ -410,6 +435,22 @@ export default function renderElaborationPage() {
                             <option value="">Activités</option>
                             {activites.map((element) => (<option key={element.id} value={element.id}>{element.code} - {element.libelle}</option>))}
                           </select>
+                        </div>
+                      </td>
+
+                            {/* plan comptable */}
+                      <td className="px-5 py-3">
+                        <div className="relative">
+                          <Users className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+                          <select {...registerPrevision(`details.${index}.idPlancomptable`, { required: true })}
+                            className="w-full rounded-lg border border-gray-200 pl-10 pr-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all bg-gray-50/30 hover:bg-white">
+                            <option value="">Compte Comptable</option>
+                             {plancomptablescharge.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p?.numero} - {p.libelle}
+                                </option>
+                              ))}
+                            </select>
                         </div>
                       </td>
 
